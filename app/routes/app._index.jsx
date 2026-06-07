@@ -15,7 +15,7 @@ import {
   Box,
   Icon,
 } from "@shopify/polaris";
-import { ImageIcon, HistoryIcon, StarIcon } from "@shopify/polaris-icons";
+import { ImageIcon, ClockIcon, StarIcon } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
 import { getRecentGenerations } from "../models/generation.server";
@@ -163,7 +163,7 @@ export default function Index() {
                     padding="200"
                     borderRadius="200"
                   >
-                    <Icon source={HistoryIcon} tone="warning" />
+                    <Icon source={ClockIcon} tone="warning" />
                   </Box>
                   <BlockStack gap="050">
                     <Text as="p" fontWeight="semibold">
