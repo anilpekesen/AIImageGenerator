@@ -19,7 +19,7 @@ export default function App() {
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
         <Link to="/app" rel="home">Ana Sayfa</Link>
-        <Link to="/app/generate">Görsel Üret</Link>
+        <Link to="/app/generate">Stüdyo</Link>
         <Link to="/app/competition">Rekabet Analizi</Link>
         <Link to="/app/seo">SEO Kontrolü</Link>
         <Link to="/app/history">Geçmiş</Link>

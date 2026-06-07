@@ -70,6 +70,8 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
                 <img
                   src={output.url}
                   alt={label}
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: "100%",
                     aspectRatio: "1",

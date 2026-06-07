@@ -13,7 +13,6 @@ import {
   Divider,
   Banner,
 } from "@shopify/polaris";
-import { CheckIcon } from "@shopify/polaris-icons";
 import { authenticate, PLANS } from "../shopify.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
 

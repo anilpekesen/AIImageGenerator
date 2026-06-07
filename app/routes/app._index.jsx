@@ -217,6 +217,10 @@ export default function Index() {
                           <img
                             src={firstImage}
                             alt={gen.productTitle}
+                            width="120"
+                            height="80"
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: "100%",
                               height: "80px",
