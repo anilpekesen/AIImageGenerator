@@ -4,7 +4,6 @@ build/
 .cache/
 *.db
 *.db-journal
-prisma/migrations/
 vps.md
 .idea/
 .claude/settings.local.json
