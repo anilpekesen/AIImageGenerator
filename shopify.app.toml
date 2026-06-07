@@ -1,0 +1,36 @@
+name = "snap6-ai-photo-studio"
+client_id = "YOUR_CLIENT_ID_HERE"
+application_url = "https://YOUR_TUNNEL_URL.trycloudflare.com"
+embedded = true
+
+[access_scopes]
+scopes = "write_products,read_products,write_files,read_files"
+
+[auth]
+redirect_urls = [
+  "https://YOUR_TUNNEL_URL.trycloudflare.com/auth/callback",
+  "https://YOUR_TUNNEL_URL.trycloudflare.com/auth/shopify/callback",
+  "https://YOUR_TUNNEL_URL.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-10"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["customers/data_request"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["customers/redact"]
+  uri = "/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = ["shop/redact"]
+  uri = "/webhooks"
+
+[pos]
+embedded = false

@@ -1,0 +1,10 @@
+api_version = "2024-10"
+
+[[extensions]]
+name = "Snap6 — 6 Sahne Üret"
+handle = "product-photo-studio"
+type = "ui_extension"
+
+  [[extensions.targeting]]
+  module = "./src/BlockExtension.jsx"
+  target = "admin.product-details.block.render"

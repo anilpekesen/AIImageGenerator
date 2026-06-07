@@ -1,0 +1,108 @@
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import {
+  Page,
+  Layout,
+  Card,
+  Text,
+  Button,
+  BlockStack,
+  InlineStack,
+  Badge,
+  Thumbnail,
+  EmptyState,
+  Box,
+} from "@shopify/polaris";
+import { authenticate } from "../shopify.server";
+import { getAllGenerations } from "../models/generation.server";
+
+export const loader = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  const generations = await getAllGenerations(session.shop);
+  return json({ generations });
+};
+
+const statusBadge = {
+  done: { tone: "success", label: "Tamamlandı" },
+  pending: { tone: "attention", label: "Bekliyor" },
+  processing: { tone: "info", label: "İşleniyor" },
+  failed: { tone: "critical", label: "Başarısız" },
+};
+
+export default function History() {
+  const { generations } = useLoaderData();
+  const navigate = useNavigate();
+
+  if (generations.length === 0) {
+    return (
+      <Page title="Geçmiş" backAction={{ url: "/app" }}>
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <EmptyState
+                heading="Henüz üretim yapılmadı"
+                action={{ content: "İlk Görseli Üret", onAction: () => navigate("/app/generate") }}
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+              >
+                <p>İlk ürün görselinizi üretin ve burada görün.</p>
+              </EmptyState>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
+
+  return (
+    <Page title="Geçmiş" backAction={{ url: "/app" }}>
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="400">
+            {generations.map((gen) => {
+              const outputs = JSON.parse(gen.outputs || "[]");
+              const badge = statusBadge[gen.status] || statusBadge.pending;
+
+              return (
+                <Card key={gen.id}>
+                  <BlockStack gap="300">
+                    <InlineStack align="space-between" blockAlign="center">
+                      <BlockStack gap="100">
+                        <Text as="p" fontWeight="semibold">
+                          {gen.productTitle}
+                        </Text>
+                        <Text as="p" tone="subdued" variant="bodySm">
+                          {new Date(gen.createdAt).toLocaleDateString("tr-TR", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </Text>
+                      </BlockStack>
+                      <Badge tone={badge.tone}>{badge.label}</Badge>
+                    </InlineStack>
+
+                    {outputs.length > 0 && (
+                      <InlineStack gap="200" wrap>
+                        {outputs.map((output, i) => (
+                          <Box key={i} borderRadius="150" overflow="hidden">
+                            <Thumbnail
+                              source={output.url}
+                              alt={output.scene}
+                              size="medium"
+                            />
+                          </Box>
+                        ))}
+                      </InlineStack>
+                    )}
+                  </BlockStack>
+                </Card>
+              );
+            })}
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}

@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id          String    @id
+  shop        String
+  state       String
+  isOnline    Boolean   @default(false)
+  scope       String?
+  expires     DateTime?
+  accessToken String
+  userId      BigInt?
+  firstName   String?
+  lastName    String?
+  email       String?
+  accountOwner Boolean  @default(false)
+  locale      String?
+  collaborator Boolean? @default(false)
+  emailVerified Boolean? @default(false)
+}
+
+model Generation {
+  id             String   @id @default(uuid())
+  shop           String
+  productId      String
+  productTitle   String
+  inputImage     String
+  bgRemovedImage String?
+  outputs        String   @default("[]")
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([shop])
+  @@index([shop, productId])
+}
+
+model Subscription {
+  id          String   @id @default(uuid())
+  shop        String   @unique
+  plan        String   @default("free")
+  usedCount   Int      @default(0)
+  limitCount  Int      @default(10)
+  resetDate   DateTime
+  chargeId    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CompetitorAnalysis {
+  id           String   @id @default(uuid())
+  shop         String
+  productId    String
+  productTitle String
+  query        String
+  results      String   @default("[]")
+  aiSummary    String?
+  createdAt    DateTime @default(now())
+
+  @@index([shop])
+  @@index([shop, productId])
+}
+
+model SeoAudit {
+  id           String    @id @default(uuid())
+  shop         String
+  productId    String
+  productTitle String
+  score        Int       @default(0)
+  issues       String    @default("[]")
+  suggestions  String    @default("{}")
+  appliedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([shop])
+  @@index([shop, productId])
+}
