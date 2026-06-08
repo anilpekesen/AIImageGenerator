@@ -24,11 +24,20 @@ import { createGeneration, updateGeneration } from "../models/generation.server"
 import { decrementUsage } from "../models/subscription.server";
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
+import { fetchProductBasicInfo } from "../services/product.server";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const subscription = await getOrCreateSubscription(session.shop);
-  return json({ subscription });
+
+  const url = new URL(request.url);
+  const productId = url.searchParams.get("productId");
+
+  const preselectedProduct = productId
+    ? await fetchProductBasicInfo(admin, productId)
+    : null;
+
+  return json({ subscription, preselectedProduct });
 };
 
 export const action = async ({ request }) => {
@@ -107,13 +116,13 @@ export const action = async ({ request }) => {
 };
 
 export default function Generate() {
-  const { subscription } = useLoaderData();
+  const { subscription, preselectedProduct } = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigation = useNavigation();
   const shopify = useAppBridge();
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [selectedOutputs, setSelectedOutputs] = useState([]);
 

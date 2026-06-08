@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useSubmit, useNavigation, useActionData } from "@remix-run/react";
+import { useSubmit, useNavigation, useActionData, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
   Page,
@@ -22,6 +22,20 @@ import { authenticate } from "../shopify.server";
 import { searchCompetitors } from "../services/google-search.server";
 import { summarizeCompetitors } from "../services/ai-text.server";
 import { createCompetitorAnalysis } from "../models/competitor-analysis.server";
+import { fetchProductBasicInfo } from "../services/product.server";
+
+export const loader = async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+
+  const url = new URL(request.url);
+  const productId = url.searchParams.get("productId");
+
+  const preselectedProduct = productId
+    ? await fetchProductBasicInfo(admin, productId)
+    : null;
+
+  return json({ preselectedProduct });
+};
 
 export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -61,12 +75,13 @@ export const action = async ({ request }) => {
 };
 
 export default function Competition() {
+  const { preselectedProduct } = useLoaderData();
   const submit = useSubmit();
   const navigation = useNavigation();
   const actionData = useActionData();
   const shopify = useAppBridge();
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const isAnalyzing = navigation.state === "submitting";
 
   const handleProductPick = useCallback(async () => {

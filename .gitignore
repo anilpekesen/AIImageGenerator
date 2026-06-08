@@ -6,4 +6,4 @@ build/
 *.db-journal
 vps.md
 .idea/
-.claude/settings.local.json
+.claude/

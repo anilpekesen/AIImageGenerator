@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useSubmit, useNavigation, useActionData } from "@remix-run/react";
+import { useSubmit, useNavigation, useActionData, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
   Page,
@@ -25,6 +25,20 @@ import { authenticate } from "../shopify.server";
 import { fetchProductSeoData, auditProduct } from "../services/seo-audit.server";
 import { generateSeoSuggestions } from "../services/ai-text.server";
 import { createSeoAudit, markAudited } from "../models/seo-audit.server";
+import { fetchProductBasicInfo } from "../services/product.server";
+
+export const loader = async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+
+  const url = new URL(request.url);
+  const productId = url.searchParams.get("productId");
+
+  const preselectedProduct = productId
+    ? await fetchProductBasicInfo(admin, productId)
+    : null;
+
+  return json({ preselectedProduct });
+};
 
 const PRODUCT_UPDATE_MUTATION = `
   mutation updateProductSeo($input: ProductInput!) {
@@ -138,12 +152,13 @@ const severityTone = { warning: "critical", info: "warning" };
 const severityIcon = { warning: AlertTriangleIcon, info: AlertTriangleIcon };
 
 export default function Seo() {
+  const { preselectedProduct } = useLoaderData();
   const submit = useSubmit();
   const navigation = useNavigation();
   const actionData = useActionData();
   const shopify = useAppBridge();
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [editedSuggestions, setEditedSuggestions] = useState({});
 
   const isWorking = navigation.state === "submitting";
