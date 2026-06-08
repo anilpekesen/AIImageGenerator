@@ -6,6 +6,7 @@ const PRODUCT_LIST_QUERY = `
         id
         title
         handle
+        status
         descriptionHtml
         seo { title description }
         featuredImage { url }

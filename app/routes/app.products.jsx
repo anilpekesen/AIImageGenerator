@@ -1,3 +1,4 @@
+import { useState, useCallback, useMemo } from "react";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
@@ -12,6 +13,7 @@ import {
   Thumbnail,
   Divider,
   Box,
+  Tabs,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 import { useTranslation } from "react-i18next";
@@ -33,6 +35,7 @@ export const loader = async ({ request }) => {
       id: product.id.replace("gid://shopify/Product/", ""),
       title: product.title,
       image: product.featuredImage?.url || null,
+      isActive: product.status === "ACTIVE",
       score: audit.score,
       issueCount: audit.issues.length,
     };
@@ -51,6 +54,18 @@ export default function Products() {
   const { products, hasNextPage } = useLoaderData();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const [selectedTab, setSelectedTab] = useState(0);
+  const handleTabChange = useCallback((index) => setSelectedTab(index), []);
+
+  const activeProducts = useMemo(() => products.filter((p) => p.isActive), [products]);
+  const passiveProducts = useMemo(() => products.filter((p) => !p.isActive), [products]);
+
+  const tabs = [
+    { id: "active", content: t("products.tabs.active", { count: activeProducts.length }) },
+    { id: "passive", content: t("products.tabs.passive", { count: passiveProducts.length }) },
+  ];
+  const visibleProducts = selectedTab === 0 ? activeProducts : passiveProducts;
 
   return (
     <Page title={t("products.pageTitle")} subtitle={t("products.pageSubtitle")}>
@@ -71,8 +86,17 @@ export default function Products() {
         ) : (
           <Layout.Section>
             <Card padding="0">
+              <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
+
+              {visibleProducts.length === 0 ? (
+                <Box padding="400">
+                  <Text as="p" tone="subdued" alignment="center">
+                    {t("products.emptyFiltered")}
+                  </Text>
+                </Box>
+              ) : (
               <BlockStack>
-                {products.map((product, index) => (
+                {visibleProducts.map((product, index) => (
                   <div key={product.id}>
                     <Box padding="400">
                       <InlineStack align="space-between" blockAlign="center" wrap={false} gap="400">
@@ -115,10 +139,11 @@ export default function Products() {
                         </InlineStack>
                       </InlineStack>
                     </Box>
-                    {index < products.length - 1 && <Divider />}
+                    {index < visibleProducts.length - 1 && <Divider />}
                   </div>
                 ))}
               </BlockStack>
+              )}
             </Card>
 
             {hasNextPage && (

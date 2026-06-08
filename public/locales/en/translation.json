@@ -82,7 +82,12 @@
       "competitorAnalysis": "Competitor Analysis",
       "generateImage": "Generate Image"
     },
-    "firstFiftyNotice": "Showing the first 50 products."
+    "firstFiftyNotice": "Showing the first 50 products.",
+    "tabs": {
+      "active": "Active ({{count}})",
+      "passive": "Inactive ({{count}})"
+    },
+    "emptyFiltered": "No products found with this status."
   },
   "generate": {
     "pageTitle": "Generate 6 Scenes — One Click",

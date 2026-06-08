@@ -82,7 +82,12 @@
       "competitorAnalysis": "Rakip Analizi",
       "generateImage": "Resim Üret"
     },
-    "firstFiftyNotice": "İlk 50 ürün gösteriliyor."
+    "firstFiftyNotice": "İlk 50 ürün gösteriliyor.",
+    "tabs": {
+      "active": "Aktif ({{count}})",
+      "passive": "Pasif ({{count}})"
+    },
+    "emptyFiltered": "Bu durumda ürün bulunamadı."
   },
   "generate": {
     "pageTitle": "6 Sahne Üret — Tek Tık",
