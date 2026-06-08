@@ -13,6 +13,7 @@ import {
   EmptyState,
   Box,
 } from "@shopify/polaris";
+import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getAllGenerations } from "../models/generation.server";
 
@@ -22,29 +23,33 @@ export const loader = async ({ request }) => {
   return json({ generations });
 };
 
-const statusBadge = {
-  done: { tone: "success", label: "Tamamlandı" },
-  pending: { tone: "attention", label: "Bekliyor" },
-  processing: { tone: "info", label: "İşleniyor" },
-  failed: { tone: "critical", label: "Başarısız" },
+const statusTone = {
+  done: "success",
+  pending: "attention",
+  processing: "info",
+  failed: "critical",
 };
+
+const dateLocales = { tr: "tr-TR", en: "en-US" };
 
 export default function History() {
   const { generations } = useLoaderData();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const dateLocale = dateLocales[i18n.language] || "en-US";
 
   if (generations.length === 0) {
     return (
-      <Page title="Geçmiş" backAction={{ url: "/app" }}>
+      <Page title={t("history.pageTitle")} backAction={{ url: "/app" }}>
         <Layout>
           <Layout.Section>
             <Card>
               <EmptyState
-                heading="Henüz üretim yapılmadı"
-                action={{ content: "İlk Görseli Üret", onAction: () => navigate("/app/generate") }}
+                heading={t("history.empty.heading")}
+                action={{ content: t("history.empty.action"), onAction: () => navigate("/app/generate") }}
                 image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
               >
-                <p>İlk ürün görselinizi üretin ve burada görün.</p>
+                <p>{t("history.empty.body")}</p>
               </EmptyState>
             </Card>
           </Layout.Section>
@@ -54,13 +59,14 @@ export default function History() {
   }
 
   return (
-    <Page title="Geçmiş" backAction={{ url: "/app" }}>
+    <Page title={t("history.pageTitle")} backAction={{ url: "/app" }}>
       <Layout>
         <Layout.Section>
           <BlockStack gap="400">
             {generations.map((gen) => {
               const outputs = JSON.parse(gen.outputs || "[]");
-              const badge = statusBadge[gen.status] || statusBadge.pending;
+              const tone = statusTone[gen.status] || statusTone.pending;
+              const label = t(`history.status.${gen.status}`, { defaultValue: t("history.status.pending") });
 
               return (
                 <Card key={gen.id}>
@@ -71,7 +77,7 @@ export default function History() {
                           {gen.productTitle}
                         </Text>
                         <Text as="p" tone="subdued" variant="bodySm">
-                          {new Date(gen.createdAt).toLocaleDateString("tr-TR", {
+                          {new Date(gen.createdAt).toLocaleDateString(dateLocale, {
                             day: "numeric",
                             month: "long",
                             year: "numeric",
@@ -80,7 +86,7 @@ export default function History() {
                           })}
                         </Text>
                       </BlockStack>
-                      <Badge tone={badge.tone}>{badge.label}</Badge>
+                      <Badge tone={tone}>{label}</Badge>
                     </InlineStack>
 
                     {outputs.length > 0 && (

@@ -16,6 +16,7 @@ import {
   Icon,
 } from "@shopify/polaris";
 import { ImageIcon, ClockIcon, StarIcon } from "@shopify/polaris-icons";
+import { Trans, useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
 import { getRecentGenerations } from "../models/generation.server";
@@ -35,25 +36,27 @@ export const loader = async ({ request }) => {
 export default function Index() {
   const { subscription, recentGenerations } = useLoaderData();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const usagePercent = Math.round(
     (subscription.usedCount / subscription.limitCount) * 100
   );
   const remaining = subscription.limitCount - subscription.usedCount;
+  const planLabel = t(`dashboard.plan.${subscription.plan}`, {
+    defaultValue: subscription.plan,
+  });
 
   return (
-    <Page title="Snap6 — Stüdyo Çekimine Son">
+    <Page title={t("dashboard.pageTitle")}>
       <Layout>
         <Layout.Section>
           <Banner
-            title="Stüdyo çekimi maliyetine son verin 📸"
+            title={t("dashboard.banner.title")}
             tone="info"
-            action={{ content: "Şimdi 6 Sahne Üret", onAction: () => navigate("/app/generate") }}
+            action={{ content: t("dashboard.banner.action"), onAction: () => navigate("/app/generate") }}
           >
             <p>
-              Bir fotoğraf yükleyin, <strong>tek tıkla</strong> 6 profesyonel sahne
-              elinizde olsun: stüdyo beyazı, lifestyle, dış mekan, lüks mermer,
-              dramatik koyu ve flat lay. Prompt yazmaya, fotoğrafçı beklemeye gerek yok.
+              <Trans i18nKey="dashboard.banner.body" components={{ strong: <strong /> }} />
             </p>
           </Banner>
         </Layout.Section>
@@ -63,24 +66,23 @@ export default function Index() {
             <BlockStack gap="400">
               <InlineStack align="space-between">
                 <Text as="h2" variant="headingMd">
-                  Plan Durumu
+                  {t("dashboard.planStatus.heading")}
                 </Text>
                 <Badge tone={subscription.plan === "free" ? "attention" : "success"}>
-                  {subscription.plan === "free"
-                    ? "Ücretsiz"
-                    : subscription.plan === "basic"
-                    ? "Basic"
-                    : "Pro"}
+                  {planLabel}
                 </Badge>
               </InlineStack>
 
               <BlockStack gap="200">
                 <InlineStack align="space-between">
                   <Text as="p" tone="subdued">
-                    Bu ay kullanılan
+                    {t("dashboard.planStatus.usedThisMonth")}
                   </Text>
                   <Text as="p" fontWeight="semibold">
-                    {subscription.usedCount} / {subscription.limitCount} üretim
+                    {t("dashboard.planStatus.usageCount", {
+                      used: subscription.usedCount,
+                      limit: subscription.limitCount,
+                    })}
                   </Text>
                 </InlineStack>
                 <ProgressBar
@@ -88,7 +90,7 @@ export default function Index() {
                   tone={usagePercent >= 90 ? "critical" : usagePercent >= 70 ? "warning" : "success"}
                 />
                 <Text as="p" tone="subdued" variant="bodySm">
-                  {remaining} üretim hakkı kaldı
+                  {t("dashboard.planStatus.remaining", { count: remaining })}
                 </Text>
               </BlockStack>
 
@@ -99,7 +101,7 @@ export default function Index() {
                     variant="primary"
                     onClick={() => navigate("/app/billing")}
                   >
-                    Planı Yükselt — $9.99/ay'dan
+                    {t("dashboard.planStatus.upgrade")}
                   </Button>
                 </>
               )}
@@ -112,11 +114,10 @@ export default function Index() {
             <BlockStack gap="400">
               <BlockStack gap="100">
                 <Text as="h2" variant="headingMd">
-                  Neden Snap6?
+                  {t("dashboard.why.heading")}
                 </Text>
                 <Text as="p" tone="subdued" variant="bodySm">
-                  Diğer AI görsel uygulamaları sizi prompt yazmaya ve tek tek
-                  üretmeye zorlar. Snap6'da tek tıkla <strong>6 hazır sahne</strong> birden gelir.
+                  <Trans i18nKey="dashboard.why.description" components={{ strong: <strong /> }} />
                 </Text>
               </BlockStack>
 
@@ -131,10 +132,10 @@ export default function Index() {
                   </Box>
                   <BlockStack gap="050">
                     <Text as="p" fontWeight="semibold">
-                      1 Yükleme → 6 Sahne
+                      {t("dashboard.why.feature1.title")}
                     </Text>
                     <Text as="p" tone="subdued" variant="bodySm">
-                      Stüdyo beyazı, lifestyle, dış mekan, mermer/lüks, dramatik koyu, flat lay — hepsi otomatik
+                      {t("dashboard.why.feature1.description")}
                     </Text>
                   </BlockStack>
                 </InlineStack>
@@ -149,10 +150,10 @@ export default function Index() {
                   </Box>
                   <BlockStack gap="050">
                     <Text as="p" fontWeight="semibold">
-                      Sıfır Prompt, Sıfır Tahmin
+                      {t("dashboard.why.feature2.title")}
                     </Text>
                     <Text as="p" tone="subdued" variant="bodySm">
-                      Sahneler fotoğrafçılık uzmanlarınca hazırlandı — siz sadece tıklayın
+                      {t("dashboard.why.feature2.description")}
                     </Text>
                   </BlockStack>
                 </InlineStack>
@@ -167,10 +168,10 @@ export default function Index() {
                   </Box>
                   <BlockStack gap="050">
                     <Text as="p" fontWeight="semibold">
-                      Tek Tıkla Ürün Sayfasına Kayıt
+                      {t("dashboard.why.feature3.title")}
                     </Text>
                     <Text as="p" tone="subdued" variant="bodySm">
-                      Beğendiğiniz sahneler doğrudan Shopify ürün galerinize eklenir
+                      {t("dashboard.why.feature3.description")}
                     </Text>
                   </BlockStack>
                 </InlineStack>
@@ -182,7 +183,7 @@ export default function Index() {
                 onClick={() => navigate("/app/generate")}
                 disabled={remaining <= 0}
               >
-                {remaining <= 0 ? "Limit Doldu — Planı Yükselt" : "Stüdyo Çekimine Son Verin — Şimdi Üret"}
+                {remaining <= 0 ? t("dashboard.why.ctaLimitReached") : t("dashboard.why.cta")}
               </Button>
             </BlockStack>
           </Card>
@@ -194,10 +195,10 @@ export default function Index() {
               <BlockStack gap="400">
                 <InlineStack align="space-between">
                   <Text as="h2" variant="headingMd">
-                    Son Üretimler
+                    {t("dashboard.recent.heading")}
                   </Text>
                   <Button variant="plain" onClick={() => navigate("/app/history")}>
-                    Tümünü Gör
+                    {t("dashboard.recent.viewAll")}
                   </Button>
                 </InlineStack>
 

@@ -1,0 +1,297 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "products": "Ürünler",
+    "studio": "Stüdyo",
+    "competition": "Rekabet Analizi",
+    "seo": "SEO Kontrolü",
+    "history": "Geçmiş",
+    "billing": "Abonelik"
+  },
+  "dashboard": {
+    "pageTitle": "Snap6 — Stüdyo Çekimine Son",
+    "plan": {
+      "free": "Ücretsiz",
+      "basic": "Basic",
+      "pro": "Pro"
+    },
+    "banner": {
+      "title": "Stüdyo çekimi maliyetine son verin 📸",
+      "action": "Şimdi 6 Sahne Üret",
+      "body": "Bir fotoğraf yükleyin, <strong>tek tıkla</strong> 6 profesyonel sahne elinizde olsun: stüdyo beyazı, lifestyle, dış mekan, lüks mermer, dramatik koyu ve flat lay. Prompt yazmaya, fotoğrafçı beklemeye gerek yok."
+    },
+    "planStatus": {
+      "heading": "Plan Durumu",
+      "usedThisMonth": "Bu ay kullanılan",
+      "usageCount": "{{used}} / {{limit}} üretim",
+      "remaining": "{{count}} üretim hakkı kaldı",
+      "upgrade": "Planı Yükselt — $9.99/ay'dan"
+    },
+    "why": {
+      "heading": "Neden Snap6?",
+      "description": "Diğer AI görsel uygulamaları sizi prompt yazmaya ve tek tek üretmeye zorlar. Snap6'da tek tıkla <strong>6 hazır sahne</strong> birden gelir.",
+      "feature1": {
+        "title": "1 Yükleme → 6 Sahne",
+        "description": "Stüdyo beyazı, lifestyle, dış mekan, mermer/lüks, dramatik koyu, flat lay — hepsi otomatik"
+      },
+      "feature2": {
+        "title": "Sıfır Prompt, Sıfır Tahmin",
+        "description": "Sahneler fotoğrafçılık uzmanlarınca hazırlandı — siz sadece tıklayın"
+      },
+      "feature3": {
+        "title": "Tek Tıkla Ürün Sayfasına Kayıt",
+        "description": "Beğendiğiniz sahneler doğrudan Shopify ürün galerinize eklenir"
+      },
+      "cta": "Stüdyo Çekimine Son Verin — Şimdi Üret",
+      "ctaLimitReached": "Limit Doldu — Planı Yükselt"
+    },
+    "recent": {
+      "heading": "Son Üretimler",
+      "viewAll": "Tümünü Gör"
+    }
+  },
+  "products": {
+    "pageTitle": "Ürünler",
+    "pageSubtitle": "Tüm ürünleriniz, SEO puanları ve hızlı işlemler bir arada",
+    "empty": {
+      "heading": "Henüz ürün yok",
+      "body": "Mağazanıza ürün ekleyince burada listelenecek."
+    },
+    "seoScore": "SEO Puanı: {{score}}",
+    "issueCount": "{{count}} iyileştirme önerisi",
+    "actions": {
+      "seo": "SEO",
+      "competitorAnalysis": "Rakip Analizi",
+      "generateImage": "Resim Üret"
+    },
+    "firstFiftyNotice": "İlk 50 ürün gösteriliyor."
+  },
+  "generate": {
+    "pageTitle": "6 Sahne Üret — Tek Tık",
+    "pageSubtitle": "1 fotoğraf yükleyin, stüdyo çekimi yerine geçecek 6 profesyonel sahne alın",
+    "limitBanner": {
+      "title": "Aylık limitiniz doldu",
+      "action": "Planı Yükselt",
+      "body": "Bu ay daha fazla görsel üretemezsiniz. Planınızı yükseltin."
+    },
+    "errorBanner": {
+      "title": "Hata"
+    },
+    "savedBanner": {
+      "title": "Kaydedildi!",
+      "body": "Seçili görseller ürününüze eklendi."
+    },
+    "step1": {
+      "heading": "1. Ürün Seç",
+      "selected": "Seçildi"
+    },
+    "step2": {
+      "heading": "2. Görsel Yükle",
+      "useExistingImage": "Mevcut ürün görselini kullan"
+    },
+    "step3": {
+      "heading": "3. Tek Tıkla 6 Sahne Üret",
+      "description": "Prompt yazmanıza gerek yok — stüdyo beyazı, lifestyle, dış mekan, mermer/lüks, dramatik koyu ve flat lay otomatik gelir (~30-60 sn)",
+      "remaining": "Kalan: {{count}} üretim",
+      "cta": "Stüdyo Çekimi Yerine — 6 Sahne Üret",
+      "ctaLoading": "6 Sahne Hazırlanıyor..."
+    },
+    "generating": {
+      "title": "Stüdyonuz hazırlanıyor...",
+      "description": "Arka plan siliniyor ve 6 profesyonel sahne tek seferde üretiliyor. ~30-60 saniye."
+    },
+    "outputs": {
+      "heading": "Üretilen Görseller",
+      "subheading": "Kaydetmek istediklerinizi seçin",
+      "saveButton": "{{count}} Görseli Ürüne Kaydet"
+    },
+    "toast": {
+      "saved": "{{count}} görsel ürüne eklendi!"
+    },
+    "errors": {
+      "monthlyLimitReached": "Aylık limit doldu. Lütfen planınızı yükseltin.",
+      "generationFailed": "Görsel üretimi başarısız: {{message}}",
+      "saveFailed": "Kaydetme hatası: {{message}}",
+      "invalidAction": "Geçersiz işlem"
+    }
+  },
+  "seo": {
+    "pageTitle": "SEO Kontrolü",
+    "pageSubtitle": "Ürün SEO alanlarını denetleyin, AI önerilerini tek tıkla uygulayın",
+    "errorBanner": { "title": "Hata" },
+    "appliedBanner": {
+      "title": "Uygulandı",
+      "body": "SEO önerileri ürününüze başarıyla yazıldı."
+    },
+    "step1": {
+      "heading": "1. Ürün Seç",
+      "selected": "Seçildi",
+      "runAudit": "SEO Analizi Yap",
+      "auditing": "Denetleniyor..."
+    },
+    "auditingMessage": "SEO alanları denetleniyor ve AI önerileri hazırlanıyor...",
+    "score": {
+      "heading": "SEO Puanı",
+      "value": "{{score}}/100",
+      "noIssues": "Harika! Bu üründe SEO sorunu tespit edilmedi.",
+      "issuesHeading": "Tespit Edilen Sorunlar ({{count}})"
+    },
+    "suggestions": {
+      "heading": "🤖 AI Önerileri",
+      "description": "İstediğiniz alanı düzenleyebilir, ardından tek tıkla ürüne yazabilirsiniz",
+      "apply": "Önerileri Ürüne Uygula",
+      "applying": "Uygulanıyor...",
+      "seoTitle": {
+        "label": "SEO Başlığı",
+        "helpText": "{{count}} karakter (ideal: 50-60)"
+      },
+      "metaDescription": {
+        "label": "Meta Açıklama",
+        "helpText": "{{count}} karakter (ideal: 150-160)"
+      },
+      "handle": { "label": "URL Handle" },
+      "altText": { "label": "Görsel Alt-Text ({{count}} görsele uygulanacak)" }
+    },
+    "toast": { "applied": "SEO önerileri ürüne uygulandı!" },
+    "errors": {
+      "auditFailed": "Denetim başarısız: {{message}}",
+      "applyFailed": "Uygulama başarısız: {{message}}",
+      "invalidAction": "Geçersiz işlem"
+    }
+  },
+  "competition": {
+    "pageTitle": "Google Rekabet Analizi",
+    "pageSubtitle": "Ürününüzü Google'da arayan rakipleri görün, AI ile farkınızı bulun",
+    "resultBanner": { "title": "Sonuç" },
+    "step1": {
+      "heading": "1. Ürün Seç",
+      "selected": "Seçildi",
+      "runAnalysis": "Google'da Rakip Analizi Yap",
+      "analyzing": "Analiz Ediliyor..."
+    },
+    "analyzingMessage": "Google'da \"{{title}}\" için rakipler aranıyor ve AI analiz ediyor...",
+    "summary": {
+      "heading": "AI Rekabet Özeti",
+      "subheading": "\"{{title}}\" için Google sonuçlarına dayalı analiz:"
+    },
+    "results": {
+      "heading": "Google'daki Rakipler ({{count}})"
+    },
+    "errors": {
+      "titleMissing": "Ürün başlığı bulunamadı.",
+      "noResults": "Google'da bu ürün için sonuç bulunamadı.",
+      "analysisFailed": "Analiz başarısız: {{message}}"
+    }
+  },
+  "history": {
+    "pageTitle": "Geçmiş",
+    "empty": {
+      "heading": "Henüz üretim yapılmadı",
+      "action": "İlk Görseli Üret",
+      "body": "İlk ürün görselinizi üretin ve burada görün."
+    },
+    "status": {
+      "done": "Tamamlandı",
+      "pending": "Bekliyor",
+      "processing": "İşleniyor",
+      "failed": "Başarısız"
+    }
+  },
+  "billing": {
+    "pageTitle": "Abonelik Planları",
+    "activeBanner": {
+      "title": "Aktif Abonelik",
+      "body": "Şu an <strong>{{plan}}</strong> planındasınız. Bu ay {{used}}/{{limit}} üretim kullandınız."
+    },
+    "perMonth": "aylık",
+    "badges": {
+      "currentPlan": "Mevcut Plan",
+      "active": "Aktif",
+      "popular": "Popüler"
+    },
+    "buttons": {
+      "currentPlan": "Mevcut Planınız",
+      "downgrade": "Düşür",
+      "switchToBasic": "Basic'e Geç",
+      "switchToPro": "Pro'ya Geç"
+    },
+    "plans": {
+      "free": {
+        "name": "Ücretsiz",
+        "features": ["10 üretim/ay", "6 otomatik sahne", "Temel destek"]
+      },
+      "basic": {
+        "name": "Basic",
+        "features": ["100 üretim/ay", "6 otomatik sahne", "Öncelikli destek", "Toplu indirme"]
+      },
+      "pro": {
+        "name": "Pro",
+        "features": ["500 üretim/ay", "6 otomatik sahne", "7/24 öncelikli destek", "Toplu indirme", "Özel prompt desteği", "API erişimi"]
+      }
+    }
+  },
+  "generationGrid": {
+    "selectAll": "Tümünü Seç",
+    "clearSelection": "Seçimi Temizle",
+    "selectedCount": "{{count}} görsel seçili",
+    "notGenerated": "Üretilemedi",
+    "sceneFallback": "Sahne {{index}}",
+    "scenes": {
+      "studio": "Studio Beyaz",
+      "lifestyle-indoor": "Lifestyle İç Mekan",
+      "outdoor": "Dış Mekan",
+      "marble-luxury": "Mermer / Lüks",
+      "dark-moody": "Dramatik Koyu",
+      "flat-lay": "Flat Lay"
+    }
+  },
+  "imageUploader": {
+    "currentImageAlt": "Seçilen görsel",
+    "clickToChange": "Değiştirmek için tıklayın",
+    "dragOrClick": "Görsel sürükleyin veya tıklayın",
+    "formatHint": "PNG, JPG, WEBP — Max 10MB",
+    "removeImage": "Görseli Kaldır"
+  },
+  "seoAudit": {
+    "issues": {
+      "titleMissing": {
+        "label": "SEO başlığı eksik",
+        "detail": "Ürün için özel bir SEO başlığı tanımlanmamış, varsayılan ürün adı kullanılıyor."
+      },
+      "titleLength": {
+        "label": "SEO başlığı ideal uzunlukta değil",
+        "detail": "Mevcut uzunluk: {{length}} karakter. İdeal aralık: 50-60 karakter."
+      },
+      "descriptionMissing": {
+        "label": "Meta açıklama eksik",
+        "detail": "Arama sonuçlarında gösterilecek özel bir meta açıklama tanımlanmamış."
+      },
+      "descriptionLength": {
+        "label": "Meta açıklama ideal uzunlukta değil",
+        "detail": "Mevcut uzunluk: {{length}} karakter. İdeal aralık: 150-160 karakter."
+      },
+      "handle": {
+        "label": "URL handle iyileştirilebilir",
+        "detail": "Mevcut handle: \"{{handle}}\". Kısa, anahtar kelime odaklı bir handle daha iyi sonuç verir."
+      },
+      "altText": {
+        "label": "Görsellerde alt-text eksik",
+        "detail": "{{total}} görselin {{withAlt}} tanesinde alt-text var (%{{coverage}} kapsama)."
+      }
+    }
+  },
+  "landing": {
+    "title": "Snap6 — AI Photo Studio",
+    "subtitle": "Bir fotoğraf yükleyin, tek tıkla 6 profesyonel ürün sahnesi alın.",
+    "shopLabel": "Mağaza adresi",
+    "loginButton": "Giriş yap"
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "selectProduct": "Ürün Seç",
+    "changeProduct": "Ürünü Değiştir",
+    "noProductSelected": "Henüz ürün seçilmedi"
+  }
+}

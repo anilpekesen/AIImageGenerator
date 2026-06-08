@@ -14,17 +14,21 @@ import {
   Box,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
+import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { fetchProductsForList } from "../services/product.server";
 import { auditProduct } from "../services/seo-audit.server";
+import i18next from "../i18next.server";
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
 
   const { nodes, pageInfo } = await fetchProductsForList(admin, { first: 50 });
 
   const products = nodes.map((product) => {
-    const audit = auditProduct(product);
+    const audit = auditProduct(product, t);
     return {
       id: product.id.replace("gid://shopify/Product/", ""),
       title: product.title,
@@ -46,19 +50,20 @@ function scoreTone(score) {
 export default function Products() {
   const { products, hasNextPage } = useLoaderData();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
-    <Page title="Ürünler" subtitle="Tüm ürünleriniz, SEO puanları ve hızlı işlemler bir arada">
+    <Page title={t("products.pageTitle")} subtitle={t("products.pageSubtitle")}>
       <Layout>
         {products.length === 0 ? (
           <Layout.Section>
             <Card>
               <BlockStack gap="200" inlineAlign="center">
                 <Text as="h2" variant="headingMd">
-                  Henüz ürün yok
+                  {t("products.empty.heading")}
                 </Text>
                 <Text as="p" tone="subdued">
-                  Mağazanıza ürün ekleyince burada listelenecek.
+                  {t("products.empty.body")}
                 </Text>
               </BlockStack>
             </Card>
@@ -83,11 +88,11 @@ export default function Products() {
                             </Text>
                             <InlineStack gap="150" blockAlign="center">
                               <Badge tone={scoreTone(product.score)}>
-                                {`SEO Puanı: ${product.score}`}
+                                {t("products.seoScore", { score: product.score })}
                               </Badge>
                               {product.issueCount > 0 && (
                                 <Text as="span" tone="subdued" variant="bodySm">
-                                  {product.issueCount} iyileştirme önerisi
+                                  {t("products.issueCount", { count: product.issueCount })}
                                 </Text>
                               )}
                             </InlineStack>
@@ -96,16 +101,16 @@ export default function Products() {
 
                         <InlineStack gap="200" wrap={false}>
                           <Button onClick={() => navigate(`/app/seo?productId=${product.id}`)}>
-                            SEO
+                            {t("products.actions.seo")}
                           </Button>
                           <Button onClick={() => navigate(`/app/competition?productId=${product.id}`)}>
-                            Rakip Analizi
+                            {t("products.actions.competitorAnalysis")}
                           </Button>
                           <Button
                             variant="primary"
                             onClick={() => navigate(`/app/generate?productId=${product.id}`)}
                           >
-                            Resim Üret
+                            {t("products.actions.generateImage")}
                           </Button>
                         </InlineStack>
                       </InlineStack>
@@ -119,7 +124,7 @@ export default function Products() {
             {hasNextPage && (
               <Box paddingBlockStart="400">
                 <Text as="p" tone="subdued" variant="bodySm" alignment="center">
-                  İlk 50 ürün gösteriliyor.
+                  {t("products.firstFiftyNotice")}
                 </Text>
               </Box>
             )}

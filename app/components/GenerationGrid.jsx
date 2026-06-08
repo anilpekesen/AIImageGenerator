@@ -1,16 +1,10 @@
 import { useState } from "react";
 import { Text, InlineStack, BlockStack, Box, Badge, Button } from "@shopify/polaris";
-
-const SCENE_LABELS = {
-  "studio": "Studio Beyaz",
-  "lifestyle-indoor": "Lifestyle İç Mekan",
-  "outdoor": "Dış Mekan",
-  "marble-luxury": "Mermer / Lüks",
-  "dark-moody": "Dramatik Koyu",
-  "flat-lay": "Flat Lay",
-};
+import { useTranslation } from "react-i18next";
 
 export default function GenerationGrid({ outputs, selected, onSelectionChange }) {
+  const { t } = useTranslation();
+
   const toggleSelect = (url) => {
     if (selected.includes(url)) {
       onSelectionChange(selected.filter((u) => u !== url));
@@ -28,13 +22,13 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
   return (
     <BlockStack gap="300">
       <InlineStack gap="200">
-        <Button variant="plain" onClick={selectAll}>Tümünü Seç</Button>
+        <Button variant="plain" onClick={selectAll}>{t("generationGrid.selectAll")}</Button>
         {selected.length > 0 && (
-          <Button variant="plain" tone="critical" onClick={clearAll}>Seçimi Temizle</Button>
+          <Button variant="plain" tone="critical" onClick={clearAll}>{t("generationGrid.clearSelection")}</Button>
         )}
         {selected.length > 0 && (
           <Text as="span" tone="subdued" variant="bodySm">
-            {selected.length} görsel seçili
+            {t("generationGrid.selectedCount", { count: selected.length })}
           </Text>
         )}
       </InlineStack>
@@ -48,7 +42,10 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
       >
         {outputs.map((output, index) => {
           const isSelected = output.url && selected.includes(output.url);
-          const label = output.label || SCENE_LABELS[output.scene] || `Sahne ${index + 1}`;
+          const label =
+            output.label ||
+            (output.scene && t(`generationGrid.scenes.${output.scene}`, { defaultValue: "" })) ||
+            t("generationGrid.sceneFallback", { index: index + 1 });
 
           return (
             <div
@@ -90,7 +87,7 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
                     justifyContent: "center",
                   }}
                 >
-                  <Text as="p" tone="subdued" variant="bodySm">Üretilemedi</Text>
+                  <Text as="p" tone="subdued" variant="bodySm">{t("generationGrid.notGenerated")}</Text>
                 </div>
               )}
 

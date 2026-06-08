@@ -21,11 +21,13 @@ import {
 } from "@shopify/polaris";
 import { AlertTriangleIcon, CheckCircleIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { fetchProductSeoData, auditProduct } from "../services/seo-audit.server";
 import { generateSeoSuggestions } from "../services/ai-text.server";
 import { createSeoAudit, markAudited } from "../models/seo-audit.server";
 import { fetchProductBasicInfo } from "../services/product.server";
+import i18next from "../i18next.server";
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
@@ -60,6 +62,8 @@ const MEDIA_ALT_MUTATION = `
 
 export const action = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
   const formData = await request.formData();
   const intent = formData.get("intent");
 
@@ -69,7 +73,7 @@ export const action = async ({ request }) => {
 
     try {
       const product = await fetchProductSeoData(admin, productId);
-      const audit = auditProduct(product);
+      const audit = auditProduct(product, t);
 
       let suggestions = {};
       if (audit.issues.length > 0) {
@@ -102,7 +106,7 @@ export const action = async ({ request }) => {
         productId,
       });
     } catch (error) {
-      return json({ error: "Denetim başarısız: " + error.message }, { status: 500 });
+      return json({ error: t("seo.errors.auditFailed", { message: error.message }) }, { status: 500 });
     }
   }
 
@@ -141,11 +145,11 @@ export const action = async ({ request }) => {
 
       return json({ applied: true });
     } catch (error) {
-      return json({ error: "Uygulama başarısız: " + error.message }, { status: 500 });
+      return json({ error: t("seo.errors.applyFailed", { message: error.message }) }, { status: 500 });
     }
   }
 
-  return json({ error: "Geçersiz işlem" }, { status: 400 });
+  return json({ error: t("seo.errors.invalidAction") }, { status: 400 });
 };
 
 const severityTone = { warning: "critical", info: "warning" };
@@ -157,6 +161,7 @@ export default function Seo() {
   const navigation = useNavigation();
   const actionData = useActionData();
   const shopify = useAppBridge();
+  const { t } = useTranslation();
 
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [editedSuggestions, setEditedSuggestions] = useState({});
@@ -208,8 +213,8 @@ export default function Seo() {
       JSON.stringify((actionData.imagesWithoutAlt || []).map((img) => img.id))
     );
     submit(formData, { method: "post" });
-    shopify.toast.show("SEO önerileri ürüne uygulandı!");
-  }, [actionData, editedSuggestions, submit, shopify]);
+    shopify.toast.show(t("seo.toast.applied"));
+  }, [actionData, editedSuggestions, submit, shopify, t]);
 
   const updateSuggestion = (field, value) => {
     setEditedSuggestions((prev) => ({ ...prev, [field]: value }));
@@ -219,21 +224,21 @@ export default function Seo() {
 
   return (
     <Page
-      title="SEO Kontrolü"
-      subtitle="Ürün SEO alanlarını denetleyin, AI önerilerini tek tıkla uygulayın"
+      title={t("seo.pageTitle")}
+      subtitle={t("seo.pageSubtitle")}
       backAction={{ url: "/app" }}
     >
       <Layout>
         {actionData?.error && (
           <Layout.Section>
-            <Banner title="Hata" tone="critical"><p>{actionData.error}</p></Banner>
+            <Banner title={t("seo.errorBanner.title")} tone="critical"><p>{actionData.error}</p></Banner>
           </Layout.Section>
         )}
 
         {actionData?.applied && (
           <Layout.Section>
-            <Banner title="Uygulandı" tone="success">
-              <p>SEO önerileri ürününüze başarıyla yazıldı.</p>
+            <Banner title={t("seo.appliedBanner.title")} tone="success">
+              <p>{t("seo.appliedBanner.body")}</p>
             </Banner>
           </Layout.Section>
         )}
@@ -241,7 +246,7 @@ export default function Seo() {
         <Layout.Section>
           <Card>
             <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">1. Ürün Seç</Text>
+              <Text as="h2" variant="headingMd">{t("seo.step1.heading")}</Text>
 
               {selectedProduct ? (
                 <InlineStack gap="300" blockAlign="center">
@@ -250,16 +255,16 @@ export default function Seo() {
                   )}
                   <BlockStack gap="100">
                     <Text as="p" fontWeight="semibold">{selectedProduct.title}</Text>
-                    <Badge tone="success">Seçildi</Badge>
+                    <Badge tone="success">{t("seo.step1.selected")}</Badge>
                   </BlockStack>
                 </InlineStack>
               ) : (
-                <Text as="p" tone="subdued">Henüz ürün seçilmedi</Text>
+                <Text as="p" tone="subdued">{t("common.noProductSelected")}</Text>
               )}
 
               <InlineStack gap="200">
                 <Button onClick={handleProductPick}>
-                  {selectedProduct ? "Farklı Ürün Seç" : "Ürün Seç"}
+                  {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
                 </Button>
                 {selectedProduct && (
                   <Button
@@ -267,7 +272,7 @@ export default function Seo() {
                     onClick={handleAudit}
                     loading={isWorking && formIntent === "audit"}
                   >
-                    {isWorking && formIntent === "audit" ? "Denetleniyor..." : "SEO Analizi Yap"}
+                    {isWorking && formIntent === "audit" ? t("seo.step1.auditing") : t("seo.step1.runAudit")}
                   </Button>
                 )}
               </InlineStack>
@@ -280,7 +285,7 @@ export default function Seo() {
             <Card>
               <BlockStack gap="300" inlineAlign="center">
                 <Spinner size="large" />
-                <Text as="p" tone="subdued">SEO alanları denetleniyor ve AI önerileri hazırlanıyor...</Text>
+                <Text as="p" tone="subdued">{t("seo.auditingMessage")}</Text>
               </BlockStack>
             </Card>
           </Layout.Section>
@@ -292,9 +297,9 @@ export default function Seo() {
               <Card>
                 <BlockStack gap="300">
                   <InlineStack align="space-between" blockAlign="center">
-                    <Text as="h2" variant="headingMd">SEO Puanı</Text>
+                    <Text as="h2" variant="headingMd">{t("seo.score.heading")}</Text>
                     <Badge tone={actionData.score >= 80 ? "success" : actionData.score >= 50 ? "warning" : "critical"}>
-                      {`${actionData.score}/100`}
+                      {t("seo.score.value", { score: actionData.score })}
                     </Badge>
                   </InlineStack>
                   <ProgressBar
@@ -305,11 +310,13 @@ export default function Seo() {
                   {actionData.issues.length === 0 ? (
                     <InlineStack gap="200" blockAlign="center">
                       <Icon source={CheckCircleIcon} tone="success" />
-                      <Text as="p">Harika! Bu üründe SEO sorunu tespit edilmedi.</Text>
+                      <Text as="p">{t("seo.score.noIssues")}</Text>
                     </InlineStack>
                   ) : (
                     <BlockStack gap="200">
-                      <Text as="p" fontWeight="semibold">Tespit Edilen Sorunlar ({actionData.issues.length})</Text>
+                      <Text as="p" fontWeight="semibold">
+                        {t("seo.score.issuesHeading", { count: actionData.issues.length })}
+                      </Text>
                       {actionData.issues.map((issue, i) => (
                         <InlineStack key={i} gap="200" blockAlign="start" wrap={false}>
                           <Icon source={AlertTriangleIcon} tone={severityTone[issue.severity] || "warning"} />
@@ -331,13 +338,13 @@ export default function Seo() {
                   <BlockStack gap="400">
                     <InlineStack align="space-between" blockAlign="center">
                       <BlockStack gap="050">
-                        <Text as="h2" variant="headingMd">🤖 AI Önerileri</Text>
+                        <Text as="h2" variant="headingMd">{t("seo.suggestions.heading")}</Text>
                         <Text as="p" tone="subdued" variant="bodySm">
-                          İstediğiniz alanı düzenleyebilir, ardından tek tıkla ürüne yazabilirsiniz
+                          {t("seo.suggestions.description")}
                         </Text>
                       </BlockStack>
                       <Button variant="primary" onClick={handleApply} loading={isWorking && formIntent === "apply"}>
-                        {isWorking && formIntent === "apply" ? "Uygulanıyor..." : "Önerileri Ürüne Uygula"}
+                        {isWorking && formIntent === "apply" ? t("seo.suggestions.applying") : t("seo.suggestions.apply")}
                       </Button>
                     </InlineStack>
 
@@ -345,28 +352,28 @@ export default function Seo() {
 
                     {actionData.suggestions.title && (
                       <TextField
-                        label="SEO Başlığı"
+                        label={t("seo.suggestions.seoTitle.label")}
                         value={getValue("title")}
                         onChange={(v) => updateSuggestion("title", v)}
-                        helpText={`${getValue("title").length} karakter (ideal: 50-60)`}
+                        helpText={t("seo.suggestions.seoTitle.helpText", { count: getValue("title").length })}
                         autoComplete="off"
                       />
                     )}
 
                     {actionData.suggestions.metaDescription && (
                       <TextField
-                        label="Meta Açıklama"
+                        label={t("seo.suggestions.metaDescription.label")}
                         value={getValue("metaDescription")}
                         onChange={(v) => updateSuggestion("metaDescription", v)}
                         multiline={3}
-                        helpText={`${getValue("metaDescription").length} karakter (ideal: 150-160)`}
+                        helpText={t("seo.suggestions.metaDescription.helpText", { count: getValue("metaDescription").length })}
                         autoComplete="off"
                       />
                     )}
 
                     {actionData.suggestions.handle && (
                       <TextField
-                        label="URL Handle"
+                        label={t("seo.suggestions.handle.label")}
                         value={getValue("handle")}
                         onChange={(v) => updateSuggestion("handle", v)}
                         prefix="/products/"
@@ -376,7 +383,7 @@ export default function Seo() {
 
                     {actionData.suggestions.altText && (
                       <TextField
-                        label={`Görsel Alt-Text (${actionData.imagesWithoutAlt?.length || 0} görsele uygulanacak)`}
+                        label={t("seo.suggestions.altText.label", { count: actionData.imagesWithoutAlt?.length || 0 })}
                         value={getValue("altText")}
                         onChange={(v) => updateSuggestion("altText", v)}
                         autoComplete="off"

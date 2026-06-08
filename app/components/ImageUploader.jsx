@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import { BlockStack, Text, Box, Button, InlineStack } from "@shopify/polaris";
+import { useTranslation } from "react-i18next";
 
 export default function ImageUploader({ currentImage, onImageSelect }) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -65,12 +67,12 @@ export default function ImageUploader({ currentImage, onImageSelect }) {
         }}
       >
         {isUploading ? (
-          <Text as="p" tone="subdued">Yükleniyor...</Text>
+          <Text as="p" tone="subdued">{t("common.loading")}</Text>
         ) : currentImage ? (
           <>
             <img
               src={currentImage}
-              alt="Seçilen görsel"
+              alt={t("imageUploader.currentImageAlt")}
               style={{
                 maxHeight: "160px",
                 maxWidth: "100%",
@@ -79,17 +81,17 @@ export default function ImageUploader({ currentImage, onImageSelect }) {
               }}
             />
             <Text as="p" variant="bodySm" tone="subdued">
-              Değiştirmek için tıklayın
+              {t("imageUploader.clickToChange")}
             </Text>
           </>
         ) : (
           <>
             <div style={{ fontSize: "32px" }}>🖼️</div>
             <Text as="p" fontWeight="semibold">
-              Görsel sürükleyin veya tıklayın
+              {t("imageUploader.dragOrClick")}
             </Text>
             <Text as="p" variant="bodySm" tone="subdued">
-              PNG, JPG, WEBP — Max 10MB
+              {t("imageUploader.formatHint")}
             </Text>
           </>
         )}
@@ -112,7 +114,7 @@ export default function ImageUploader({ currentImage, onImageSelect }) {
             onImageSelect(null);
           }}
         >
-          Görseli Kaldır
+          {t("imageUploader.removeImage")}
         </Button>
       )}
     </BlockStack>

@@ -18,11 +18,13 @@ import {
   Divider,
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { searchCompetitors } from "../services/google-search.server";
 import { summarizeCompetitors } from "../services/ai-text.server";
 import { createCompetitorAnalysis } from "../models/competitor-analysis.server";
 import { fetchProductBasicInfo } from "../services/product.server";
+import i18next from "../i18next.server";
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
@@ -39,13 +41,15 @@ export const loader = async ({ request }) => {
 
 export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
   const formData = await request.formData();
 
   const productId = formData.get("productId");
   const productTitle = formData.get("productTitle");
 
   if (!productTitle) {
-    return json({ error: "Ürün başlığı bulunamadı." }, { status: 400 });
+    return json({ error: t("competition.errors.titleMissing") }, { status: 400 });
   }
 
   const query = productTitle;
@@ -54,7 +58,7 @@ export const action = async ({ request }) => {
     const results = await searchCompetitors(query, { num: 10 });
 
     if (results.length === 0) {
-      return json({ error: "Google'da bu ürün için sonuç bulunamadı." }, { status: 200 });
+      return json({ error: t("competition.errors.noResults") }, { status: 200 });
     }
 
     const aiSummary = await summarizeCompetitors(productTitle, results);
@@ -70,7 +74,7 @@ export const action = async ({ request }) => {
 
     return json({ success: true, results, aiSummary, productTitle });
   } catch (error) {
-    return json({ error: "Analiz başarısız: " + error.message }, { status: 500 });
+    return json({ error: t("competition.errors.analysisFailed", { message: error.message }) }, { status: 500 });
   }
 };
 
@@ -80,6 +84,7 @@ export default function Competition() {
   const navigation = useNavigation();
   const actionData = useActionData();
   const shopify = useAppBridge();
+  const { t } = useTranslation();
 
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const isAnalyzing = navigation.state === "submitting";
@@ -113,14 +118,14 @@ export default function Competition() {
 
   return (
     <Page
-      title="Google Rekabet Analizi"
-      subtitle="Ürününüzü Google'da arayan rakipleri görün, AI ile farkınızı bulun"
+      title={t("competition.pageTitle")}
+      subtitle={t("competition.pageSubtitle")}
       backAction={{ url: "/app" }}
     >
       <Layout>
         {actionData?.error && (
           <Layout.Section>
-            <Banner title="Sonuç" tone="warning">
+            <Banner title={t("competition.resultBanner.title")} tone="warning">
               <p>{actionData.error}</p>
             </Banner>
           </Layout.Section>
@@ -129,7 +134,7 @@ export default function Competition() {
         <Layout.Section>
           <Card>
             <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">1. Ürün Seç</Text>
+              <Text as="h2" variant="headingMd">{t("competition.step1.heading")}</Text>
 
               {selectedProduct ? (
                 <InlineStack gap="300" blockAlign="center">
@@ -138,16 +143,16 @@ export default function Competition() {
                   )}
                   <BlockStack gap="100">
                     <Text as="p" fontWeight="semibold">{selectedProduct.title}</Text>
-                    <Badge tone="success">Seçildi</Badge>
+                    <Badge tone="success">{t("competition.step1.selected")}</Badge>
                   </BlockStack>
                 </InlineStack>
               ) : (
-                <Text as="p" tone="subdued">Henüz ürün seçilmedi</Text>
+                <Text as="p" tone="subdued">{t("common.noProductSelected")}</Text>
               )}
 
               <InlineStack gap="200">
                 <Button onClick={handleProductPick}>
-                  {selectedProduct ? "Farklı Ürün Seç" : "Ürün Seç"}
+                  {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
                 </Button>
                 {selectedProduct && (
                   <Button
@@ -155,7 +160,7 @@ export default function Competition() {
                     onClick={handleAnalyze}
                     loading={isAnalyzing}
                   >
-                    {isAnalyzing ? "Analiz Ediliyor..." : "Google'da Rakip Analizi Yap"}
+                    {isAnalyzing ? t("competition.step1.analyzing") : t("competition.step1.runAnalysis")}
                   </Button>
                 )}
               </InlineStack>
@@ -169,7 +174,7 @@ export default function Competition() {
               <BlockStack gap="300" inlineAlign="center">
                 <Spinner size="large" />
                 <Text as="p" tone="subdued">
-                  Google'da "{selectedProduct?.title}" için rakipler aranıyor ve AI analiz ediyor...
+                  {t("competition.analyzingMessage", { title: selectedProduct?.title })}
                 </Text>
               </BlockStack>
             </Card>
@@ -185,10 +190,10 @@ export default function Competition() {
                     <Box background="bg-fill-info" padding="200" borderRadius="200">
                       <Text as="span">🤖</Text>
                     </Box>
-                    <Text as="h2" variant="headingMd">AI Rekabet Özeti</Text>
+                    <Text as="h2" variant="headingMd">{t("competition.summary.heading")}</Text>
                   </InlineStack>
                   <Text as="p" tone="subdued">
-                    "{actionData.productTitle}" için Google sonuçlarına dayalı analiz:
+                    {t("competition.summary.subheading", { title: actionData.productTitle })}
                   </Text>
                   <Box
                     background="bg-fill-secondary"
@@ -207,7 +212,7 @@ export default function Competition() {
               <Card>
                 <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
-                    Google'daki Rakipler ({actionData.results.length})
+                    {t("competition.results.heading", { count: actionData.results.length })}
                   </Text>
                   <BlockStack gap="300">
                     {actionData.results.map((r, i) => (

@@ -17,7 +17,9 @@ import {
   Badge,
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
+import i18next from "../i18next.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
 import { startGeneration } from "../services/replicate.server";
 import { createGeneration, updateGeneration } from "../models/generation.server";
@@ -43,6 +45,8 @@ export const loader = async ({ request }) => {
 export const action = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
   const { shop } = session;
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
 
   const formData = await request.formData();
   const intent = formData.get("intent");
@@ -54,7 +58,7 @@ export const action = async ({ request }) => {
 
     const subscription = await getOrCreateSubscription(shop);
     if (subscription.usedCount >= subscription.limitCount) {
-      return json({ error: "Aylık limit doldu. Lütfen planınızı yükseltin." }, { status: 400 });
+      return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
     const generation = await createGeneration({
@@ -77,7 +81,7 @@ export const action = async ({ request }) => {
       return json({ success: true, generationId: generation.id, outputs });
     } catch (error) {
       await updateGeneration(generation.id, { status: "failed" });
-      return json({ error: "Görsel üretimi başarısız: " + error.message }, { status: 500 });
+      return json({ error: t("generate.errors.generationFailed", { message: error.message }) }, { status: 500 });
     }
   }
 
@@ -108,11 +112,11 @@ export const action = async ({ request }) => {
       }
       return json({ saved: true });
     } catch (error) {
-      return json({ error: "Kaydetme hatası: " + error.message }, { status: 500 });
+      return json({ error: t("generate.errors.saveFailed", { message: error.message }) }, { status: 500 });
     }
   }
 
-  return json({ error: "Geçersiz işlem" }, { status: 400 });
+  return json({ error: t("generate.errors.invalidAction") }, { status: 400 });
 };
 
 export default function Generate() {
@@ -121,6 +125,7 @@ export default function Generate() {
   const submit = useSubmit();
   const navigation = useNavigation();
   const shopify = useAppBridge();
+  const { t } = useTranslation();
 
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
@@ -171,31 +176,31 @@ export default function Generate() {
     formData.append("imageUrls", JSON.stringify(selectedOutputs));
 
     submit(formData, { method: "post" });
-    shopify.toast.show(`${selectedOutputs.length} görsel ürüne eklendi!`);
-  }, [selectedOutputs, selectedProduct, submit, shopify]);
+    shopify.toast.show(t("generate.toast.saved", { count: selectedOutputs.length }));
+  }, [selectedOutputs, selectedProduct, submit, shopify, t]);
 
   return (
     <Page
-      title="6 Sahne Üret — Tek Tık"
-      subtitle="1 fotoğraf yükleyin, stüdyo çekimi yerine geçecek 6 profesyonel sahne alın"
+      title={t("generate.pageTitle")}
+      subtitle={t("generate.pageSubtitle")}
       backAction={{ url: "/app" }}
     >
       <Layout>
         {remaining <= 0 && (
           <Layout.Section>
             <Banner
-              title="Aylık limitiniz doldu"
+              title={t("generate.limitBanner.title")}
               tone="warning"
-              action={{ content: "Planı Yükselt", url: "/app/billing" }}
+              action={{ content: t("generate.limitBanner.action"), url: "/app/billing" }}
             >
-              <p>Bu ay daha fazla görsel üretemezsiniz. Planınızı yükseltin.</p>
+              <p>{t("generate.limitBanner.body")}</p>
             </Banner>
           </Layout.Section>
         )}
 
         {actionData?.error && (
           <Layout.Section>
-            <Banner title="Hata" tone="critical">
+            <Banner title={t("generate.errorBanner.title")} tone="critical">
               <p>{actionData.error}</p>
             </Banner>
           </Layout.Section>
@@ -203,8 +208,8 @@ export default function Generate() {
 
         {actionData?.saved && (
           <Layout.Section>
-            <Banner title="Kaydedildi!" tone="success">
-              <p>Seçili görseller ürününüze eklendi.</p>
+            <Banner title={t("generate.savedBanner.title")} tone="success">
+              <p>{t("generate.savedBanner.body")}</p>
             </Banner>
           </Layout.Section>
         )}
@@ -212,7 +217,7 @@ export default function Generate() {
         <Layout.Section variant="oneHalf">
           <Card>
             <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">1. Ürün Seç</Text>
+              <Text as="h2" variant="headingMd">{t("generate.step1.heading")}</Text>
 
               {selectedProduct ? (
                 <InlineStack gap="300" blockAlign="center">
@@ -225,17 +230,17 @@ export default function Generate() {
                   )}
                   <BlockStack gap="100">
                     <Text as="p" fontWeight="semibold">{selectedProduct.title}</Text>
-                    <Badge tone="success">Seçildi</Badge>
+                    <Badge tone="success">{t("generate.step1.selected")}</Badge>
                   </BlockStack>
                 </InlineStack>
               ) : (
                 <Text as="p" tone="subdued">
-                  Henüz ürün seçilmedi
+                  {t("common.noProductSelected")}
                 </Text>
               )}
 
               <Button onClick={handleProductPick}>
-                {selectedProduct ? "Farklı Ürün Seç" : "Ürün Seç"}
+                {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
               </Button>
             </BlockStack>
           </Card>
@@ -244,7 +249,7 @@ export default function Generate() {
         <Layout.Section variant="oneHalf">
           <Card>
             <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">2. Görsel Yükle</Text>
+              <Text as="h2" variant="headingMd">{t("generate.step2.heading")}</Text>
 
               <ImageUploader
                 currentImage={uploadedImageUrl}
@@ -256,7 +261,7 @@ export default function Generate() {
                   variant="plain"
                   onClick={() => setUploadedImageUrl(selectedProduct.image)}
                 >
-                  Mevcut ürün görselini kullan
+                  {t("generate.step2.useExistingImage")}
                 </Button>
               )}
             </BlockStack>
@@ -268,14 +273,13 @@ export default function Generate() {
             <BlockStack gap="400">
               <InlineStack align="space-between" blockAlign="center">
                 <BlockStack gap="100">
-                  <Text as="h2" variant="headingMd">3. Tek Tıkla 6 Sahne Üret</Text>
+                  <Text as="h2" variant="headingMd">{t("generate.step3.heading")}</Text>
                   <Text as="p" tone="subdued">
-                    Prompt yazmanıza gerek yok — stüdyo beyazı, lifestyle, dış mekan,
-                    mermer/lüks, dramatik koyu ve flat lay otomatik gelir (~30-60 sn)
+                    {t("generate.step3.description")}
                   </Text>
                 </BlockStack>
                 <Text as="p" tone="subdued" variant="bodySm">
-                  Kalan: {remaining} üretim
+                  {t("generate.step3.remaining", { count: remaining })}
                 </Text>
               </InlineStack>
 
@@ -286,7 +290,7 @@ export default function Generate() {
                 loading={isGenerating}
                 disabled={!uploadedImageUrl || !selectedProduct || remaining <= 0}
               >
-                {isGenerating ? "6 Sahne Hazırlanıyor..." : "Stüdyo Çekimi Yerine — 6 Sahne Üret"}
+                {isGenerating ? t("generate.step3.ctaLoading") : t("generate.step3.cta")}
               </Button>
             </BlockStack>
           </Card>
@@ -299,10 +303,10 @@ export default function Generate() {
                 <Spinner size="large" />
                 <BlockStack gap="100" inlineAlign="center">
                   <Text as="p" fontWeight="semibold">
-                    Stüdyonuz hazırlanıyor...
+                    {t("generate.generating.title")}
                   </Text>
                   <Text as="p" tone="subdued">
-                    Arka plan siliniyor ve 6 profesyonel sahne tek seferde üretiliyor. ~30-60 saniye.
+                    {t("generate.generating.description")}
                   </Text>
                 </BlockStack>
               </BlockStack>
@@ -316,9 +320,9 @@ export default function Generate() {
               <BlockStack gap="400">
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
-                    <Text as="h2" variant="headingMd">Üretilen Görseller</Text>
+                    <Text as="h2" variant="headingMd">{t("generate.outputs.heading")}</Text>
                     <Text as="p" tone="subdued">
-                      Kaydetmek istediklerinizi seçin
+                      {t("generate.outputs.subheading")}
                     </Text>
                   </BlockStack>
                   {selectedOutputs.length > 0 && (
@@ -326,7 +330,7 @@ export default function Generate() {
                       variant="primary"
                       onClick={handleSaveToProduct}
                     >
-                      {selectedOutputs.length} Görseli Ürüne Kaydet
+                      {t("generate.outputs.saveButton", { count: selectedOutputs.length })}
                     </Button>
                   )}
                 </InlineStack>

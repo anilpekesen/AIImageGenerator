@@ -1,14 +1,32 @@
+import { json } from "@remix-run/node";
 import {
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
+import { useChangeLanguage } from "remix-i18next/react";
+import { useTranslation } from "react-i18next";
+import i18next from "./i18next.server";
+
+export const loader = async ({ request }) => {
+  const locale = await i18next.getLocale(request);
+  return json({ locale });
+};
+
+export const handle = {
+  i18n: ["translation"],
+};
 
 export default function App() {
+  const { locale } = useLoaderData();
+  const { i18n } = useTranslation();
+  useChangeLanguage(locale);
+
   return (
-    <html>
+    <html lang={locale} dir={i18n.dir()}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />

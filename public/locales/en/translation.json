@@ -1,0 +1,297 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "studio": "Studio",
+    "competition": "Competitor Analysis",
+    "seo": "SEO Check",
+    "history": "History",
+    "billing": "Billing"
+  },
+  "dashboard": {
+    "pageTitle": "Snap6 — End Studio Photoshoots",
+    "plan": {
+      "free": "Free",
+      "basic": "Basic",
+      "pro": "Pro"
+    },
+    "banner": {
+      "title": "Stop paying for studio photoshoots 📸",
+      "action": "Generate 6 Scenes Now",
+      "body": "Upload a photo and get 6 professional scenes <strong>in one click</strong>: studio white, lifestyle, outdoor, luxury marble, dramatic dark, and flat lay. No prompts to write, no photographer to wait for."
+    },
+    "planStatus": {
+      "heading": "Plan Status",
+      "usedThisMonth": "Used this month",
+      "usageCount": "{{used}} / {{limit}} generations",
+      "remaining": "{{count}} generations remaining",
+      "upgrade": "Upgrade Plan — from $9.99/mo"
+    },
+    "why": {
+      "heading": "Why Snap6?",
+      "description": "Other AI image apps make you write prompts and generate one at a time. Snap6 gives you <strong>6 ready scenes</strong> in a single click.",
+      "feature1": {
+        "title": "1 Upload → 6 Scenes",
+        "description": "Studio white, lifestyle, outdoor, marble/luxury, dramatic dark, flat lay — all automatic"
+      },
+      "feature2": {
+        "title": "Zero Prompts, Zero Guesswork",
+        "description": "Scenes were crafted by photography experts — you just click"
+      },
+      "feature3": {
+        "title": "One-Click Save to Product Page",
+        "description": "Scenes you like are added straight to your Shopify product gallery"
+      },
+      "cta": "End Studio Photoshoots — Generate Now",
+      "ctaLimitReached": "Limit Reached — Upgrade Plan"
+    },
+    "recent": {
+      "heading": "Recent Generations",
+      "viewAll": "View All"
+    }
+  },
+  "products": {
+    "pageTitle": "Products",
+    "pageSubtitle": "All your products, SEO scores, and quick actions in one place",
+    "empty": {
+      "heading": "No products yet",
+      "body": "Once you add products to your store, they'll be listed here."
+    },
+    "seoScore": "SEO Score: {{score}}",
+    "issueCount": "{{count}} improvement suggestions",
+    "actions": {
+      "seo": "SEO",
+      "competitorAnalysis": "Competitor Analysis",
+      "generateImage": "Generate Image"
+    },
+    "firstFiftyNotice": "Showing the first 50 products."
+  },
+  "generate": {
+    "pageTitle": "Generate 6 Scenes — One Click",
+    "pageSubtitle": "Upload 1 photo, get 6 professional scenes that replace a studio photoshoot",
+    "limitBanner": {
+      "title": "Your monthly limit is reached",
+      "action": "Upgrade Plan",
+      "body": "You can't generate more images this month. Upgrade your plan."
+    },
+    "errorBanner": {
+      "title": "Error"
+    },
+    "savedBanner": {
+      "title": "Saved!",
+      "body": "The selected images were added to your product."
+    },
+    "step1": {
+      "heading": "1. Select Product",
+      "selected": "Selected"
+    },
+    "step2": {
+      "heading": "2. Upload Image",
+      "useExistingImage": "Use existing product image"
+    },
+    "step3": {
+      "heading": "3. Generate 6 Scenes in One Click",
+      "description": "No need to write prompts — studio white, lifestyle, outdoor, marble/luxury, dramatic dark, and flat lay come automatically (~30-60 sec)",
+      "remaining": "Remaining: {{count}} generations",
+      "cta": "Replace Studio Photoshoots — Generate 6 Scenes",
+      "ctaLoading": "Preparing 6 Scenes..."
+    },
+    "generating": {
+      "title": "Your studio is being prepared...",
+      "description": "Removing the background and generating 6 professional scenes at once. ~30-60 seconds."
+    },
+    "outputs": {
+      "heading": "Generated Images",
+      "subheading": "Select the ones you want to save",
+      "saveButton": "Save {{count}} Images to Product"
+    },
+    "toast": {
+      "saved": "{{count}} images added to product!"
+    },
+    "errors": {
+      "monthlyLimitReached": "Monthly limit reached. Please upgrade your plan.",
+      "generationFailed": "Image generation failed: {{message}}",
+      "saveFailed": "Save error: {{message}}",
+      "invalidAction": "Invalid action"
+    }
+  },
+  "seo": {
+    "pageTitle": "SEO Check",
+    "pageSubtitle": "Audit your product's SEO fields and apply AI suggestions in one click",
+    "errorBanner": { "title": "Error" },
+    "appliedBanner": {
+      "title": "Applied",
+      "body": "The SEO suggestions were successfully written to your product."
+    },
+    "step1": {
+      "heading": "1. Select Product",
+      "selected": "Selected",
+      "runAudit": "Run SEO Analysis",
+      "auditing": "Auditing..."
+    },
+    "auditingMessage": "Auditing SEO fields and preparing AI suggestions...",
+    "score": {
+      "heading": "SEO Score",
+      "value": "{{score}}/100",
+      "noIssues": "Great! No SEO issues were found on this product.",
+      "issuesHeading": "Issues Found ({{count}})"
+    },
+    "suggestions": {
+      "heading": "🤖 AI Suggestions",
+      "description": "You can edit any field, then write it to the product in one click",
+      "apply": "Apply Suggestions to Product",
+      "applying": "Applying...",
+      "seoTitle": {
+        "label": "SEO Title",
+        "helpText": "{{count}} characters (ideal: 50-60)"
+      },
+      "metaDescription": {
+        "label": "Meta Description",
+        "helpText": "{{count}} characters (ideal: 150-160)"
+      },
+      "handle": { "label": "URL Handle" },
+      "altText": { "label": "Image Alt Text (will apply to {{count}} images)" }
+    },
+    "toast": { "applied": "SEO suggestions applied to product!" },
+    "errors": {
+      "auditFailed": "Audit failed: {{message}}",
+      "applyFailed": "Apply failed: {{message}}",
+      "invalidAction": "Invalid action"
+    }
+  },
+  "competition": {
+    "pageTitle": "Google Competitor Analysis",
+    "pageSubtitle": "See the competitors targeting your product on Google, and find your edge with AI",
+    "resultBanner": { "title": "Result" },
+    "step1": {
+      "heading": "1. Select Product",
+      "selected": "Selected",
+      "runAnalysis": "Run Competitor Analysis on Google",
+      "analyzing": "Analyzing..."
+    },
+    "analyzingMessage": "Searching Google for competitors of \"{{title}}\" and analyzing with AI...",
+    "summary": {
+      "heading": "AI Competitor Summary",
+      "subheading": "Analysis based on Google results for \"{{title}}\":"
+    },
+    "results": {
+      "heading": "Competitors on Google ({{count}})"
+    },
+    "errors": {
+      "titleMissing": "Product title not found.",
+      "noResults": "No results found on Google for this product.",
+      "analysisFailed": "Analysis failed: {{message}}"
+    }
+  },
+  "history": {
+    "pageTitle": "History",
+    "empty": {
+      "heading": "No generations yet",
+      "action": "Generate Your First Image",
+      "body": "Generate your first product image and see it here."
+    },
+    "status": {
+      "done": "Done",
+      "pending": "Pending",
+      "processing": "Processing",
+      "failed": "Failed"
+    }
+  },
+  "billing": {
+    "pageTitle": "Subscription Plans",
+    "activeBanner": {
+      "title": "Active Subscription",
+      "body": "You're currently on the <strong>{{plan}}</strong> plan. You've used {{used}}/{{limit}} generations this month."
+    },
+    "perMonth": "per month",
+    "badges": {
+      "currentPlan": "Current Plan",
+      "active": "Active",
+      "popular": "Popular"
+    },
+    "buttons": {
+      "currentPlan": "Your Current Plan",
+      "downgrade": "Downgrade",
+      "switchToBasic": "Switch to Basic",
+      "switchToPro": "Switch to Pro"
+    },
+    "plans": {
+      "free": {
+        "name": "Free",
+        "features": ["10 generations/month", "6 automatic scenes", "Basic support"]
+      },
+      "basic": {
+        "name": "Basic",
+        "features": ["100 generations/month", "6 automatic scenes", "Priority support", "Bulk download"]
+      },
+      "pro": {
+        "name": "Pro",
+        "features": ["500 generations/month", "6 automatic scenes", "24/7 priority support", "Bulk download", "Custom prompt support", "API access"]
+      }
+    }
+  },
+  "generationGrid": {
+    "selectAll": "Select All",
+    "clearSelection": "Clear Selection",
+    "selectedCount": "{{count}} images selected",
+    "notGenerated": "Generation failed",
+    "sceneFallback": "Scene {{index}}",
+    "scenes": {
+      "studio": "Studio White",
+      "lifestyle-indoor": "Lifestyle Indoor",
+      "outdoor": "Outdoor",
+      "marble-luxury": "Marble / Luxury",
+      "dark-moody": "Dramatic Dark",
+      "flat-lay": "Flat Lay"
+    }
+  },
+  "imageUploader": {
+    "currentImageAlt": "Selected image",
+    "clickToChange": "Click to change",
+    "dragOrClick": "Drag and drop an image or click",
+    "formatHint": "PNG, JPG, WEBP — Max 10MB",
+    "removeImage": "Remove Image"
+  },
+  "seoAudit": {
+    "issues": {
+      "titleMissing": {
+        "label": "SEO title is missing",
+        "detail": "No custom SEO title is defined for the product, so the default product name is being used."
+      },
+      "titleLength": {
+        "label": "SEO title is not an ideal length",
+        "detail": "Current length: {{length}} characters. Ideal range: 50-60 characters."
+      },
+      "descriptionMissing": {
+        "label": "Meta description is missing",
+        "detail": "No custom meta description is defined to show in search results."
+      },
+      "descriptionLength": {
+        "label": "Meta description is not an ideal length",
+        "detail": "Current length: {{length}} characters. Ideal range: 150-160 characters."
+      },
+      "handle": {
+        "label": "URL handle could be improved",
+        "detail": "Current handle: \"{{handle}}\". A short, keyword-focused handle performs better."
+      },
+      "altText": {
+        "label": "Images are missing alt text",
+        "detail": "{{withAlt}} of {{total}} images have alt text ({{coverage}}% coverage)."
+      }
+    }
+  },
+  "landing": {
+    "title": "Snap6 — AI Photo Studio",
+    "subtitle": "Upload a photo, get 6 professional product scenes in one click.",
+    "shopLabel": "Shop address",
+    "loginButton": "Log in"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "selectProduct": "Select Product",
+    "changeProduct": "Change Product",
+    "noProductSelected": "No product selected yet"
+  }
+}

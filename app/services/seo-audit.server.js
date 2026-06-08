@@ -31,7 +31,7 @@ function plainText(html) {
   return (html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-export function auditProduct(product) {
+export function auditProduct(product, t) {
   const issues = [];
   let score = 100;
 
@@ -41,39 +41,39 @@ export function auditProduct(product) {
   const mediaImages = (product.media?.nodes || []).filter((n) => n.image);
   const imagesWithAlt = mediaImages.filter((n) => n.alt && n.alt.trim().length > 0);
 
-  // SEO başlığı
+  // SEO title
   if (!product.seo?.title) {
     issues.push({
       field: "title",
-      label: "SEO başlığı eksik",
-      detail: "Ürün için özel bir SEO başlığı tanımlanmamış, varsayılan ürün adı kullanılıyor.",
+      label: t("seoAudit.issues.titleMissing.label"),
+      detail: t("seoAudit.issues.titleMissing.detail"),
       severity: "warning",
     });
     score -= 15;
   } else if (seoTitle.length > 60 || seoTitle.length < 30) {
     issues.push({
       field: "title",
-      label: "SEO başlığı ideal uzunlukta değil",
-      detail: `Mevcut uzunluk: ${seoTitle.length} karakter. İdeal aralık: 50-60 karakter.`,
+      label: t("seoAudit.issues.titleLength.label"),
+      detail: t("seoAudit.issues.titleLength.detail", { length: seoTitle.length }),
       severity: "info",
     });
     score -= 8;
   }
 
-  // Meta açıklama
+  // Meta description
   if (!product.seo?.description) {
     issues.push({
       field: "metaDescription",
-      label: "Meta açıklama eksik",
-      detail: "Arama sonuçlarında gösterilecek özel bir meta açıklama tanımlanmamış.",
+      label: t("seoAudit.issues.descriptionMissing.label"),
+      detail: t("seoAudit.issues.descriptionMissing.detail"),
       severity: "warning",
     });
     score -= 20;
   } else if (seoDescription.length > 160 || seoDescription.length < 120) {
     issues.push({
       field: "metaDescription",
-      label: "Meta açıklama ideal uzunlukta değil",
-      detail: `Mevcut uzunluk: ${seoDescription.length} karakter. İdeal aralık: 150-160 karakter.`,
+      label: t("seoAudit.issues.descriptionLength.label"),
+      detail: t("seoAudit.issues.descriptionLength.detail", { length: seoDescription.length }),
       severity: "info",
     });
     score -= 8;
@@ -83,21 +83,25 @@ export function auditProduct(product) {
   if (handle && (handle.length > 50 || /[0-9]{4,}/.test(handle))) {
     issues.push({
       field: "handle",
-      label: "URL handle iyileştirilebilir",
-      detail: `Mevcut handle: "${handle}". Kısa, anahtar kelime odaklı bir handle daha iyi sonuç verir.`,
+      label: t("seoAudit.issues.handle.label"),
+      detail: t("seoAudit.issues.handle.detail", { handle }),
       severity: "info",
     });
     score -= 7;
   }
 
-  // Görsel alt-text kapsamı
+  // Image alt-text coverage
   if (mediaImages.length > 0) {
     const coverage = Math.round((imagesWithAlt.length / mediaImages.length) * 100);
     if (coverage < 100) {
       issues.push({
         field: "altText",
-        label: "Görsellerde alt-text eksik",
-        detail: `${mediaImages.length} görselin ${imagesWithAlt.length} tanesinde alt-text var (%${coverage} kapsama).`,
+        label: t("seoAudit.issues.altText.label"),
+        detail: t("seoAudit.issues.altText.detail", {
+          total: mediaImages.length,
+          withAlt: imagesWithAlt.length,
+          coverage,
+        }),
         severity: coverage === 0 ? "warning" : "info",
       });
       score -= coverage === 0 ? 20 : 10;
