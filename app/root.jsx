@@ -13,7 +13,7 @@ import i18next from "./i18next.server";
 
 export const loader = async ({ request }) => {
   const locale = await i18next.getLocale(request);
-  return json({ locale });
+  return json({ locale, apiKey: process.env.SHOPIFY_API_KEY || "" });
 };
 
 export const handle = {
@@ -21,7 +21,7 @@ export const handle = {
 };
 
 export default function App() {
-  const { locale } = useLoaderData();
+  const { locale, apiKey } = useLoaderData();
   const { i18n } = useTranslation();
   useChangeLanguage(locale);
 
@@ -35,6 +35,7 @@ export default function App() {
           rel="stylesheet"
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
+        <meta name="shopify-api-key" content={apiKey} />
         <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
         <Meta />
         <Links />
