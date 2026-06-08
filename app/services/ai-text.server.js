@@ -18,18 +18,25 @@ async function askClaude(systemPrompt, userPrompt, maxTokens = 1024) {
 }
 
 export async function summarizeCompetitors(productTitle, results) {
-  const system = `Sen bir e-ticaret rekabet analisti olarak çalışıyorsun. Sana bir ürün
-adı ve o ürün için Google arama sonuçlarındaki rakip listeleri verilecek. Görevin:
-1. Rakiplerin fiyat aralığı ve konumlandırması hakkında ipucu varsa belirt
-2. Rakiplerin öne çıkardığı ortak özellik/mesajları tespit et
-3. Bu üründe fark yaratabilecek bir boşluk/fırsat öner
-Yanıtını Türkçe, kısa ve maddeler halinde ver. En fazla 4-5 madde, her biri 1-2 cümle.`;
+  const system = `Sen bir e-ticaret fiyatlandırma ve rekabet analistisin. Sana bir ürün adı
+ve o ürünü satan rakiplerin gerçek fiyat/puan verileri verilecek. Görevin:
+1. Rakiplerin fiyat aralığını ve ortalama fiyat seviyesini yorumla (en ucuz/en pahalı kim, makas ne kadar geniş)
+2. Yüksek puanlı/yorumlu rakiplerden konumlandırma ipuçları çıkar
+3. Bu ürün için fiyatlandırma veya konumlandırma açısından fark yaratabilecek bir fırsat öner
+Yanıtını Türkçe, kısa ve maddeler halinde ver. En fazla 4-5 madde, her biri 1-2 cümle.
+Sayısal verileri (fiyat, puan) yorumlarken doğrudan referans ver.`;
 
   const resultsText = results
-    .map((r, i) => `${i + 1}. ${r.title}\n   Mağaza: ${r.displayLink}\n   Özet: ${r.snippet}`)
+    .map((r, i) => {
+      const price = r.priceFrom && r.priceTo
+        ? `${r.priceFrom}–${r.priceTo} ${r.currency}`
+        : `${r.price} ${r.currency}`;
+      const rating = r.rating ? `${r.rating}★ (${r.reviews ?? 0} yorum)` : "puan yok";
+      return `${i + 1}. ${r.title}\n   Satıcı: ${r.site}\n   Fiyat: ${price}\n   Puan: ${rating}`;
+    })
     .join("\n\n");
 
-  const user = `Ürün: "${productTitle}"\n\nGoogle arama sonuçları:\n\n${resultsText}\n\nBu rakipleri analiz et ve yukarıdaki 3 maddeye göre özet çıkar.`;
+  const user = `Ürün: "${productTitle}"\n\nRakip fiyat listesi (ucuzdan pahalıya sıralı):\n\n${resultsText}\n\nBu rakipleri analiz et ve yukarıdaki 3 maddeye göre özet çıkar.`;
 
   return askClaude(system, user, 800);
 }

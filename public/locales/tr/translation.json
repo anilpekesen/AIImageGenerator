@@ -160,26 +160,31 @@
     }
   },
   "competition": {
-    "pageTitle": "Google Rekabet Analizi",
-    "pageSubtitle": "Ürününüzü Google'da arayan rakipleri görün, AI ile farkınızı bulun",
+    "pageTitle": "Rakip Fiyat Analizi",
+    "pageSubtitle": "Ürününüzü satan rakiplerin gerçek fiyatlarını karşılaştırın, AI ile farkınızı bulun",
     "resultBanner": { "title": "Sonuç" },
     "step1": {
       "heading": "1. Ürün Seç",
       "selected": "Seçildi",
-      "runAnalysis": "Google'da Rakip Analizi Yap",
+      "runAnalysis": "Rakip Fiyatlarını Karşılaştır",
       "analyzing": "Analiz Ediliyor..."
     },
-    "analyzingMessage": "Google'da \"{{title}}\" için rakipler aranıyor ve AI analiz ediyor...",
+    "analyzingMessage": "\"{{title}}\" için rakip fiyatları aranıyor ve AI analiz ediyor...",
     "summary": {
       "heading": "AI Rekabet Özeti",
-      "subheading": "\"{{title}}\" için Google sonuçlarına dayalı analiz:"
+      "subheading": "\"{{title}}\" için fiyat tabanlı analiz:"
     },
     "results": {
-      "heading": "Google'daki Rakipler ({{count}})"
+      "heading": "Rakip Fiyatları ({{count}})",
+      "price": "{{price}} {{currency}}",
+      "priceRange": "{{from}}–{{to}} {{currency}}",
+      "noPrice": "Fiyat bilgisi yok",
+      "rating": "★ {{rating}} ({{count}})",
+      "viewListing": "İlana Git"
     },
     "errors": {
       "titleMissing": "Ürün başlığı bulunamadı.",
-      "noResults": "Google'da bu ürün için sonuç bulunamadı.",
+      "noResults": "Bu ürün için rakip fiyatı bulunamadı.",
       "analysisFailed": "Analiz başarısız: {{message}}"
     }
   },

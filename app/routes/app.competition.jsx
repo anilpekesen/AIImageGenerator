@@ -20,7 +20,7 @@ import {
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
-import { searchCompetitors } from "../services/google-search.server";
+import { searchCompetitorPrices } from "../services/serp-search.server";
 import { summarizeCompetitors } from "../services/ai-text.server";
 import { createCompetitorAnalysis } from "../models/competitor-analysis.server";
 import { fetchProductBasicInfo } from "../services/product.server";
@@ -55,7 +55,7 @@ export const action = async ({ request }) => {
   const query = productTitle;
 
   try {
-    const results = await searchCompetitors(query, { num: 10 });
+    const results = await searchCompetitorPrices(query, { country: locale === "tr" ? "tr" : "us" });
 
     if (results.length === 0) {
       return json({ error: t("competition.errors.noResults") }, { status: 200 });
@@ -217,14 +217,31 @@ export default function Competition() {
                   <BlockStack gap="300">
                     {actionData.results.map((r, i) => (
                       <Box key={i}>
-                        <BlockStack gap="100">
+                        <BlockStack gap="150">
                           <Link url={r.link} external monochrome={false}>
                             <Text as="p" fontWeight="semibold">{r.title}</Text>
                           </Link>
-                          <InlineStack gap="200">
-                            <Badge tone="info">{r.displayLink}</Badge>
+                          <InlineStack gap="200" blockAlign="center">
+                            <Badge tone="info">{r.site}</Badge>
+                            {r.priceFrom && r.priceTo ? (
+                              <Badge tone="success">
+                                {t("competition.results.priceRange", {
+                                  from: r.priceFrom,
+                                  to: r.priceTo,
+                                  currency: r.currency,
+                                })}
+                              </Badge>
+                            ) : (
+                              <Badge tone="success">
+                                {t("competition.results.price", { price: r.price, currency: r.currency })}
+                              </Badge>
+                            )}
+                            {r.rating ? (
+                              <Badge>
+                                {t("competition.results.rating", { rating: r.rating, count: r.reviews ?? 0 })}
+                              </Badge>
+                            ) : null}
                           </InlineStack>
-                          <Text as="p" tone="subdued" variant="bodySm">{r.snippet}</Text>
                         </BlockStack>
                         {i < actionData.results.length - 1 && <Box paddingBlockStart="300"><Divider /></Box>}
                       </Box>

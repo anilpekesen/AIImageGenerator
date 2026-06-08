@@ -160,26 +160,31 @@
     }
   },
   "competition": {
-    "pageTitle": "Google Competitor Analysis",
-    "pageSubtitle": "See the competitors targeting your product on Google, and find your edge with AI",
+    "pageTitle": "Competitor Price Analysis",
+    "pageSubtitle": "Compare real prices charged by competitors selling your product, and find your edge with AI",
     "resultBanner": { "title": "Result" },
     "step1": {
       "heading": "1. Select Product",
       "selected": "Selected",
-      "runAnalysis": "Run Competitor Analysis on Google",
+      "runAnalysis": "Compare Competitor Prices",
       "analyzing": "Analyzing..."
     },
-    "analyzingMessage": "Searching Google for competitors of \"{{title}}\" and analyzing with AI...",
+    "analyzingMessage": "Searching for competitor prices of \"{{title}}\" and analyzing with AI...",
     "summary": {
       "heading": "AI Competitor Summary",
-      "subheading": "Analysis based on Google results for \"{{title}}\":"
+      "subheading": "Price-based analysis for \"{{title}}\":"
     },
     "results": {
-      "heading": "Competitors on Google ({{count}})"
+      "heading": "Competitor Prices ({{count}})",
+      "price": "{{price}} {{currency}}",
+      "priceRange": "{{from}}–{{to}} {{currency}}",
+      "noPrice": "Price not available",
+      "rating": "★ {{rating}} ({{count}})",
+      "viewListing": "View Listing"
     },
     "errors": {
       "titleMissing": "Product title not found.",
-      "noResults": "No results found on Google for this product.",
+      "noResults": "No competitor prices found for this product.",
       "analysisFailed": "Analysis failed: {{message}}"
     }
   },
