@@ -31,6 +31,20 @@ export async function fetchProductsForList(admin, { first = 50, after = null } =
   return data.products;
 }
 
+const PRODUCTS_COUNT_QUERY = `
+  query getProductsCount {
+    productsCount {
+      count
+    }
+  }
+`;
+
+export async function fetchProductsCount(admin) {
+  const response = await admin.graphql(PRODUCTS_COUNT_QUERY);
+  const { data } = await response.json();
+  return data.productsCount?.count ?? 0;
+}
+
 const PRODUCT_BASIC_QUERY = `
   query getProductBasicInfo($id: ID!) {
     product(id: $id) {

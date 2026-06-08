@@ -8,33 +8,133 @@ import {
   Button,
   BlockStack,
   InlineStack,
+  InlineGrid,
   Badge,
   ProgressBar,
   Banner,
   Divider,
   Box,
   Icon,
+  Thumbnail,
 } from "@shopify/polaris";
-import { ImageIcon, ClockIcon, StarIcon } from "@shopify/polaris-icons";
+import {
+  ImageIcon,
+  ClockIcon,
+  StarIcon,
+  ProductIcon,
+  MagicIcon,
+  SearchIcon,
+  ChartVerticalIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+} from "@shopify/polaris-icons";
 import { Trans, useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
-import { getRecentGenerations } from "../models/generation.server";
+import { getRecentGenerations, countDoneGenerations } from "../models/generation.server";
+import { fetchProductsForList, fetchProductsCount } from "../services/product.server";
+import { auditProduct } from "../services/seo-audit.server";
+import { countAnalyses } from "../models/competitor-analysis.server";
+import { countAudits } from "../models/seo-audit.server";
+import i18next from "../i18next.server";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const { shop } = session;
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
 
-  const [subscription, recentGenerations] = await Promise.all([
+  const [
+    subscription,
+    recentGenerations,
+    { nodes: productNodes },
+    productsCount,
+    competitorAnalysesCount,
+    seoAuditsCount,
+    doneGenerationsCount,
+  ] = await Promise.all([
     getOrCreateSubscription(shop),
     getRecentGenerations(shop, 3),
+    fetchProductsForList(admin, { first: 50 }),
+    fetchProductsCount(admin),
+    countAnalyses(shop),
+    countAudits(shop),
+    countDoneGenerations(shop),
   ]);
 
-  return json({ subscription, recentGenerations, shop });
+  const scoredProducts = productNodes.map((product) => {
+    const audit = auditProduct(product, t);
+    return {
+      id: product.id.replace("gid://shopify/Product/", ""),
+      title: product.title,
+      image: product.featuredImage?.url || null,
+      score: audit.score,
+      issueCount: audit.issues.length,
+    };
+  });
+
+  const sortedByScore = [...scoredProducts].sort((a, b) => b.score - a.score);
+  const bestProduct = sortedByScore[0] || null;
+  const worstProduct = sortedByScore.length > 1 ? sortedByScore[sortedByScore.length - 1] : null;
+  const avgSeoScore = scoredProducts.length
+    ? Math.round(scoredProducts.reduce((sum, p) => sum + p.score, 0) / scoredProducts.length)
+    : null;
+
+  return json({
+    subscription,
+    recentGenerations,
+    shop,
+    productsCount,
+    avgSeoScore,
+    bestProduct,
+    worstProduct,
+    stats: {
+      competitorAnalysesCount,
+      seoAuditsCount,
+      doneGenerationsCount,
+    },
+  });
 };
 
+function StatTile({ icon, tone, label, value }) {
+  return (
+    <Card>
+      <BlockStack gap="300">
+        <Box background={`bg-fill-${tone}`} padding="200" borderRadius="200" width="fit-content">
+          <Icon source={icon} tone={tone} />
+        </Box>
+        <BlockStack gap="050">
+          <Text as="p" variant="heading2xl">{value}</Text>
+          <Text as="p" tone="subdued" variant="bodySm">{label}</Text>
+        </BlockStack>
+      </BlockStack>
+    </Card>
+  );
+}
+
+function ProductHighlightRow({ icon, tone, label, product, actionLabel, onAction, t }) {
+  return (
+    <InlineStack align="space-between" blockAlign="center" wrap={false} gap="400">
+      <InlineStack gap="300" blockAlign="center" wrap={false}>
+        <Box background={`bg-fill-${tone}`} padding="150" borderRadius="200">
+          <Icon source={icon} tone={tone} />
+        </Box>
+        <Thumbnail source={product.image || ImageIcon} alt={product.title} size="small" />
+        <BlockStack gap="050">
+          <Text as="p" tone="subdued" variant="bodySm">{label}</Text>
+          <Text as="p" fontWeight="semibold" truncate>{product.title}</Text>
+          <Badge tone={tone === "critical" ? "critical" : "success"}>
+            {t("dashboard.seoInsights.score", { score: product.score })}
+          </Badge>
+        </BlockStack>
+      </InlineStack>
+      <Button onClick={onAction}>{actionLabel}</Button>
+    </InlineStack>
+  );
+}
+
 export default function Index() {
-  const { subscription, recentGenerations } = useLoaderData();
+  const { subscription, recentGenerations, productsCount, avgSeoScore, bestProduct, worstProduct, stats } = useLoaderData();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -59,6 +159,35 @@ export default function Index() {
               <Trans i18nKey="dashboard.banner.body" components={{ strong: <strong /> }} />
             </p>
           </Banner>
+        </Layout.Section>
+
+        <Layout.Section>
+          <InlineGrid columns={{ xs: 1, sm: 2, md: 4 }} gap="400">
+            <StatTile
+              icon={ProductIcon}
+              tone="info"
+              label={t("dashboard.stats.totalProducts")}
+              value={productsCount}
+            />
+            <StatTile
+              icon={MagicIcon}
+              tone="magic"
+              label={t("dashboard.stats.remainingCredits")}
+              value={remaining}
+            />
+            <StatTile
+              icon={SearchIcon}
+              tone="success"
+              label={t("dashboard.stats.avgSeoScore")}
+              value={avgSeoScore != null ? t("dashboard.seoInsights.score", { score: avgSeoScore }) : "—"}
+            />
+            <StatTile
+              icon={ChartVerticalIcon}
+              tone="warning"
+              label={t("dashboard.stats.competitorAnalyses")}
+              value={stats.competitorAnalysesCount}
+            />
+          </InlineGrid>
         </Layout.Section>
 
         <Layout.Section variant="oneHalf">
@@ -94,6 +223,35 @@ export default function Index() {
                 </Text>
               </BlockStack>
 
+              <Divider />
+
+              <BlockStack gap="150">
+                <InlineStack align="space-between">
+                  <Text as="p" tone="subdued" variant="bodySm">
+                    {t("dashboard.stats.totalProducts")}
+                  </Text>
+                  <Text as="p" fontWeight="semibold" variant="bodySm">{productsCount}</Text>
+                </InlineStack>
+                <InlineStack align="space-between">
+                  <Text as="p" tone="subdued" variant="bodySm">
+                    {t("dashboard.stats.competitorAnalyses")}
+                  </Text>
+                  <Text as="p" fontWeight="semibold" variant="bodySm">{stats.competitorAnalysesCount}</Text>
+                </InlineStack>
+                <InlineStack align="space-between">
+                  <Text as="p" tone="subdued" variant="bodySm">
+                    {t("dashboard.stats.seoAudits")}
+                  </Text>
+                  <Text as="p" fontWeight="semibold" variant="bodySm">{stats.seoAuditsCount}</Text>
+                </InlineStack>
+                <InlineStack align="space-between">
+                  <Text as="p" tone="subdued" variant="bodySm">
+                    {t("dashboard.stats.totalGenerations")}
+                  </Text>
+                  <Text as="p" fontWeight="semibold" variant="bodySm">{stats.doneGenerationsCount}</Text>
+                </InlineStack>
+              </BlockStack>
+
               {subscription.plan === "free" && (
                 <>
                   <Divider />
@@ -114,76 +272,45 @@ export default function Index() {
             <BlockStack gap="400">
               <BlockStack gap="100">
                 <Text as="h2" variant="headingMd">
-                  {t("dashboard.why.heading")}
+                  {t("dashboard.seoInsights.heading")}
                 </Text>
                 <Text as="p" tone="subdued" variant="bodySm">
-                  <Trans i18nKey="dashboard.why.description" components={{ strong: <strong /> }} />
+                  {t("dashboard.seoInsights.subheading")}
                 </Text>
               </BlockStack>
 
-              <BlockStack gap="300">
-                <InlineStack gap="300" blockAlign="center">
-                  <Box
-                    background="bg-fill-info"
-                    padding="200"
-                    borderRadius="200"
-                  >
-                    <Icon source={ImageIcon} tone="info" />
-                  </Box>
-                  <BlockStack gap="050">
-                    <Text as="p" fontWeight="semibold">
-                      {t("dashboard.why.feature1.title")}
-                    </Text>
-                    <Text as="p" tone="subdued" variant="bodySm">
-                      {t("dashboard.why.feature1.description")}
-                    </Text>
-                  </BlockStack>
-                </InlineStack>
+              {bestProduct ? (
+                <BlockStack gap="400">
+                  <ProductHighlightRow
+                    icon={ArrowUpIcon}
+                    tone="success"
+                    label={t("dashboard.seoInsights.bestProduct")}
+                    product={bestProduct}
+                    actionLabel={t("dashboard.seoInsights.action")}
+                    onAction={() => navigate(`/app/seo?productId=${bestProduct.id}`)}
+                    t={t}
+                  />
+                  {worstProduct && (
+                    <>
+                      <Divider />
+                      <ProductHighlightRow
+                        icon={ArrowDownIcon}
+                        tone="critical"
+                        label={t("dashboard.seoInsights.worstProduct")}
+                        product={worstProduct}
+                        actionLabel={t("dashboard.seoInsights.action")}
+                        onAction={() => navigate(`/app/seo?productId=${worstProduct.id}`)}
+                        t={t}
+                      />
+                    </>
+                  )}
+                </BlockStack>
+              ) : (
+                <Text as="p" tone="subdued">{t("dashboard.seoInsights.empty")}</Text>
+              )}
 
-                <InlineStack gap="300" blockAlign="center">
-                  <Box
-                    background="bg-fill-success"
-                    padding="200"
-                    borderRadius="200"
-                  >
-                    <Icon source={StarIcon} tone="success" />
-                  </Box>
-                  <BlockStack gap="050">
-                    <Text as="p" fontWeight="semibold">
-                      {t("dashboard.why.feature2.title")}
-                    </Text>
-                    <Text as="p" tone="subdued" variant="bodySm">
-                      {t("dashboard.why.feature2.description")}
-                    </Text>
-                  </BlockStack>
-                </InlineStack>
-
-                <InlineStack gap="300" blockAlign="center">
-                  <Box
-                    background="bg-fill-warning"
-                    padding="200"
-                    borderRadius="200"
-                  >
-                    <Icon source={ClockIcon} tone="warning" />
-                  </Box>
-                  <BlockStack gap="050">
-                    <Text as="p" fontWeight="semibold">
-                      {t("dashboard.why.feature3.title")}
-                    </Text>
-                    <Text as="p" tone="subdued" variant="bodySm">
-                      {t("dashboard.why.feature3.description")}
-                    </Text>
-                  </BlockStack>
-                </InlineStack>
-              </BlockStack>
-
-              <Button
-                variant="primary"
-                size="large"
-                onClick={() => navigate("/app/generate")}
-                disabled={remaining <= 0}
-              >
-                {remaining <= 0 ? t("dashboard.why.ctaLimitReached") : t("dashboard.why.cta")}
+              <Button onClick={() => navigate("/app/products")}>
+                {t("dashboard.seoInsights.viewAllProducts")}
               </Button>
             </BlockStack>
           </Card>
@@ -247,6 +374,86 @@ export default function Index() {
             </Card>
           </Layout.Section>
         )}
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <BlockStack gap="100">
+                <Text as="h2" variant="headingMd">
+                  {t("dashboard.why.heading")}
+                </Text>
+                <Text as="p" tone="subdued" variant="bodySm">
+                  <Trans i18nKey="dashboard.why.description" components={{ strong: <strong /> }} />
+                </Text>
+              </BlockStack>
+
+              <InlineGrid columns={{ xs: 1, md: 3 }} gap="400">
+                <InlineStack gap="300" blockAlign="center" wrap={false}>
+                  <Box
+                    background="bg-fill-info"
+                    padding="200"
+                    borderRadius="200"
+                  >
+                    <Icon source={ImageIcon} tone="info" />
+                  </Box>
+                  <BlockStack gap="050">
+                    <Text as="p" fontWeight="semibold">
+                      {t("dashboard.why.feature1.title")}
+                    </Text>
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      {t("dashboard.why.feature1.description")}
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+
+                <InlineStack gap="300" blockAlign="center" wrap={false}>
+                  <Box
+                    background="bg-fill-success"
+                    padding="200"
+                    borderRadius="200"
+                  >
+                    <Icon source={StarIcon} tone="success" />
+                  </Box>
+                  <BlockStack gap="050">
+                    <Text as="p" fontWeight="semibold">
+                      {t("dashboard.why.feature2.title")}
+                    </Text>
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      {t("dashboard.why.feature2.description")}
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+
+                <InlineStack gap="300" blockAlign="center" wrap={false}>
+                  <Box
+                    background="bg-fill-warning"
+                    padding="200"
+                    borderRadius="200"
+                  >
+                    <Icon source={ClockIcon} tone="warning" />
+                  </Box>
+                  <BlockStack gap="050">
+                    <Text as="p" fontWeight="semibold">
+                      {t("dashboard.why.feature3.title")}
+                    </Text>
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      {t("dashboard.why.feature3.description")}
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+              </InlineGrid>
+
+              <Button
+                variant="primary"
+                size="large"
+                onClick={() => navigate("/app/generate")}
+                disabled={remaining <= 0}
+              >
+                {remaining <= 0 ? t("dashboard.why.ctaLimitReached") : t("dashboard.why.cta")}
+              </Button>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
       </Layout>
     </Page>
   );

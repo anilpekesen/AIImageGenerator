@@ -27,6 +27,24 @@
       "remaining": "{{count}} üretim hakkı kaldı",
       "upgrade": "Planı Yükselt — $9.99/ay'dan"
     },
+    "stats": {
+      "totalProducts": "Toplam Ürün",
+      "remainingCredits": "Kalan Üretim Hakkı",
+      "avgSeoScore": "Ortalama SEO Puanı",
+      "competitorAnalyses": "Rakip Analizi",
+      "seoAudits": "SEO Denetimi",
+      "totalGenerations": "Toplam Üretim"
+    },
+    "seoInsights": {
+      "heading": "SEO İçgörüleri",
+      "subheading": "Ürünleriniz arasında en iyi ve en kötü SEO performansı",
+      "bestProduct": "En Yüksek SEO Puanı",
+      "worstProduct": "İyileştirme Gereken Ürün",
+      "score": "{{score}}/100",
+      "action": "İncele ve İyileştir",
+      "viewAllProducts": "Tüm Ürünleri Gör",
+      "empty": "Henüz SEO puanı hesaplanacak ürün bulunamadı."
+    },
     "why": {
       "heading": "Neden Snap6?",
       "description": "Diğer AI görsel uygulamaları sizi prompt yazmaya ve tek tek üretmeye zorlar. Snap6'da tek tıkla <strong>6 hazır sahne</strong> birden gelir.",

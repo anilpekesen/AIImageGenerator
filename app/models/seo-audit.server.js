@@ -26,3 +26,7 @@ export async function getLatestAudit(shop, productId) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+export async function countAudits(shop) {
+  return prisma.seoAudit.count({ where: { shop } });
+}

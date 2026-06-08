@@ -27,6 +27,24 @@
       "remaining": "{{count}} generations remaining",
       "upgrade": "Upgrade Plan — from $9.99/mo"
     },
+    "stats": {
+      "totalProducts": "Total Products",
+      "remainingCredits": "Remaining Credits",
+      "avgSeoScore": "Average SEO Score",
+      "competitorAnalyses": "Competitor Analyses",
+      "seoAudits": "SEO Audits",
+      "totalGenerations": "Total Generations"
+    },
+    "seoInsights": {
+      "heading": "SEO Insights",
+      "subheading": "Your best and worst performing products by SEO score",
+      "bestProduct": "Top SEO Score",
+      "worstProduct": "Needs SEO Improvement",
+      "score": "{{score}}/100",
+      "action": "Review & Improve",
+      "viewAllProducts": "View All Products",
+      "empty": "No products available yet to calculate SEO scores."
+    },
     "why": {
       "heading": "Why Snap6?",
       "description": "Other AI image apps make you write prompts and generate one at a time. Snap6 gives you <strong>6 ready scenes</strong> in a single click.",

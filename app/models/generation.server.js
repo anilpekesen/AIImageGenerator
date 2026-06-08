@@ -34,3 +34,7 @@ export async function getAllGenerations(shop) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+export async function countDoneGenerations(shop) {
+  return prisma.generation.count({ where: { shop, status: "done" } });
+}

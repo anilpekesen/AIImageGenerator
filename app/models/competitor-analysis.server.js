@@ -27,3 +27,7 @@ export async function getAnalysisHistory(shop, limit = 20) {
     take: limit,
   });
 }
+
+export async function countAnalyses(shop) {
+  return prisma.competitorAnalysis.count({ where: { shop } });
+}
