@@ -15,10 +15,8 @@ import {
 
 const TARGET = "admin.product-details.block.render";
 
-// ÖNEMLİ: Bu URL, shopify.app.toml içindeki `application_url` / .env'deki
-// SHOPIFY_APP_URL ile aynı olmalı (geliştirmede Cloudflare tünel adresi değişir,
-// `shopify app dev` her çalıştığında bu sabiti güncelleyin).
-const APP_URL = "https://YOUR_TUNNEL_URL.trycloudflare.com";
+// Backend URL must match the app URL configured in shopify.app.toml.
+const APP_URL = "https://app.rankavio.com";
 
 export default reactExtension(TARGET, () => <Snap6Block />);
 
