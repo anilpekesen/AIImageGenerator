@@ -3,6 +3,13 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  define: {
+    // Cache-busting token for translation JSON requests — Vite copies public/locales
+    // into build/client, where remix-serve serves it with a 1-year immutable
+    // Cache-Control header. Without this, browsers never re-fetch updated
+    // translations after a deploy. A new value is baked in on every build.
+    __I18N_BUILD__: JSON.stringify(Date.now().toString(36)),
+  },
   plugins: [
     remix({
       ignoredRouteFiles: ["**/.*"],

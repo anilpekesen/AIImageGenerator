@@ -16,7 +16,7 @@ async function hydrate() {
     .init({
       ...i18n,
       ns: getInitialNamespaces(),
-      backend: { loadPath: "/locales/{{lng}}/{{ns}}.json" },
+      backend: { loadPath: `/locales/{{lng}}/{{ns}}.json?v=${__I18N_BUILD__}` },
       detection: {
         order: ["htmlTag"],
         caches: [],
