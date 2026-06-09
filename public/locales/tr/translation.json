@@ -69,12 +69,29 @@
       "viewAll": "Tümünü Gör"
     },
     "photoSets": {
-      "heading": "Ürün Fotoğraf Setleri",
-      "subheading": "Kategorinize özel hazırlanmış 16 set — her birinde 6 profesyonel sahne",
+      "heading": "16 Kategoriye Özel AI Fotoğraf Seti",
+      "subheading": "Koltuktan çantaya, perdeden takıya — ürününüzü yükleyin, yapay zeka kategorinize özel 6 profesyonel sahne üretsin. Prompt yok, fotoğrafçı yok.",
       "viewAll": "Stüdyoya Git",
       "generateWithSet": "Bu Set ile Üret",
       "uploadImage": "Görsel yükle",
       "runAI": "Yapay Zekayı Çalıştır"
+    },
+    "valueSection": {
+      "heading": "Fotoğraf Stüdyosuna Gitme. Snap6'yı Çalıştır.",
+      "subheading": "Atölyenizden ya da deponuzdan — tek fotoğraf yükleyin, yapay zeka saniyeler içinde stüdyo kalitesinde görsel üretsin.",
+      "feature1": {
+        "title": "Zahmetsiz Başlangıç",
+        "desc": "Tek bir ürün fotoğrafı yükleyin. Yapay zeka arka planı otomatik siler, kategorinize özel 6 farklı ortamda yerleştirir. Prompt yazmak yok, fotoğrafçı beklemek yok."
+      },
+      "feature2": {
+        "title": "Her Kategoriye Özel Sahneler",
+        "desc": "16 ürün kategorisi, her biri için 6 ayrı profesyonel sahne. Mobilyadan takıya, bebek kıyafetinden çantaya kadar özel tasarlanmış görsel setleri."
+      },
+      "feature3": {
+        "title": "Shopify'a Tek Tıkla Kaydet",
+        "desc": "Beğendiğiniz görselleri doğrudan ürün sayfanıza ekleyin. Manuel yükleme, format dönüştürme, boyutlandırma gerektirmez. Saniyeler içinde mağazanızda."
+      },
+      "cta": "Hemen Üretmeye Başla"
     }
   },
   "products": {

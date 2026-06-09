@@ -69,12 +69,29 @@
       "viewAll": "View All"
     },
     "photoSets": {
-      "heading": "Product Photo Sets",
-      "subheading": "16 category-specific sets — 6 professional scenes each",
+      "heading": "16 Category-Specific AI Photo Sets",
+      "subheading": "Armchairs to bags, curtains to jewelry — upload one photo, AI generates 6 professional scenes for your category. No prompts, no photographer.",
       "viewAll": "Go to Studio",
       "generateWithSet": "Generate with this Set",
       "uploadImage": "Upload image",
       "runAI": "Run AI Model"
+    },
+    "valueSection": {
+      "heading": "Skip the Photo Studio. Run Snap6.",
+      "subheading": "From your workshop or warehouse — upload one photo, get studio-quality visuals in seconds.",
+      "feature1": {
+        "title": "Effortless Start",
+        "desc": "Upload one product photo. AI removes the background automatically and places it in 6 scene environments specific to your category. No prompts, no photographer needed."
+      },
+      "feature2": {
+        "title": "Category-Specific Scenes",
+        "desc": "16 product categories, each with 6 tailored professional scenes. From furniture to jewelry, baby clothes to bags — expertly crafted visual sets for every product type."
+      },
+      "feature3": {
+        "title": "Save to Shopify in One Click",
+        "desc": "Add your favorite visuals directly to your product page. No manual upload, format conversion, or resizing. In your store within seconds."
+      },
+      "cta": "Start Generating Now"
     }
   },
   "products": {
