@@ -67,6 +67,11 @@
     "recent": {
       "heading": "Son Üretimler",
       "viewAll": "Tümünü Gör"
+    },
+    "photoSets": {
+      "heading": "Ürün Fotoğraf Setleri",
+      "subheading": "Kategorinize özel hazırlanmış 16 set — her birinde 6 profesyonel sahne",
+      "viewAll": "Stüdyoya Git"
     }
   },
   "products": {

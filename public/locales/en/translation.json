@@ -67,6 +67,11 @@
     "recent": {
       "heading": "Recent Generations",
       "viewAll": "View All"
+    },
+    "photoSets": {
+      "heading": "Product Photo Sets",
+      "subheading": "16 category-specific sets — 6 professional scenes each",
+      "viewAll": "Go to Studio"
     }
   },
   "products": {

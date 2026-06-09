@@ -36,6 +36,7 @@ import { fetchProductsForList, fetchProductsCount } from "../services/product.se
 import { auditProduct } from "../services/seo-audit.server";
 import { countAnalyses } from "../models/competitor-analysis.server";
 import { countAudits } from "../models/seo-audit.server";
+import { PHOTO_SETS } from "../services/photo-sets.js";
 import i18next from "../i18next.server";
 
 export const loader = async ({ request }) => {
@@ -136,7 +137,8 @@ function ProductHighlightRow({ icon, tone, label, product, actionLabel, onAction
 export default function Index() {
   const { subscription, recentGenerations, productsCount, avgSeoScore, bestProduct, worstProduct, stats } = useLoaderData();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? "tr";
 
   const usagePercent = Math.round(
     (subscription.usedCount / subscription.limitCount) * 100
@@ -374,6 +376,72 @@ export default function Index() {
             </Card>
           </Layout.Section>
         )}
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="500">
+              <InlineStack align="space-between" blockAlign="center">
+                <BlockStack gap="100">
+                  <Text as="h2" variant="headingMd">
+                    {t("dashboard.photoSets.heading")}
+                  </Text>
+                  <Text as="p" tone="subdued" variant="bodySm">
+                    {t("dashboard.photoSets.subheading")}
+                  </Text>
+                </BlockStack>
+                <Button variant="plain" onClick={() => navigate("/app/generate")}>
+                  {t("dashboard.photoSets.viewAll")}
+                </Button>
+              </InlineStack>
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+                gap: "10px",
+              }}>
+                {PHOTO_SETS.map((set) => {
+                  const shortLabel = locale === "tr"
+                    ? set.labelTR.replace(" Fotoğraf Seti", "")
+                    : set.labelEN.replace(" Photo Set", "");
+                  return (
+                    <div
+                      key={set.id}
+                      onClick={() => navigate("/app/generate")}
+                      style={{
+                        cursor: "pointer",
+                        borderRadius: "10px",
+                        overflow: "hidden",
+                        position: "relative",
+                        aspectRatio: "1 / 1",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.03)"; e.currentTarget.style.transition = "transform 0.15s ease"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                    >
+                      <img
+                        src={set.exampleImage}
+                        alt={shortLabel}
+                        loading="lazy"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
+                      <div style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 65%, transparent 100%)",
+                        padding: "28px 8px 8px",
+                      }}>
+                        <p style={{ margin: 0, color: "#fff", fontSize: "11px", fontWeight: "650", lineHeight: 1.3, textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>
+                          {shortLabel}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
 
         <Layout.Section>
           <Card>

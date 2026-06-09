@@ -1,6 +1,7 @@
 export const PHOTO_SETS = [
   {
     id: "general",
+    exampleImage: "/images/photo-sets/genel.png",
     labelTR: "Ürün Fotoğraf Seti",
     labelEN: "Product Photo Set",
     descriptionTR: "Herhangi bir ürün için 6 profesyonel sahne: stüdyo hero, yaşam tarzı, detay, kullanım, alternatif açı ve editöryal.",
@@ -22,6 +23,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "armchair",
+    exampleImage: "/images/photo-sets/koltuk-berjer.png",
     labelTR: "Koltuk & Berjer Fotoğraf Seti",
     labelEN: "Armchair & Bergère Photo Set",
     descriptionTR: "Koltuk ve berjerler için: zarif stüdyo, oturma odası ortamı, döşeme detayı, kullanım, alternatif açı ve editöryal.",
@@ -43,6 +45,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "sofa-set",
+    exampleImage: "/images/photo-sets/koltuk-takimi.png",
     labelTR: "Koltuk Takımı Fotoğraf Seti",
     labelEN: "Sofa Set Photo Set",
     descriptionTR: "3+2+1, köşe ve komple oturma grupları için: stüdyo düzeni, oturma odası, döşeme detayı, aile sahnesi, konfigürasyon ve editöryal.",
@@ -64,6 +67,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "dining-set",
+    exampleImage: "/images/photo-sets/yemek-masasi.png",
     labelTR: "Yemek Masası Takımı Fotoğraf Seti",
     labelEN: "Dining Table Set Photo Set",
     descriptionTR: "Yemek masası takımları için: stüdyo hero, yemek odası ortamı, sofra düzeni, detay, geniş açı ve editöryal.",
@@ -85,6 +89,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "chair",
+    exampleImage: "/images/photo-sets/sandalye.png",
     labelTR: "Sandalye Fotoğraf Seti",
     labelEN: "Chair Photo Set",
     descriptionTR: "Sandalyeler için: stüdyo hero, yaşam tarzı, malzeme detayı, kullanım sahnesi, çoklu görünüm ve editöryal.",
@@ -106,6 +111,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "bed-frame",
+    exampleImage: "/images/photo-sets/karyola.png",
     labelTR: "Karyola Fotoğraf Seti",
     labelEN: "Bed Frame Photo Set",
     descriptionTR: "Karyolalar için: stüdyo hero, yatak odası ortamı, başlık detayı, yaşam tarzı sahnesi, geniş açı ve editöryal.",
@@ -127,6 +133,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "office-furniture",
+    exampleImage: "/images/photo-sets/ofis-mobilyasi.png",
     labelTR: "Ofis Mobilyası Fotoğraf Seti",
     labelEN: "Office Furniture Photo Set",
     descriptionTR: "Ofis mobilyaları için: stüdyo hero, ofis ortamı, malzeme detayı, kullanım sahnesi, alternatif açı ve editöryal.",
@@ -148,6 +155,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "floor-cushion",
+    exampleImage: "/images/photo-sets/minder.png",
     labelTR: "Minder Fotoğraf Seti",
     labelEN: "Floor Cushion Photo Set",
     descriptionTR: "Minderler için: stüdyo hero, yaşam tarzı, kumaş detayı, kullanım sahnesi, grup çekim ve editöryal.",
@@ -169,6 +177,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "throw-pillow",
+    exampleImage: "/images/photo-sets/kirlent.png",
     labelTR: "Kırlent Fotoğraf Seti",
     labelEN: "Throw Pillow Photo Set",
     descriptionTR: "Kırlentler için: stüdyo hero, koltukta stilize, kumaş detayı, yatakta stilize, kırlent grubu ve editöryal.",
@@ -190,6 +199,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "curtain",
+    exampleImage: "/images/photo-sets/perde.png",
     labelTR: "Perde Fotoğraf Seti",
     labelEN: "Curtain Photo Set",
     descriptionTR: "Perdeler için: stüdyo hero, pencere ortamı, kumaş detayı, oda bağlamı, desen detayı ve editöryal.",
@@ -211,6 +221,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "tablecloth",
+    exampleImage: "/images/photo-sets/masa-ortusu.png",
     labelTR: "Masa Örtüsü Fotoğraf Seti",
     labelEN: "Tablecloth Photo Set",
     descriptionTR: "Masa örtüleri için: stüdyo hero, sofra düzeni, kumaş detayı, açık hava, flat lay ve editöryal.",
@@ -232,6 +243,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "blanket",
+    exampleImage: "/images/photo-sets/battaniye.png",
     labelTR: "Battaniye Fotoğraf Seti",
     labelEN: "Blanket Photo Set",
     descriptionTR: "Battaniyeler için: stüdyo hero, koltukta rahatlama, kumaş detayı, kullanım sahnesi, yatak üzerinde ve editöryal.",
@@ -253,6 +265,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "bedspread",
+    exampleImage: "/images/photo-sets/yatak-ortusu.png",
     labelTR: "Yatak Örtüsü & Pike Fotoğraf Seti",
     labelEN: "Bedspread & Quilt Photo Set",
     descriptionTR: "Yatak örtüsü ve pikeler için: stüdyo hero, yatak odası ortamı, nakış detayı, yastıklarla stilize, flat lay ve editöryal.",
@@ -274,6 +287,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "baby-clothing",
+    exampleImage: "/images/photo-sets/bebek-kiyafeti.png",
     labelTR: "Bebek Kıyafeti Fotoğraf Seti",
     labelEN: "Baby Clothing Photo Set",
     descriptionTR: "Bebek kıyafetleri için: stüdyo hero, flat lay stilize, kumaş detayı, bebek üzerinde, askıda çekim ve editöryal.",
@@ -295,6 +309,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "jewelry",
+    exampleImage: "/images/photo-sets/taki.png",
     labelTR: "Takı Fotoğraf Seti",
     labelEN: "Jewelry Photo Set",
     descriptionTR: "Takılar için: stüdyo makro, yaşam tarzı flat lay, mücevher detayı, takılmış halde, lüks yüzeyde ve editöryal.",
@@ -316,6 +331,7 @@ export const PHOTO_SETS = [
   },
   {
     id: "bag",
+    exampleImage: "/images/photo-sets/canta.png",
     labelTR: "Çanta Fotoğraf Seti",
     labelEN: "Bag Photo Set",
     descriptionTR: "Çantalar için: stüdyo hero, yaşam tarzı, deri/malzeme detayı, flat lay, iç görünüm ve editöryal.",
