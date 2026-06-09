@@ -14,7 +14,6 @@ import {
   Box,
   Thumbnail,
   Badge,
-  Select,
   Divider,
   TextField,
 } from "@shopify/polaris";
@@ -28,7 +27,6 @@ import { createGeneration, updateGeneration } from "../models/generation.server"
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
 import { fetchProductBasicInfo } from "../services/product.server";
-import { PHOTO_SETS } from "../services/photo-sets.js";
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
@@ -36,13 +34,12 @@ export const loader = async ({ request }) => {
 
   const url = new URL(request.url);
   const productId = url.searchParams.get("productId");
-  const defaultPhotoSetId = url.searchParams.get("photoSetId") || "general";
 
   const preselectedProduct = productId
     ? await fetchProductBasicInfo(admin, productId)
     : null;
 
-  return json({ subscription, preselectedProduct, defaultPhotoSetId });
+  return json({ subscription, preselectedProduct });
 };
 
 export const action = async ({ request }) => {
@@ -58,7 +55,6 @@ export const action = async ({ request }) => {
     const imageUrl = formData.get("imageUrl");
     const productId = formData.get("productId");
     const productTitle = formData.get("productTitle");
-    const photoSetId = formData.get("photoSetId") || "general";
 
     const subscription = await getOrCreateSubscription(shop);
     if (subscription.usedCount >= subscription.limitCount) {
@@ -70,7 +66,7 @@ export const action = async ({ request }) => {
     // Fire and forget — respond immediately, generate in background
     (async () => {
       try {
-        const outputs = await startGeneration({ imageUrl, productTitle, photoSetId, locale });
+        const outputs = await startGeneration({ imageUrl, productTitle, locale });
         await updateGeneration(generation.id, { outputs: JSON.stringify(outputs), status: "done" });
         await decrementUsage(shop);
       } catch (error) {
@@ -138,7 +134,7 @@ export const action = async ({ request }) => {
 };
 
 export default function Generate() {
-  const { subscription, preselectedProduct, defaultPhotoSetId } = useLoaderData();
+  const { subscription, preselectedProduct } = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -148,7 +144,6 @@ export default function Generate() {
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [selectedOutputs, setSelectedOutputs] = useState([]);
-  const [photoSetId, setPhotoSetId] = useState(defaultPhotoSetId ?? "general");
   const [currentOutputs, setCurrentOutputs] = useState([]);
   const [refineIndex, setRefineIndex] = useState(null);
   const [refinePrompt, setRefinePrompt] = useState("");
@@ -198,14 +193,6 @@ export default function Generate() {
   }, [statusFetcher.data]);
   const locale = i18n.resolvedLanguage ?? "tr";
 
-  const photoSetOptions = PHOTO_SETS.map((ps) => ({
-    label: locale === "tr" ? ps.labelTR : ps.labelEN,
-    value: ps.id,
-  }));
-
-  const selectedPhotoSet = PHOTO_SETS.find((ps) => ps.id === photoSetId) ?? PHOTO_SETS[0];
-  const setDescription = locale === "tr" ? selectedPhotoSet.descriptionTR : selectedPhotoSet.descriptionEN;
-
   const handleProductPick = useCallback(async () => {
     const selected = await shopify.resourcePicker({
       type: "product",
@@ -235,10 +222,9 @@ export default function Generate() {
     formData.append("imageUrl", uploadedImageUrl);
     formData.append("productId", selectedProduct.id);
     formData.append("productTitle", selectedProduct.title);
-    formData.append("photoSetId", photoSetId);
 
     submit(formData, { method: "post" });
-  }, [uploadedImageUrl, selectedProduct, photoSetId, submit]);
+  }, [uploadedImageUrl, selectedProduct, submit]);
 
   const handleSaveToProduct = useCallback(() => {
     if (!selectedOutputs.length || !selectedProduct) return;
@@ -310,40 +296,18 @@ export default function Generate() {
         )}
 
         <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
-              <BlockStack gap="100">
-                <Text as="h2" variant="headingMd">{t("generate.photoSet.heading")}</Text>
-                <Text as="p" tone="subdued" variant="bodySm">
-                  {t("generate.photoSet.description")}
-                </Text>
-              </BlockStack>
-
-              <Select
-                options={photoSetOptions}
-                value={photoSetId}
-                onChange={setPhotoSetId}
-                label={t("generate.photoSet.label")}
-                labelInline
-              />
-
-              <Box background="bg-fill-secondary" padding="300" borderRadius="200">
-                <BlockStack gap="200">
-                  <Text as="p" fontWeight="semibold" variant="bodySm">
-                    {locale === "tr" ? selectedPhotoSet.labelTR : selectedPhotoSet.labelEN}
-                  </Text>
-                  <Text as="p" tone="subdued" variant="bodySm">{setDescription}</Text>
-                  <InlineStack gap="150" wrap>
-                    {selectedPhotoSet.scenes.map((s) => (
-                      <Badge key={s.scene} tone="info">
-                        {locale === "tr" ? s.labelTR : s.labelEN}
-                      </Badge>
-                    ))}
-                  </InlineStack>
-                </BlockStack>
-              </Box>
+          <Banner tone="info">
+            <BlockStack gap="100">
+              <Text as="p" fontWeight="semibold" variant="bodySm">
+                {locale === "tr" ? "Yapay Zeka Otomatik Analiz" : "AI Automatic Analysis"}
+              </Text>
+              <Text as="p" variant="bodySm">
+                {locale === "tr"
+                  ? "Ürün görseli yüklendiğinde AI ürünü analiz eder, kategorisine ve özelliklerine göre 6 özgün editöryal sahne konsepti oluşturur. Herhangi bir kategori seçmenize gerek yok."
+                  : "When a product image is uploaded, AI analyzes it and automatically creates 6 unique editorial scene concepts based on its category and characteristics. No category selection needed."}
+              </Text>
             </BlockStack>
-          </Card>
+          </Banner>
         </Layout.Section>
 
         <Layout.Section variant="oneHalf">

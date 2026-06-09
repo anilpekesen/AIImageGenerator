@@ -1,9 +1,7 @@
 import Replicate from "replicate";
-import { getPhotoSet } from "./photo-sets.js";
+import { generateScenePrompts, FALLBACK_SCENES } from "./prompt-generator.server.js";
 
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-});
+const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
 
 function dataUrlToBuffer(dataUrl) {
   const match = dataUrl.match(/^data:[^;]+;base64,(.+)$/);
@@ -33,35 +31,29 @@ async function removeBackground(imageInput) {
   }
 }
 
-async function generateScene(imageInput, productTitle, sceneConfig, locale) {
-  const prompt = sceneConfig.prompt.replace(/\{product\}/g, productTitle);
+async function generateScene(imageInput, sceneConfig, locale) {
   const label = locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN;
-
-  const output = await replicate.run(
-    "black-forest-labs/flux-dev",
-    {
-      input: {
-        prompt,
-        image: imageInput,
-        prompt_strength: 0.60,
-        num_inference_steps: 28,
-        guidance: 3.5,
-        width: 1024,
-        height: 1024,
-        output_format: "webp",
-        output_quality: 90,
-      },
-    }
-  );
-
+  const output = await replicate.run("black-forest-labs/flux-dev", {
+    input: {
+      prompt: sceneConfig.prompt,
+      image: imageInput,
+      prompt_strength: 0.60,
+      num_inference_steps: 28,
+      guidance: 3.5,
+      width: 1024,
+      height: 1024,
+      output_format: "webp",
+      output_quality: 90,
+    },
+  });
   const url = Array.isArray(output) ? output[0] : output;
   return { url: url?.toString(), scene: sceneConfig.scene, label };
 }
 
-async function generateSceneWithRetry(imageInput, productTitle, sceneConfig, locale, maxRetries = 2) {
+async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetries = 2) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await generateScene(imageInput, productTitle, sceneConfig, locale);
+      return await generateScene(imageInput, sceneConfig, locale);
     } catch (err) {
       const retryAfterMatch = err.message?.match(/"retry_after":(\d+)/);
       const is429 = err.message?.includes("429");
@@ -76,14 +68,22 @@ async function generateSceneWithRetry(imageInput, productTitle, sceneConfig, loc
   }
 }
 
-export async function startGeneration({ imageUrl, productTitle, photoSetId = "general", locale = "tr" }) {
-  const photoSet = getPhotoSet(photoSetId);
+export async function startGeneration({ imageUrl, productTitle, locale = "tr" }) {
   const imageInput = toImageInput(imageUrl);
-  const bgRemovedUrl = await removeBackground(imageInput);
 
+  let scenes;
+  try {
+    scenes = await generateScenePrompts(imageUrl, productTitle);
+  } catch (err) {
+    console.error("[prompt-generator] failed, using fallback scenes:", err.message);
+    scenes = FALLBACK_SCENES;
+  }
+
+  const bgRemovedUrl = await removeBackground(imageInput);
   const results = [];
-  for (const sceneConfig of photoSet.scenes) {
-    const result = await generateSceneWithRetry(bgRemovedUrl, productTitle, sceneConfig, locale).catch((err) => {
+
+  for (const sceneConfig of scenes) {
+    const result = await generateSceneWithRetry(bgRemovedUrl, sceneConfig, locale).catch((err) => {
       console.error(`[replicate] scene "${sceneConfig.scene}" failed:`, err.message);
       return {
         url: null,
