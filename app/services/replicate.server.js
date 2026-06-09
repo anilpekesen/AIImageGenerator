@@ -24,8 +24,11 @@ async function removeBackground(imageInput) {
       "851-labs/background-remover",
       { input: { image: imageInput } }
     );
-    return typeof output === "string" ? output : output?.toString();
-  } catch {
+    const result = typeof output === "string" ? output : output?.toString();
+    console.log("[replicate] bg removed:", result?.slice(0, 80));
+    return result;
+  } catch (err) {
+    console.error("[replicate] bg removal failed, using original:", err.message);
     return imageInput;
   }
 }
@@ -62,12 +65,15 @@ export async function startGeneration({ imageUrl, productTitle, photoSetId = "ge
 
   const results = await Promise.all(
     photoSet.scenes.map((sceneConfig) =>
-      generateScene(bgRemovedUrl, productTitle, sceneConfig, locale).catch((err) => ({
-        url: null,
-        scene: sceneConfig.scene,
-        label: locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN,
-        error: err.message,
-      }))
+      generateScene(bgRemovedUrl, productTitle, sceneConfig, locale).catch((err) => {
+        console.error(`[replicate] scene "${sceneConfig.scene}" failed:`, err.message);
+        return {
+          url: null,
+          scene: sceneConfig.scene,
+          label: locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN,
+          error: err.message,
+        };
+      })
     )
   );
 
