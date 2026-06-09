@@ -20,10 +20,10 @@ function toImageInput(imageUrl) {
 
 async function removeBackground(imageInput) {
   try {
-    const output = await replicate.run(
-      "851-labs/background-remover",
-      { input: { image: imageInput } }
-    );
+    const model = await replicate.models.get("cjwbw", "rembg");
+    const version = model.latest_version?.id;
+    if (!version) throw new Error("No version found for cjwbw/rembg");
+    const output = await replicate.run(`cjwbw/rembg:${version}`, { input: { image: imageInput } });
     const result = typeof output === "string" ? output : output?.toString();
     console.log("[replicate] bg removed:", result?.slice(0, 80));
     return result;
