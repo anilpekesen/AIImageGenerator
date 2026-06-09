@@ -58,24 +58,42 @@ async function generateScene(imageInput, productTitle, sceneConfig, locale) {
   return { url: url?.toString(), scene: sceneConfig.scene, label };
 }
 
+async function generateSceneWithRetry(imageInput, productTitle, sceneConfig, locale, maxRetries = 2) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await generateScene(imageInput, productTitle, sceneConfig, locale);
+    } catch (err) {
+      const retryAfterMatch = err.message?.match(/"retry_after":(\d+)/);
+      const is429 = err.message?.includes("429");
+      if (is429 && attempt < maxRetries) {
+        const wait = ((retryAfterMatch ? parseInt(retryAfterMatch[1]) : 10) + 2) * 1000;
+        console.log(`[replicate] 429 on "${sceneConfig.scene}", retry ${attempt + 1} in ${wait / 1000}s`);
+        await new Promise((r) => setTimeout(r, wait));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 export async function startGeneration({ imageUrl, productTitle, photoSetId = "general", locale = "tr" }) {
   const photoSet = getPhotoSet(photoSetId);
   const imageInput = toImageInput(imageUrl);
   const bgRemovedUrl = await removeBackground(imageInput);
 
-  const results = await Promise.all(
-    photoSet.scenes.map((sceneConfig) =>
-      generateScene(bgRemovedUrl, productTitle, sceneConfig, locale).catch((err) => {
-        console.error(`[replicate] scene "${sceneConfig.scene}" failed:`, err.message);
-        return {
-          url: null,
-          scene: sceneConfig.scene,
-          label: locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN,
-          error: err.message,
-        };
-      })
-    )
-  );
+  const results = [];
+  for (const sceneConfig of photoSet.scenes) {
+    const result = await generateSceneWithRetry(bgRemovedUrl, productTitle, sceneConfig, locale).catch((err) => {
+      console.error(`[replicate] scene "${sceneConfig.scene}" failed:`, err.message);
+      return {
+        url: null,
+        scene: sceneConfig.scene,
+        label: locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN,
+        error: err.message,
+      };
+    });
+    results.push(result);
+  }
 
   return results;
 }
