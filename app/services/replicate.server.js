@@ -6,11 +6,15 @@ const replicate = new Replicate({
 });
 
 async function removeBackground(imageUrl) {
-  const output = await replicate.run(
-    "lucataco/remove-bg",
-    { input: { image: imageUrl } }
-  );
-  return typeof output === "string" ? output : output?.toString();
+  try {
+    const output = await replicate.run(
+      "851-labs/background-remover",
+      { input: { image: imageUrl } }
+    );
+    return typeof output === "string" ? output : output?.toString();
+  } catch {
+    return imageUrl;
+  }
 }
 
 async function generateScene(bgRemovedUrl, productTitle, sceneConfig, locale) {
