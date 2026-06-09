@@ -43,7 +43,7 @@ async function generateScene(imageInput, productTitle, sceneConfig, locale) {
       input: {
         prompt,
         image: imageInput,
-        prompt_strength: 0.75,
+        prompt_strength: 0.60,
         num_inference_steps: 28,
         guidance: 3.5,
         width: 1024,
