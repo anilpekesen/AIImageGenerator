@@ -40,12 +40,12 @@ export async function decrementUsage(shop) {
 }
 
 export async function upgradePlan(shop, plan, chargeId) {
-  const limits = { free: 5, starter: 30, professional: 100, business: 300 };
+  const limits = { free: 8, solo: 150, pro: 750, premium: 2000 };
   return prisma.subscription.update({
     where: { shop },
     data: {
       plan,
-      limitCount: limits[plan] ?? 5,
+      limitCount: limits[plan] ?? 8,
       chargeId,
       isActive: true,
     },

@@ -33,21 +33,22 @@ async function removeBackground(imageInput) {
 
 async function generateScene(imageInput, sceneConfig, locale) {
   const label = locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN;
-  const output = await replicate.run("black-forest-labs/flux-dev", {
+  const aspectRatio = sceneConfig.aspectRatio || "1:1";
+
+  const output = await replicate.run("black-forest-labs/flux-kontext-pro", {
     input: {
       prompt: sceneConfig.prompt,
-      image: imageInput,
-      prompt_strength: 0.60,
-      num_inference_steps: 28,
-      guidance: 3.5,
-      width: 1024,
-      height: 1024,
+      input_image: imageInput,
+      aspect_ratio: aspectRatio,
       output_format: "webp",
       output_quality: 90,
+      safety_tolerance: 2,
+      prompt_upsampling: false,
     },
   });
+
   const url = Array.isArray(output) ? output[0] : output;
-  return { url: url?.toString(), scene: sceneConfig.scene, label };
+  return { url: url?.toString(), scene: sceneConfig.scene, label, aspectRatio };
 }
 
 async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetries = 2) {
@@ -89,6 +90,7 @@ export async function startGeneration({ imageUrl, productTitle, locale = "tr" })
         url: null,
         scene: sceneConfig.scene,
         label: locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN,
+        aspectRatio: sceneConfig.aspectRatio || "1:1",
         error: err.message,
       };
     });
@@ -99,17 +101,15 @@ export async function startGeneration({ imageUrl, productTitle, locale = "tr" })
 }
 
 export async function refineScene({ imageUrl, refinementPrompt }) {
-  const output = await replicate.run("black-forest-labs/flux-dev", {
+  const output = await replicate.run("black-forest-labs/flux-kontext-pro", {
     input: {
       prompt: refinementPrompt,
-      image: imageUrl,
-      prompt_strength: 0.5,
-      num_inference_steps: 28,
-      guidance: 3.5,
-      width: 1024,
-      height: 1024,
+      input_image: imageUrl,
+      aspect_ratio: "1:1",
       output_format: "webp",
       output_quality: 90,
+      safety_tolerance: 2,
+      prompt_upsampling: false,
     },
   });
   const url = Array.isArray(output) ? output[0] : output;

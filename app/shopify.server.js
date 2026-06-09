@@ -13,26 +13,26 @@ const prisma = new PrismaClient();
 export const PLANS = {
   FREE: {
     name: "Free",
-    limit: 5,
+    limit: 8,
     price: 0,
   },
-  STARTER: {
-    name: "Starter",
-    limit: 30,
-    price: 14.99,
-    shopifyPlanName: "Starter - 30 Generations/mo",
+  SOLO: {
+    name: "Solo",
+    limit: 150,
+    price: 29.99,
+    shopifyPlanName: "Solo - 150 Sets/mo",
   },
-  PROFESSIONAL: {
-    name: "Professional",
-    limit: 100,
-    price: 39.99,
-    shopifyPlanName: "Professional - 100 Generations/mo",
+  PRO: {
+    name: "Pro",
+    limit: 750,
+    price: 129.99,
+    shopifyPlanName: "Pro - 750 Sets/mo",
   },
-  BUSINESS: {
-    name: "Business",
-    limit: 300,
-    price: 99.99,
-    shopifyPlanName: "Business - 300 Generations/mo",
+  PREMIUM: {
+    name: "Premium",
+    limit: 2000,
+    price: 299.99,
+    shopifyPlanName: "Premium - 2000 Sets/mo",
   },
 };
 
@@ -46,28 +46,28 @@ const shopify = shopifyApp({
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
   billing: {
-    [PLANS.STARTER.shopifyPlanName]: {
+    [PLANS.SOLO.shopifyPlanName]: {
       lineItems: [
         {
-          amount: PLANS.STARTER.price,
+          amount: PLANS.SOLO.price,
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
         },
       ],
     },
-    [PLANS.PROFESSIONAL.shopifyPlanName]: {
+    [PLANS.PRO.shopifyPlanName]: {
       lineItems: [
         {
-          amount: PLANS.PROFESSIONAL.price,
+          amount: PLANS.PRO.price,
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
         },
       ],
     },
-    [PLANS.BUSINESS.shopifyPlanName]: {
+    [PLANS.PREMIUM.shopifyPlanName]: {
       lineItems: [
         {
-          amount: PLANS.BUSINESS.price,
+          amount: PLANS.PREMIUM.price,
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
         },

@@ -12,9 +12,9 @@
     "pageTitle": "Snap6 — End Studio Photoshoots",
     "plan": {
       "free": "Free",
-      "starter": "Starter",
-      "professional": "Professional",
-      "business": "Business"
+      "solo": "Solo",
+      "pro": "Pro",
+      "premium": "Premium"
     },
     "banner": {
       "title": "Stop paying for studio photoshoots 📸",
@@ -279,62 +279,65 @@
       "currentPlan": "Your Current Plan",
       "downgrade": "Downgrade",
       "upgradeTo": {
-        "starter": "Get Starter",
-        "professional": "Get Professional",
-        "business": "Get Business"
+        "solo": "Get Solo",
+        "pro": "Get Pro",
+        "premium": "Get Premium"
       }
     },
     "plans": {
       "free": {
         "name": "Free",
         "features": [
-          "5 generations/month",
-          "16 photo set types",
-          "6 automatic scenes per generation",
+          "8 generations/month",
+          "AI product analysis (16 categories)",
+          "6 professional scenes per generation",
+          "Multiple aspect ratio support",
           "SEO audit",
           "Community support"
         ]
       },
-      "starter": {
-        "name": "Starter",
+      "solo": {
+        "name": "Solo",
         "features": [
-          "30 generations/month",
-          "16 photo set types",
-          "6 automatic scenes per generation",
+          "150 generations/month",
+          "AI product analysis (16 categories)",
+          "6 professional scenes per generation",
+          "Flux Kontext Pro quality",
           "SEO audit",
           "Competitor price analysis",
           "Priority email support"
         ]
       },
-      "professional": {
-        "name": "Professional",
+      "pro": {
+        "name": "Pro",
         "features": [
-          "100 generations/month",
-          "16 photo set types",
-          "6 automatic scenes per generation",
+          "750 generations/month",
+          "AI product analysis (16 categories)",
+          "6 professional scenes per generation",
+          "Flux Kontext Pro quality",
           "Unlimited SEO audits",
           "Unlimited competitor analyses",
           "Bulk image download",
           "Priority support"
         ]
       },
-      "business": {
-        "name": "Business",
+      "premium": {
+        "name": "Premium",
         "features": [
-          "300 generations/month",
-          "16 photo set types",
-          "6 automatic scenes per generation",
+          "2000 generations/month",
+          "AI product analysis (16 categories)",
+          "6 professional scenes per generation",
+          "Flux Kontext Pro quality",
           "Unlimited SEO audits",
           "Unlimited competitor analyses",
           "Bulk image download",
-          "Dedicated account manager",
-          "API access"
+          "Dedicated account manager"
         ]
       }
     },
     "costNote": {
-      "heading": "Powered by Flux Dev AI",
-      "body": "All plans use Black Forest Labs Flux Dev — the same model powering leading AI photo studios. Each generation produces 6 professional scenes with automatic background removal."
+      "heading": "Powered by Flux Kontext Pro",
+      "body": "All plans use Black Forest Labs Flux Kontext Pro — same quality tier as GPT-4o image editing, the best AI model for product-preserving scene generation. Each generation runs category-specific AI analysis across 16 product types and produces 6 professional scenes."
     }
   },
   "generationGrid": {

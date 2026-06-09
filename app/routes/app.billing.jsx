@@ -27,9 +27,9 @@ export const loader = async ({ request }) => {
   try {
     const { hasActivePayment, appSubscriptions } = await billing.check({
       plans: [
-        PLANS.STARTER.shopifyPlanName,
-        PLANS.PROFESSIONAL.shopifyPlanName,
-        PLANS.BUSINESS.shopifyPlanName,
+        PLANS.SOLO.shopifyPlanName,
+        PLANS.PRO.shopifyPlanName,
+        PLANS.PREMIUM.shopifyPlanName,
       ],
       isTest: true,
     });
@@ -47,9 +47,9 @@ export const action = async ({ request }) => {
   const planKey = formData.get("plan");
 
   const planMap = {
-    starter: PLANS.STARTER.shopifyPlanName,
-    professional: PLANS.PROFESSIONAL.shopifyPlanName,
-    business: PLANS.BUSINESS.shopifyPlanName,
+    solo: PLANS.SOLO.shopifyPlanName,
+    pro: PLANS.PRO.shopifyPlanName,
+    premium: PLANS.PREMIUM.shopifyPlanName,
   };
 
   const planName = planMap[planKey];
@@ -64,7 +64,7 @@ export const action = async ({ request }) => {
   return null;
 };
 
-const PLAN_ORDER = ["free", "starter", "professional", "business"];
+const PLAN_ORDER = ["free", "solo", "pro", "premium"];
 
 const popularPillStyle = {
   position: "absolute",
@@ -130,17 +130,17 @@ export default function Billing() {
   };
 
   const plans = [
-    { key: "free",         price: "$0",     index: 0, highlight: false },
-    { key: "starter",      price: "$14.99", index: 1, highlight: false },
-    { key: "professional", price: "$39.99", index: 2, highlight: true  },
-    { key: "business",     price: "$99.99", index: 3, highlight: false },
+    { key: "free",    price: "$0",      index: 0, highlight: false },
+    { key: "solo",    price: "$29.99",  index: 1, highlight: false },
+    { key: "pro",     price: "$129.99", index: 2, highlight: true  },
+    { key: "premium", price: "$299.99", index: 3, highlight: false },
   ];
 
   const planNameDisplay = {
-    free: t("billing.plans.free.name"),
-    starter: t("billing.plans.starter.name"),
-    professional: t("billing.plans.professional.name"),
-    business: t("billing.plans.business.name"),
+    free:    t("billing.plans.free.name"),
+    solo:    t("billing.plans.solo.name"),
+    pro:     t("billing.plans.pro.name"),
+    premium: t("billing.plans.premium.name"),
   };
 
   return (

@@ -12,9 +12,9 @@
     "pageTitle": "Snap6 — Stüdyo Çekimine Son",
     "plan": {
       "free": "Ücretsiz",
-      "starter": "Başlangıç",
-      "professional": "Profesyonel",
-      "business": "İşletme"
+      "solo": "Solo",
+      "pro": "Pro",
+      "premium": "Premium"
     },
     "banner": {
       "title": "Stüdyo çekimi maliyetine son verin 📸",
@@ -279,62 +279,65 @@
       "currentPlan": "Mevcut Planınız",
       "downgrade": "Düşür",
       "upgradeTo": {
-        "starter": "Başlangıç'a Geç",
-        "professional": "Profesyonel'e Geç",
-        "business": "İşletme'ye Geç"
+        "solo": "Solo'ya Geç",
+        "pro": "Pro'ya Geç",
+        "premium": "Premium'a Geç"
       }
     },
     "plans": {
       "free": {
         "name": "Ücretsiz",
         "features": [
-          "5 üretim/ay",
-          "16 fotoğraf seti türü",
-          "Üretim başına 6 otomatik sahne",
+          "8 üretim/ay",
+          "AI ürün analizi (16 kategori)",
+          "Üretim başına 6 profesyonel sahne",
+          "Farklı aspect ratio desteği",
           "SEO denetimi",
           "Topluluk desteği"
         ]
       },
-      "starter": {
-        "name": "Başlangıç",
+      "solo": {
+        "name": "Solo",
         "features": [
-          "30 üretim/ay",
-          "16 fotoğraf seti türü",
-          "Üretim başına 6 otomatik sahne",
+          "150 üretim/ay",
+          "AI ürün analizi (16 kategori)",
+          "Üretim başına 6 profesyonel sahne",
+          "Flux Kontext Pro kalitesi",
           "SEO denetimi",
           "Rakip fiyat analizi",
           "Öncelikli e-posta desteği"
         ]
       },
-      "professional": {
-        "name": "Profesyonel",
+      "pro": {
+        "name": "Pro",
         "features": [
-          "100 üretim/ay",
-          "16 fotoğraf seti türü",
-          "Üretim başına 6 otomatik sahne",
+          "750 üretim/ay",
+          "AI ürün analizi (16 kategori)",
+          "Üretim başına 6 profesyonel sahne",
+          "Flux Kontext Pro kalitesi",
           "Sınırsız SEO denetimi",
           "Sınırsız rakip analizi",
           "Toplu görsel indirme",
           "Öncelikli destek"
         ]
       },
-      "business": {
-        "name": "İşletme",
+      "premium": {
+        "name": "Premium",
         "features": [
-          "300 üretim/ay",
-          "16 fotoğraf seti türü",
-          "Üretim başına 6 otomatik sahne",
+          "2000 üretim/ay",
+          "AI ürün analizi (16 kategori)",
+          "Üretim başına 6 profesyonel sahne",
+          "Flux Kontext Pro kalitesi",
           "Sınırsız SEO denetimi",
           "Sınırsız rakip analizi",
           "Toplu görsel indirme",
-          "Özel hesap yöneticisi",
-          "API erişimi"
+          "Özel hesap yöneticisi"
         ]
       }
     },
     "costNote": {
-      "heading": "Flux Dev AI ile Güçlendirilmiştir",
-      "body": "Tüm planlar Black Forest Labs Flux Dev modelini kullanır — önde gelen AI fotoğraf stüdyolarına güç veren aynı model. Her üretimde otomatik arka plan kaldırma ile 6 profesyonel sahne üretilir."
+      "heading": "Flux Kontext Pro ile Güçlendirilmiştir",
+      "body": "Tüm planlar Black Forest Labs Flux Kontext Pro modelini kullanır — GPT-4o image edit kalitesinde, ürün kimliğini koruyan en iyi AI görsel düzenleme modeli. Her üretimde 16 kategoriye özel AI analizi ile 6 profesyonel sahne üretilir."
     }
   },
   "generationGrid": {

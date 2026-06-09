@@ -2,6 +2,8 @@
 // systemPrompt is sent to Claude (vision) alongside the product image.
 // Claude must return a JSON array of 6 scene objects.
 
+// Prompts for flux-kontext-pro must be INSTRUCTIONAL ("place this product in..."),
+// not descriptive. The model edits the input image following the instruction.
 const JSON_OUTPUT_INSTRUCTION = `
 OUTPUT FORMAT — return ONLY a valid JSON array of exactly 6 objects, no other text:
 [
@@ -9,17 +11,18 @@ OUTPUT FORMAT — return ONLY a valid JSON array of exactly 6 objects, no other 
     "scene": "kebab-case-id",
     "labelTR": "Türkçe Etiket (2-4 kelime)",
     "labelEN": "English Label (2-4 words)",
-    "aspectRatio": "16:9",
-    "prompt": "Full scene prompt in English. Start with: '[product type] preserved in exact original design, color, and proportions.' Then describe ONLY the scene/environment/lighting/composition/mood. End with: 'Photorealistic, ultra-detailed, editorial photography, cinematic color grading, premium commercial quality.'"
+    "aspectRatio": "1:1",
+    "prompt": "INSTRUCTIONAL prompt for flux-kontext-pro. Must start with an action verb (Place, Show, Display, Present, Photograph). Preserve exact product identity — do not change its design, color, or shape. Be specific about the scene, background, lighting, and mood. End with: 'Preserve the exact original product in full detail. Photorealistic, professional commercial photography quality.'"
   }
 ]
 
 CRITICAL RULES FOR ALL PROMPTS:
-1. PRESERVE THE PRODUCT — begin every prompt with the product preservation note
-2. Describe ONLY the scene/environment/lighting — not the product itself
-3. Be specific and rich in each description — generic prompts produce generic images
-4. Human presence: partial only (no full faces) — hands, torso, legs from behind/side
-5. Each of the 6 scenes must be genuinely different in location, lighting, mood, and composition
+1. INSTRUCTIONAL FORMAT — start with an action verb: Place / Show / Display / Present / Photograph
+2. PRESERVE THE PRODUCT — include 'Preserve the exact original product in full detail' in every prompt
+3. Be specific: describe exact materials, lighting type, colors, atmosphere — generic = bad output
+4. Human presence when needed: partial only — hands, partial torso, partial body — no full faces
+5. aspectRatio must match the shot type: 1:1 for studio/detail, 16:9 for rooms, 4:5 for lifestyle/model, 4:3 for overhead, 9:16 for editorial vertical
+6. Each of the 6 scenes must be different in concept, location, lighting, and mood
 `;
 
 export const PHOTO_SET_TEMPLATES = [
