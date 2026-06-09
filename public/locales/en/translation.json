@@ -71,7 +71,8 @@
     "photoSets": {
       "heading": "Product Photo Sets",
       "subheading": "16 category-specific sets — 6 professional scenes each",
-      "viewAll": "Go to Studio"
+      "viewAll": "Go to Studio",
+      "generateWithSet": "Generate with this Set"
     }
   },
   "products": {

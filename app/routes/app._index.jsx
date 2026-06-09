@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
@@ -16,6 +17,7 @@ import {
   Box,
   Icon,
   Thumbnail,
+  Modal,
 } from "@shopify/polaris";
 import {
   ImageIcon,
@@ -139,6 +141,9 @@ export default function Index() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? "tr";
+
+  const [activeSetId, setActiveSetId] = useState(null);
+  const activeSet = activeSetId ? PHOTO_SETS.find((s) => s.id === activeSetId) : null;
 
   const usagePercent = Math.round(
     (subscription.usedCount / subscription.limitCount) * 100
@@ -406,7 +411,7 @@ export default function Index() {
                   return (
                     <div
                       key={set.id}
-                      onClick={() => navigate("/app/generate")}
+                      onClick={() => setActiveSetId(set.id)}
                       style={{
                         cursor: "pointer",
                         borderRadius: "10px",
@@ -523,6 +528,86 @@ export default function Index() {
           </Card>
         </Layout.Section>
       </Layout>
+
+      {activeSet && (
+        <Modal
+          open={activeSetId !== null}
+          onClose={() => setActiveSetId(null)}
+          title={locale === "tr" ? activeSet.labelTR : activeSet.labelEN}
+          primaryAction={{
+            content: t("dashboard.photoSets.generateWithSet"),
+            onAction: () => { setActiveSetId(null); navigate("/app/generate"); },
+          }}
+          secondaryActions={[{
+            content: t("common.cancel"),
+            onAction: () => setActiveSetId(null),
+          }]}
+        >
+          <Modal.Section>
+            <BlockStack gap="400">
+              <Text as="p" tone="subdued">
+                {locale === "tr" ? activeSet.descriptionTR : activeSet.descriptionEN}
+              </Text>
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "10px",
+              }}>
+                {activeSet.scenes.map((scene, idx) => (
+                  <div key={scene.scene} style={{
+                    aspectRatio: "1 / 1",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    position: "relative",
+                    background: "#f1f2f4",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    padding: "12px",
+                  }}>
+                    <div style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      background: "var(--p-color-bg-fill-brand)",
+                      color: "white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "13px",
+                      fontWeight: "700",
+                      flexShrink: 0,
+                    }}>
+                      {idx + 1}
+                    </div>
+                    <p style={{
+                      margin: 0,
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      textAlign: "center",
+                      color: "var(--p-color-text)",
+                      lineHeight: 1.3,
+                    }}>
+                      {locale === "tr" ? scene.labelTR : scene.labelEN}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ borderRadius: "10px", overflow: "hidden" }}>
+                <img
+                  src={activeSet.exampleImage}
+                  alt={locale === "tr" ? activeSet.labelTR : activeSet.labelEN}
+                  style={{ width: "100%", display: "block", maxHeight: "260px", objectFit: "cover" }}
+                />
+              </div>
+            </BlockStack>
+          </Modal.Section>
+        </Modal>
+      )}
     </Page>
   );
 }

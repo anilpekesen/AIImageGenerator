@@ -71,7 +71,8 @@
     "photoSets": {
       "heading": "Ürün Fotoğraf Setleri",
       "subheading": "Kategorinize özel hazırlanmış 16 set — her birinde 6 profesyonel sahne",
-      "viewAll": "Stüdyoya Git"
+      "viewAll": "Stüdyoya Git",
+      "generateWithSet": "Bu Set ile Üret"
     }
   },
   "products": {
