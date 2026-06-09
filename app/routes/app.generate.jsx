@@ -21,7 +21,12 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import i18next from "../i18next.server";
-import { getOrCreateSubscription, decrementUsage } from "../models/subscription.server";
+import {
+  CREDIT_COSTS,
+  consumeCredits,
+  getOrCreateSubscription,
+  refundCredits,
+} from "../models/subscription.server";
 import { startGeneration, refineScene } from "../services/replicate.server";
 import { createGeneration, updateGeneration } from "../models/generation.server";
 import GenerationGrid from "../components/GenerationGrid";
@@ -51,17 +56,13 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  const CREDITS_PER_SET = 6;
-  const CREDITS_PER_REFINE = 1;
-
   if (intent === "generate") {
     const imageUrl = formData.get("imageUrl");
     const productId = formData.get("productId");
     const productTitle = formData.get("productTitle");
 
-    const subscription = await getOrCreateSubscription(shop);
-    const creditsAvailable = subscription.limitCount - subscription.usedCount;
-    if (creditsAvailable < CREDITS_PER_SET) {
+    const creditsReserved = await consumeCredits(shop, CREDIT_COSTS.PHOTO_SET);
+    if (!creditsReserved) {
       return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
@@ -73,8 +74,9 @@ export const action = async ({ request }) => {
         const outputs = await startGeneration({ imageUrl, productTitle, locale });
         await updateGeneration(generation.id, { outputs: JSON.stringify(outputs), status: "done" });
         const successCount = outputs.filter((o) => o.url).length;
-        if (successCount > 0) await decrementUsage(shop, successCount);
+        await refundCredits(shop, CREDIT_COSTS.PHOTO_SET - successCount);
       } catch (error) {
+        await refundCredits(shop, CREDIT_COSTS.PHOTO_SET);
         await updateGeneration(generation.id, { status: "failed" });
         console.error("[generate] background generation failed:", error.message);
       }
@@ -121,17 +123,16 @@ export const action = async ({ request }) => {
     const scene = formData.get("scene") || "";
     const label = formData.get("label") || "";
 
-    const subscription = await getOrCreateSubscription(shop);
-    const creditsAvailable = subscription.limitCount - subscription.usedCount;
-    if (creditsAvailable < CREDITS_PER_REFINE) {
+    const creditsReserved = await consumeCredits(shop, CREDIT_COSTS.REFINE);
+    if (!creditsReserved) {
       return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
     try {
       const newUrl = await refineScene({ imageUrl, refinementPrompt });
-      await decrementUsage(shop, CREDITS_PER_REFINE);
       return json({ refined: true, outputIndex, newOutput: { url: newUrl, scene, label } });
     } catch (error) {
+      await refundCredits(shop, CREDIT_COSTS.REFINE);
       return json({ error: t("generate.errors.generationFailed", { message: error.message }) }, { status: 500 });
     }
   }

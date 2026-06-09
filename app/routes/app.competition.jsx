@@ -20,7 +20,11 @@ import {
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
-import { getOrCreateSubscription, decrementUsage } from "../models/subscription.server";
+import {
+  CREDIT_COSTS,
+  consumeCredits,
+  refundCredits,
+} from "../models/subscription.server";
 import { searchCompetitorPrices } from "../services/serp-search.server";
 import { summarizeCompetitors } from "../services/ai-text.server";
 import { createCompetitorAnalysis } from "../models/competitor-analysis.server";
@@ -40,8 +44,6 @@ export const loader = async ({ request }) => {
   return json({ preselectedProduct });
 };
 
-const CREDITS_PER_COMPETITOR = 3;
-
 export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const locale = await i18next.getLocale(request);
@@ -55,8 +57,8 @@ export const action = async ({ request }) => {
     return json({ error: t("competition.errors.titleMissing") }, { status: 400 });
   }
 
-  const subscription = await getOrCreateSubscription(session.shop);
-  if (subscription.limitCount - subscription.usedCount < CREDITS_PER_COMPETITOR) {
+  const creditsReserved = await consumeCredits(session.shop, CREDIT_COSTS.COMPETITOR_ANALYSIS);
+  if (!creditsReserved) {
     return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
   }
 
@@ -80,10 +82,9 @@ export const action = async ({ request }) => {
       aiSummary,
     });
 
-    await decrementUsage(session.shop, CREDITS_PER_COMPETITOR);
-
     return json({ success: true, results, aiSummary, productTitle });
   } catch (error) {
+    await refundCredits(session.shop, CREDIT_COSTS.COMPETITOR_ANALYSIS);
     return json({ error: t("competition.errors.analysisFailed", { message: error.message }) }, { status: 500 });
   }
 };

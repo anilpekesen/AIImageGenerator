@@ -483,16 +483,16 @@ export default function Index() {
 
               <InlineGrid columns={{ xs: 1, md: 3 }} gap="400">
                 {[
-                  { key: "feature1", bg: "bg-fill-brand", icon: (
+                  { key: "feature1", icon: (
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                   )},
-                  { key: "feature2", bg: "bg-fill-success", icon: (
+                  { key: "feature2", icon: (
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
                   )},
-                  { key: "feature3", bg: "bg-fill-info", icon: (
+                  { key: "feature3", icon: (
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   )},
-                ].map(({ key, bg, icon }) => (
+                ].map(({ key, icon }) => (
                   <div key={key} style={{
                     background: "var(--p-color-bg-surface-secondary)",
                     borderRadius: "12px",
@@ -501,7 +501,6 @@ export default function Index() {
                     <BlockStack gap="300">
                       <div style={{
                         width: "44px", height: "44px", borderRadius: "10px",
-                        background: `var(--p-color-${bg.replace("bg-fill-", "bg-fill-")})`,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         background: key === "feature1" ? "var(--p-color-bg-fill-brand)" : key === "feature2" ? "var(--p-color-bg-fill-success)" : "var(--p-color-bg-fill-info)",
                       }}>

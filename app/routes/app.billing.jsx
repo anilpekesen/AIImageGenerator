@@ -17,11 +17,11 @@ import {
 } from "@shopify/polaris";
 import { Trans, useTranslation } from "react-i18next";
 import { authenticate, PLANS } from "../shopify.server";
-import { getOrCreateSubscription } from "../models/subscription.server";
+import { getOrCreateSubscription, upgradePlan } from "../models/subscription.server";
 
 export const loader = async ({ request }) => {
   const { session, billing } = await authenticate.admin(request);
-  const subscription = await getOrCreateSubscription(session.shop);
+  let subscription = await getOrCreateSubscription(session.shop);
 
   let activeSubscription = null;
   try {
@@ -35,6 +35,19 @@ export const loader = async ({ request }) => {
     });
     if (hasActivePayment && appSubscriptions.length > 0) {
       activeSubscription = appSubscriptions[0];
+      const planByShopifyName = {
+        [PLANS.SOLO.shopifyPlanName]: "solo",
+        [PLANS.PRO.shopifyPlanName]: "pro",
+        [PLANS.PREMIUM.shopifyPlanName]: "premium",
+      };
+      const activePlanKey = planByShopifyName[activeSubscription.name];
+      if (activePlanKey && subscription.plan !== activePlanKey) {
+        subscription = await upgradePlan(
+          session.shop,
+          activePlanKey,
+          activeSubscription.id?.toString()
+        );
+      }
     }
   } catch {}
 

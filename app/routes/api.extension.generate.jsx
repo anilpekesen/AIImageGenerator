@@ -2,7 +2,11 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { startGeneration } from "../services/replicate.server";
 import { createGeneration, updateGeneration } from "../models/generation.server";
-import { getOrCreateSubscription, decrementUsage } from "../models/subscription.server";
+import {
+  CREDIT_COSTS,
+  consumeCredits,
+  refundCredits,
+} from "../models/subscription.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,8 +30,8 @@ export const action = async ({ request }) => {
     return json({ error: "productId ve imageUrl zorunlu" }, { status: 400, headers: corsHeaders });
   }
 
-  const subscription = await getOrCreateSubscription(shop);
-  if (subscription.usedCount >= subscription.limitCount) {
+  const creditsReserved = await consumeCredits(shop, CREDIT_COSTS.PHOTO_SET);
+  if (!creditsReserved) {
     return json(
       { error: "Aylık üretim limitiniz doldu. Lütfen planınızı yükseltin." },
       { status: 400, headers: corsHeaders }
@@ -48,10 +52,12 @@ export const action = async ({ request }) => {
       outputs: JSON.stringify(outputs),
       status: "done",
     });
-    await decrementUsage(shop);
+    const successCount = outputs.filter((o) => o.url).length;
+    await refundCredits(shop, CREDIT_COSTS.PHOTO_SET - successCount);
 
     return json({ success: true, outputs }, { headers: corsHeaders });
   } catch (error) {
+    await refundCredits(shop, CREDIT_COSTS.PHOTO_SET);
     await updateGeneration(generation.id, { status: "failed" });
     return json({ error: "Üretim başarısız: " + error.message }, { status: 500, headers: corsHeaders });
   }
