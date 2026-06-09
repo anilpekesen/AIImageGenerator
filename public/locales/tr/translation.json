@@ -104,16 +104,21 @@
       "title": "Kaydedildi!",
       "body": "Seçili görseller ürününüze eklendi."
     },
+    "photoSet": {
+      "heading": "Fotoğraf Seti Türü Seç",
+      "description": "Ürün kategorinize özel 6 sahne alın. Mobilya, takı, kıyafet ve daha fazlası için ayrı prompt setleri hazır.",
+      "label": "Fotoğraf Seti"
+    },
     "step1": {
-      "heading": "1. Ürün Seç",
+      "heading": "2. Ürün Seç",
       "selected": "Seçildi"
     },
     "step2": {
-      "heading": "2. Görsel Yükle",
+      "heading": "3. Görsel Yükle",
       "useExistingImage": "Mevcut ürün görselini kullan"
     },
     "step3": {
-      "heading": "3. Tek Tıkla 6 Sahne Üret",
+      "heading": "4. Tek Tıkla 6 Sahne Üret",
       "description": "Prompt yazmanıza gerek yok — stüdyo beyazı, lifestyle, dış mekan, mermer/lüks, dramatik koyu ve flat lay otomatik gelir (~30-60 sn)",
       "remaining": "Kalan: {{count}} üretim",
       "cta": "Stüdyo Çekimi Yerine — 6 Sahne Üret",

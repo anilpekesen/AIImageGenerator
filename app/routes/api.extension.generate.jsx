@@ -20,7 +20,7 @@ export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const { shop } = session;
   const body = await request.json();
-  const { productId, productTitle, imageUrl } = body;
+  const { productId, productTitle, imageUrl, photoSetId } = body;
 
   if (!productId || !imageUrl) {
     return json({ error: "productId ve imageUrl zorunlu" }, { status: 400, headers: corsHeaders });
@@ -42,7 +42,7 @@ export const action = async ({ request }) => {
   });
 
   try {
-    const outputs = await startGeneration({ imageUrl, productTitle: productTitle || "ürün" });
+    const outputs = await startGeneration({ imageUrl, productTitle: productTitle || "ürün", photoSetId: photoSetId || "general" });
 
     await updateGeneration(generation.id, {
       outputs: JSON.stringify(outputs),

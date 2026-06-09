@@ -11,10 +11,11 @@ import {
   InlineStack,
   Banner,
   Spinner,
-  Divider,
   Box,
   Thumbnail,
   Badge,
+  Select,
+  Divider,
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
@@ -27,6 +28,7 @@ import { decrementUsage } from "../models/subscription.server";
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
 import { fetchProductBasicInfo } from "../services/product.server";
+import { PHOTO_SETS } from "../services/photo-sets.js";
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
@@ -55,6 +57,7 @@ export const action = async ({ request }) => {
     const imageUrl = formData.get("imageUrl");
     const productId = formData.get("productId");
     const productTitle = formData.get("productTitle");
+    const photoSetId = formData.get("photoSetId") || "general";
 
     const subscription = await getOrCreateSubscription(shop);
     if (subscription.usedCount >= subscription.limitCount) {
@@ -69,7 +72,7 @@ export const action = async ({ request }) => {
     });
 
     try {
-      const outputs = await startGeneration({ imageUrl, productTitle });
+      const outputs = await startGeneration({ imageUrl, productTitle, photoSetId, locale });
 
       await updateGeneration(generation.id, {
         outputs: JSON.stringify(outputs),
@@ -125,14 +128,24 @@ export default function Generate() {
   const submit = useSubmit();
   const navigation = useNavigation();
   const shopify = useAppBridge();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [selectedOutputs, setSelectedOutputs] = useState([]);
+  const [photoSetId, setPhotoSetId] = useState("general");
 
   const isGenerating = navigation.state === "submitting";
   const remaining = subscription.limitCount - subscription.usedCount;
+  const locale = i18n.resolvedLanguage ?? "tr";
+
+  const photoSetOptions = PHOTO_SETS.map((ps) => ({
+    label: locale === "tr" ? ps.labelTR : ps.labelEN,
+    value: ps.id,
+  }));
+
+  const selectedPhotoSet = PHOTO_SETS.find((ps) => ps.id === photoSetId) ?? PHOTO_SETS[0];
+  const setDescription = locale === "tr" ? selectedPhotoSet.descriptionTR : selectedPhotoSet.descriptionEN;
 
   const handleProductPick = useCallback(async () => {
     const selected = await shopify.resourcePicker({
@@ -163,9 +176,10 @@ export default function Generate() {
     formData.append("imageUrl", uploadedImageUrl);
     formData.append("productId", selectedProduct.id);
     formData.append("productTitle", selectedProduct.title);
+    formData.append("photoSetId", photoSetId);
 
     submit(formData, { method: "post" });
-  }, [uploadedImageUrl, selectedProduct, submit]);
+  }, [uploadedImageUrl, selectedProduct, photoSetId, submit]);
 
   const handleSaveToProduct = useCallback(() => {
     if (!selectedOutputs.length || !selectedProduct) return;
@@ -213,6 +227,43 @@ export default function Generate() {
             </Banner>
           </Layout.Section>
         )}
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <BlockStack gap="100">
+                <Text as="h2" variant="headingMd">{t("generate.photoSet.heading")}</Text>
+                <Text as="p" tone="subdued" variant="bodySm">
+                  {t("generate.photoSet.description")}
+                </Text>
+              </BlockStack>
+
+              <Select
+                options={photoSetOptions}
+                value={photoSetId}
+                onChange={setPhotoSetId}
+                label={t("generate.photoSet.label")}
+                labelInline
+              />
+
+              <Box background="bg-fill-secondary" padding="300" borderRadius="200">
+                <BlockStack gap="200">
+                  <Text as="p" fontWeight="semibold" variant="bodySm">
+                    {locale === "tr" ? selectedPhotoSet.labelTR : selectedPhotoSet.labelEN}
+                  </Text>
+                  <Text as="p" tone="subdued" variant="bodySm">{setDescription}</Text>
+                  <InlineStack gap="150" wrap>
+                    {selectedPhotoSet.scenes.map((s) => (
+                      <Badge key={s.scene} tone="info">
+                        {locale === "tr" ? s.labelTR : s.labelEN}
+                      </Badge>
+                    ))}
+                  </InlineStack>
+                </BlockStack>
+              </Box>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
 
         <Layout.Section variant="oneHalf">
           <Card>

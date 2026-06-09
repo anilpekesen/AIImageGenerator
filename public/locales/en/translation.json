@@ -104,16 +104,21 @@
       "title": "Saved!",
       "body": "The selected images were added to your product."
     },
+    "photoSet": {
+      "heading": "Choose Photo Set Type",
+      "description": "Get 6 scenes tailored to your product category. Separate prompt sets ready for furniture, jewelry, clothing, and more.",
+      "label": "Photo Set"
+    },
     "step1": {
-      "heading": "1. Select Product",
+      "heading": "2. Select Product",
       "selected": "Selected"
     },
     "step2": {
-      "heading": "2. Upload Image",
+      "heading": "3. Upload Image",
       "useExistingImage": "Use existing product image"
     },
     "step3": {
-      "heading": "3. Generate 6 Scenes in One Click",
+      "heading": "4. Generate 6 Scenes in One Click",
       "description": "No need to write prompts — studio white, lifestyle, outdoor, marble/luxury, dramatic dark, and flat lay come automatically (~30-60 sec)",
       "remaining": "Remaining: {{count}} generations",
       "cta": "Replace Studio Photoshoots — Generate 6 Scenes",
