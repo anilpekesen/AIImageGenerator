@@ -18,14 +18,14 @@ async function generateScene(bgRemovedUrl, productTitle, sceneConfig, locale) {
   const label = locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN;
 
   const output = await replicate.run(
-    "black-forest-labs/flux-1.1-pro",
+    "black-forest-labs/flux-dev",
     {
       input: {
         prompt,
         image: bgRemovedUrl,
         prompt_strength: 0.75,
-        num_inference_steps: 25,
-        guidance_scale: 3.5,
+        num_inference_steps: 28,
+        guidance: 3.5,
         width: 1024,
         height: 1024,
         output_format: "webp",
