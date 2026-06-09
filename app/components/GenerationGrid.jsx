@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Text, InlineStack, BlockStack, Box, Badge, Button } from "@shopify/polaris";
 import { useTranslation } from "react-i18next";
 
-export default function GenerationGrid({ outputs, selected, onSelectionChange }) {
+export default function GenerationGrid({ outputs, selected, onSelectionChange, refiningIndex, onRefineRequest }) {
   const { t } = useTranslation();
 
   const toggleSelect = (url) => {
@@ -42,6 +42,7 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
       >
         {outputs.map((output, index) => {
           const isSelected = output.url && selected.includes(output.url);
+          const isRefining = refiningIndex === index;
           const label =
             output.label ||
             (output.scene && t(`generationGrid.scenes.${output.scene}`, { defaultValue: "" })) ||
@@ -55,11 +56,17 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
                 cursor: output.url ? "pointer" : "default",
                 borderRadius: "12px",
                 overflow: "hidden",
-                border: isSelected ? "3px solid #008060" : "3px solid transparent",
+                border: isRefining
+                  ? "3px solid #005bd3"
+                  : isSelected
+                  ? "3px solid #008060"
+                  : "3px solid transparent",
                 position: "relative",
                 transition: "border-color 0.2s",
                 boxShadow: isSelected
                   ? "0 0 0 2px rgba(0,128,96,0.2)"
+                  : isRefining
+                  ? "0 0 0 2px rgba(0,91,211,0.2)"
                   : "0 1px 4px rgba(0,0,0,0.1)",
               }}
             >
@@ -126,6 +133,29 @@ export default function GenerationGrid({ outputs, selected, onSelectionChange })
                 >
                   ✓
                 </div>
+              )}
+
+              {output.url && onRefineRequest && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRefineRequest(index); }}
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    left: "8px",
+                    background: isRefining ? "#005bd3" : "rgba(0,0,0,0.6)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    padding: "4px 8px",
+                    fontSize: "11px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    backdropFilter: "blur(4px)",
+                    lineHeight: "1.4",
+                  }}
+                >
+                  ✏️ {t("generationGrid.refine")}
+                </button>
               )}
             </div>
           );

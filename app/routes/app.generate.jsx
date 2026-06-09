@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
@@ -16,13 +16,14 @@ import {
   Badge,
   Select,
   Divider,
+  TextField,
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import i18next from "../i18next.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
-import { startGeneration } from "../services/replicate.server";
+import { startGeneration, refineScene } from "../services/replicate.server";
 import { createGeneration, updateGeneration } from "../models/generation.server";
 import { decrementUsage } from "../models/subscription.server";
 import GenerationGrid from "../components/GenerationGrid";
@@ -120,6 +121,27 @@ export const action = async ({ request }) => {
     }
   }
 
+  if (intent === "refine-scene") {
+    const imageUrl = formData.get("imageUrl");
+    const refinementPrompt = formData.get("refinementPrompt");
+    const outputIndex = parseInt(formData.get("outputIndex"), 10);
+    const scene = formData.get("scene") || "";
+    const label = formData.get("label") || "";
+
+    const subscription = await getOrCreateSubscription(shop);
+    if (subscription.usedCount >= subscription.limitCount) {
+      return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
+    }
+
+    try {
+      const newUrl = await refineScene({ imageUrl, refinementPrompt });
+      await decrementUsage(shop);
+      return json({ refined: true, outputIndex, newOutput: { url: newUrl, scene, label } });
+    } catch (error) {
+      return json({ error: t("generate.errors.generationFailed", { message: error.message }) }, { status: 500 });
+    }
+  }
+
   return json({ error: t("generate.errors.invalidAction") }, { status: 400 });
 };
 
@@ -135,9 +157,30 @@ export default function Generate() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [selectedOutputs, setSelectedOutputs] = useState([]);
   const [photoSetId, setPhotoSetId] = useState(defaultPhotoSetId ?? "general");
+  const [currentOutputs, setCurrentOutputs] = useState([]);
+  const [refineIndex, setRefineIndex] = useState(null);
+  const [refinePrompt, setRefinePrompt] = useState("");
 
-  const isGenerating = navigation.state === "submitting";
+  const isGenerating = navigation.state === "submitting" && navigation.formData?.get("intent") === "generate";
+  const isRefining = navigation.state === "submitting" && navigation.formData?.get("intent") === "refine-scene";
   const remaining = subscription.limitCount - subscription.usedCount;
+
+  useEffect(() => {
+    if (actionData?.outputs) {
+      setCurrentOutputs(actionData.outputs);
+      setRefineIndex(null);
+      setRefinePrompt("");
+    }
+    if (actionData?.refined) {
+      setCurrentOutputs((prev) => {
+        const next = [...prev];
+        next[actionData.outputIndex] = actionData.newOutput;
+        return next;
+      });
+      setRefineIndex(null);
+      setRefinePrompt("");
+    }
+  }, [actionData]);
   const locale = i18n.resolvedLanguage ?? "tr";
 
   const photoSetOptions = PHOTO_SETS.map((ps) => ({
@@ -193,6 +236,20 @@ export default function Generate() {
     submit(formData, { method: "post" });
     shopify.toast.show(t("generate.toast.saved", { count: selectedOutputs.length }));
   }, [selectedOutputs, selectedProduct, submit, shopify, t]);
+
+  const handleRefine = useCallback(() => {
+    if (refineIndex === null || !refinePrompt.trim()) return;
+    const output = currentOutputs[refineIndex];
+    if (!output?.url) return;
+    const fd = new FormData();
+    fd.append("intent", "refine-scene");
+    fd.append("imageUrl", output.url);
+    fd.append("refinementPrompt", refinePrompt);
+    fd.append("outputIndex", String(refineIndex));
+    fd.append("scene", output.scene || "");
+    fd.append("label", output.label || "");
+    submit(fd, { method: "post" });
+  }, [refineIndex, refinePrompt, currentOutputs, submit]);
 
   return (
     <Page
@@ -366,7 +423,7 @@ export default function Generate() {
           </Layout.Section>
         )}
 
-        {actionData?.outputs && actionData.outputs.length > 0 && (
+        {currentOutputs.length > 0 && (
           <Layout.Section>
             <Card>
               <BlockStack gap="400">
@@ -388,10 +445,73 @@ export default function Generate() {
                 </InlineStack>
 
                 <GenerationGrid
-                  outputs={actionData.outputs}
+                  outputs={currentOutputs}
                   selected={selectedOutputs}
                   onSelectionChange={setSelectedOutputs}
+                  refiningIndex={refineIndex}
+                  onRefineRequest={(index) => {
+                    setRefineIndex(index);
+                    setRefinePrompt("");
+                  }}
                 />
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        )}
+
+        {currentOutputs.length > 0 && refineIndex !== null && (
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="300">
+                <InlineStack gap="300" blockAlign="center">
+                  {currentOutputs[refineIndex]?.url && (
+                    <img
+                      src={currentOutputs[refineIndex].url}
+                      alt=""
+                      style={{ width: "56px", height: "56px", objectFit: "cover", borderRadius: "8px", flexShrink: 0 }}
+                    />
+                  )}
+                  <BlockStack gap="50">
+                    <Text as="p" fontWeight="semibold" variant="bodySm">
+                      {t("generate.refine.heading")}
+                      {currentOutputs[refineIndex]?.label ? ` — ${currentOutputs[refineIndex].label}` : ""}
+                    </Text>
+                    <Text as="p" tone="subdued" variant="bodySm">
+                      {t("generate.refine.description")}
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+
+                <TextField
+                  value={refinePrompt}
+                  onChange={setRefinePrompt}
+                  placeholder={t("generate.refine.placeholder")}
+                  multiline={2}
+                  autoComplete="off"
+                  label=""
+                  labelHidden
+                />
+
+                <InlineStack gap="200" blockAlign="center">
+                  <Button
+                    variant="primary"
+                    onClick={handleRefine}
+                    loading={isRefining}
+                    disabled={!refinePrompt.trim() || remaining <= 0}
+                  >
+                    {isRefining ? t("generate.refine.loading") : t("generate.refine.cta")}
+                  </Button>
+                  <Button
+                    variant="plain"
+                    onClick={() => { setRefineIndex(null); setRefinePrompt(""); }}
+                    disabled={isRefining}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                  <Text as="span" tone="subdued" variant="bodySm">
+                    {t("generate.step3.remaining", { count: remaining })}
+                  </Text>
+                </InlineStack>
               </BlockStack>
             </Card>
           </Layout.Section>

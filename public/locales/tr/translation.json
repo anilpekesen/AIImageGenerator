@@ -162,6 +162,13 @@
     "toast": {
       "saved": "{{count}} görsel ürüne eklendi!"
     },
+    "refine": {
+      "heading": "Görseli Düzenle",
+      "description": "Bu görselde değiştirmek istediğinizi açıklayın. 1 kredi kullanılacak.",
+      "placeholder": "örn: arka planı sahil yap, daha dramatik ışık ekle, bitkilerle çevrele...",
+      "cta": "Yeniden Üret",
+      "loading": "Üretiliyor..."
+    },
     "errors": {
       "monthlyLimitReached": "Aylık limit doldu. Lütfen planınızı yükseltin.",
       "generationFailed": "Görsel üretimi başarısız: {{message}}",
@@ -336,6 +343,7 @@
     "selectedCount": "{{count}} görsel seçili",
     "notGenerated": "Üretilemedi",
     "sceneFallback": "Sahne {{index}}",
+    "refine": "Düzenle",
     "scenes": {
       "studio": "Studio Beyaz",
       "lifestyle-indoor": "Lifestyle İç Mekan",

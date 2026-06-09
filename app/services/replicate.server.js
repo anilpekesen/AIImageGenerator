@@ -7,7 +7,7 @@ const replicate = new Replicate({
 
 async function removeBackground(imageUrl) {
   const output = await replicate.run(
-    "lucataco/remove-bg:95fcc2a26d3899cd6c2691c900465aaeff466285d7090cd62c9e012af4e5d79",
+    "lucataco/remove-bg",
     { input: { image: imageUrl } }
   );
   return typeof output === "string" ? output : output?.toString();
@@ -54,4 +54,22 @@ export async function startGeneration({ imageUrl, productTitle, photoSetId = "ge
   );
 
   return results;
+}
+
+export async function refineScene({ imageUrl, refinementPrompt }) {
+  const output = await replicate.run("black-forest-labs/flux-dev", {
+    input: {
+      prompt: refinementPrompt,
+      image: imageUrl,
+      prompt_strength: 0.5,
+      num_inference_steps: 28,
+      guidance: 3.5,
+      width: 1024,
+      height: 1024,
+      output_format: "webp",
+      output_quality: 90,
+    },
+  });
+  const url = Array.isArray(output) ? output[0] : output;
+  return url?.toString();
 }

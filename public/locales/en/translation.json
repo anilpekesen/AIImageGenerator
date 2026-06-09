@@ -162,6 +162,13 @@
     "toast": {
       "saved": "{{count}} images added to product!"
     },
+    "refine": {
+      "heading": "Refine Image",
+      "description": "Describe what you'd like to change in this image. 1 credit will be used.",
+      "placeholder": "e.g. change background to a beach, add more dramatic lighting, surround with plants...",
+      "cta": "Re-generate",
+      "loading": "Generating..."
+    },
     "errors": {
       "monthlyLimitReached": "Monthly limit reached. Please upgrade your plan.",
       "generationFailed": "Image generation failed: {{message}}",
@@ -336,6 +343,7 @@
     "selectedCount": "{{count}} images selected",
     "notGenerated": "Generation failed",
     "sceneFallback": "Scene {{index}}",
+    "refine": "Edit",
     "scenes": {
       "studio": "Studio White",
       "lifestyle-indoor": "Lifestyle Indoor",
