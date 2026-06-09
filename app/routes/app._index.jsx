@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
@@ -144,6 +144,26 @@ export default function Index() {
 
   const [activeSetId, setActiveSetId] = useState(null);
   const activeSet = activeSetId ? PHOTO_SETS.find((s) => s.id === activeSetId) : null;
+  const [modalImage, setModalImage] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleModalClose = useCallback(() => {
+    setActiveSetId(null);
+    setModalImage(null);
+  }, []);
+
+  const handleFileChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setModalImage(ev.target.result);
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handleModalGenerate = useCallback(() => {
+    handleModalClose();
+    navigate(`/app/generate?photoSetId=${activeSetId}`);
+  }, [activeSetId, navigate, handleModalClose]);
 
   const usagePercent = Math.round(
     (subscription.usedCount / subscription.limitCount) * 100
@@ -532,79 +552,106 @@ export default function Index() {
       {activeSet && (
         <Modal
           open={activeSetId !== null}
-          onClose={() => setActiveSetId(null)}
+          onClose={handleModalClose}
           title={locale === "tr" ? activeSet.labelTR : activeSet.labelEN}
-          primaryAction={{
-            content: t("dashboard.photoSets.generateWithSet"),
-            onAction: () => { setActiveSetId(null); navigate("/app/generate"); },
-          }}
-          secondaryActions={[{
-            content: t("common.cancel"),
-            onAction: () => setActiveSetId(null),
-          }]}
         >
           <Modal.Section>
-            <BlockStack gap="400">
-              <Text as="p" tone="subdued">
-                {locale === "tr" ? activeSet.descriptionTR : activeSet.descriptionEN}
-              </Text>
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
 
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "10px",
-              }}>
-                {activeSet.scenes.map((scene, idx) => (
-                  <div key={scene.scene} style={{
-                    aspectRatio: "1 / 1",
-                    borderRadius: "10px",
-                    overflow: "hidden",
-                    position: "relative",
-                    background: "#f1f2f4",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    padding: "12px",
-                  }}>
+            {/* Top: image upload + description side by side */}
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
+
+              {/* Left: image upload area */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  flexShrink: 0,
+                  width: "140px",
+                  height: "140px",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  position: "relative",
+                  border: modalImage ? "2px solid var(--p-color-border-brand)" : "2px dashed var(--p-color-border)",
+                  background: "var(--p-color-bg-surface-secondary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {modalImage ? (
+                  <>
+                    <img src={modalImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                     <div style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "50%",
-                      background: "var(--p-color-bg-fill-brand)",
-                      color: "white",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "13px",
-                      fontWeight: "700",
-                      flexShrink: 0,
+                      position: "absolute", top: "6px", right: "6px",
+                      background: "rgba(0,0,0,0.55)", borderRadius: "50%",
+                      width: "24px", height: "24px",
+                      display: "flex", alignItems: "center", justifyContent: "center",
                     }}>
-                      {idx + 1}
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     </div>
-                    <p style={{
-                      margin: 0,
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      textAlign: "center",
-                      color: "var(--p-color-text)",
-                      lineHeight: 1.3,
-                    }}>
-                      {locale === "tr" ? scene.labelTR : scene.labelEN}
+                  </>
+                ) : (
+                  <div style={{ textAlign: "center", padding: "12px" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--p-color-icon-subdued)" strokeWidth="1.5" style={{ margin: "0 auto 6px" }}>
+                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+                    </svg>
+                    <p style={{ margin: 0, fontSize: "11px", color: "var(--p-color-text-subdued)", lineHeight: 1.3 }}>
+                      {t("dashboard.photoSets.uploadImage")}
                     </p>
                   </div>
-                ))}
+                )}
               </div>
 
-              <div style={{ borderRadius: "10px", overflow: "hidden" }}>
-                <img
-                  src={activeSet.exampleImage}
-                  alt={locale === "tr" ? activeSet.labelTR : activeSet.labelEN}
-                  style={{ width: "100%", display: "block", maxHeight: "260px", objectFit: "cover" }}
-                />
+              {/* Right: description */}
+              <div style={{ flex: 1, minWidth: "180px" }}>
+                <p style={{ margin: "0 0 12px", fontSize: "13px", color: "var(--p-color-text-subdued)", lineHeight: 1.5 }}>
+                  {locale === "tr" ? activeSet.descriptionTR : activeSet.descriptionEN}
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {activeSet.scenes.map((scene, idx) => (
+                    <span key={scene.scene} style={{
+                      display: "inline-flex", alignItems: "center", gap: "4px",
+                      background: "var(--p-color-bg-fill-secondary)",
+                      borderRadius: "100px", padding: "3px 10px",
+                      fontSize: "11px", fontWeight: "600", color: "var(--p-color-text)",
+                    }}>
+                      <span style={{
+                        width: "16px", height: "16px", borderRadius: "50%",
+                        background: "var(--p-color-bg-fill-brand)", color: "white",
+                        display: "inline-flex", alignItems: "center", justifyContent: "center",
+                        fontSize: "9px", fontWeight: "700", flexShrink: 0,
+                      }}>{idx + 1}</span>
+                      {locale === "tr" ? scene.labelTR : scene.labelEN}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </BlockStack>
+            </div>
+
+            {/* Example output image */}
+            <div style={{ marginTop: "16px", borderRadius: "10px", overflow: "hidden", border: "1px solid var(--p-color-border)" }}>
+              <img
+                src={activeSet.exampleImage}
+                alt={locale === "tr" ? activeSet.labelTR : activeSet.labelEN}
+                style={{ width: "100%", display: "block", maxHeight: "220px", objectFit: "cover" }}
+              />
+            </div>
+
+            {/* Generate button */}
+            <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+              <Button variant="primary" size="large" onClick={handleModalGenerate}>
+                {t("dashboard.photoSets.runAI")}
+                <span style={{ marginLeft: "6px" }}>→</span>
+              </Button>
+            </div>
           </Modal.Section>
         </Modal>
       )}

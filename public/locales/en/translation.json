@@ -72,7 +72,9 @@
       "heading": "Product Photo Sets",
       "subheading": "16 category-specific sets — 6 professional scenes each",
       "viewAll": "Go to Studio",
-      "generateWithSet": "Generate with this Set"
+      "generateWithSet": "Generate with this Set",
+      "uploadImage": "Upload image",
+      "runAI": "Run AI Model"
     }
   },
   "products": {

@@ -36,12 +36,13 @@ export const loader = async ({ request }) => {
 
   const url = new URL(request.url);
   const productId = url.searchParams.get("productId");
+  const defaultPhotoSetId = url.searchParams.get("photoSetId") || "general";
 
   const preselectedProduct = productId
     ? await fetchProductBasicInfo(admin, productId)
     : null;
 
-  return json({ subscription, preselectedProduct });
+  return json({ subscription, preselectedProduct, defaultPhotoSetId });
 };
 
 export const action = async ({ request }) => {
@@ -123,7 +124,7 @@ export const action = async ({ request }) => {
 };
 
 export default function Generate() {
-  const { subscription, preselectedProduct } = useLoaderData();
+  const { subscription, preselectedProduct, defaultPhotoSetId } = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -133,7 +134,7 @@ export default function Generate() {
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [selectedOutputs, setSelectedOutputs] = useState([]);
-  const [photoSetId, setPhotoSetId] = useState("general");
+  const [photoSetId, setPhotoSetId] = useState(defaultPhotoSetId ?? "general");
 
   const isGenerating = navigation.state === "submitting";
   const remaining = subscription.limitCount - subscription.usedCount;
