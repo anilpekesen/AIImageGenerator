@@ -338,7 +338,8 @@
     "costNote": {
       "heading": "Powered by Flux Kontext Pro",
       "body": "All plans use Black Forest Labs Flux Kontext Pro — same quality tier as GPT-4o image editing, the best AI model for product-preserving scene generation. Each generation runs category-specific AI analysis across 16 product types and produces 6 professional scenes."
-    }
+    },
+    "renewalNote": "AI credits renew every month. Unused credits do not carry over to the next month."
   },
   "generationGrid": {
     "selectAll": "Select All",
