@@ -5,19 +5,32 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-async function removeBackground(imageUrl) {
+function dataUrlToBuffer(dataUrl) {
+  const match = dataUrl.match(/^data:[^;]+;base64,(.+)$/);
+  if (!match) return null;
+  return Buffer.from(match[1], "base64");
+}
+
+function toImageInput(imageUrl) {
+  if (typeof imageUrl === "string" && imageUrl.startsWith("data:")) {
+    return dataUrlToBuffer(imageUrl) ?? imageUrl;
+  }
+  return imageUrl;
+}
+
+async function removeBackground(imageInput) {
   try {
     const output = await replicate.run(
       "851-labs/background-remover",
-      { input: { image: imageUrl } }
+      { input: { image: imageInput } }
     );
     return typeof output === "string" ? output : output?.toString();
   } catch {
-    return imageUrl;
+    return imageInput;
   }
 }
 
-async function generateScene(bgRemovedUrl, productTitle, sceneConfig, locale) {
+async function generateScene(imageInput, productTitle, sceneConfig, locale) {
   const prompt = sceneConfig.prompt.replace(/\{product\}/g, productTitle);
   const label = locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN;
 
@@ -26,7 +39,7 @@ async function generateScene(bgRemovedUrl, productTitle, sceneConfig, locale) {
     {
       input: {
         prompt,
-        image: bgRemovedUrl,
+        image: imageInput,
         prompt_strength: 0.75,
         num_inference_steps: 28,
         guidance: 3.5,
@@ -44,7 +57,8 @@ async function generateScene(bgRemovedUrl, productTitle, sceneConfig, locale) {
 
 export async function startGeneration({ imageUrl, productTitle, photoSetId = "general", locale = "tr" }) {
   const photoSet = getPhotoSet(photoSetId);
-  const bgRemovedUrl = await removeBackground(imageUrl);
+  const imageInput = toImageInput(imageUrl);
+  const bgRemovedUrl = await removeBackground(imageInput);
 
   const results = await Promise.all(
     photoSet.scenes.map((sceneConfig) =>
