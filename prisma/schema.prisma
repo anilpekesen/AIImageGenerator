@@ -30,6 +30,8 @@ model Generation {
   shop           String
   productId      String
   productTitle   String
+  photoSetId     String   @default("general")
+  photoSetLabel  String?
   inputImage     String
   bgRemovedImage String?
   outputs        String   @default("[]")

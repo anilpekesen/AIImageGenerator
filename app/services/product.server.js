@@ -7,6 +7,8 @@ const PRODUCT_LIST_QUERY = `
         title
         handle
         status
+        productType
+        tags
         descriptionHtml
         seo { title description }
         featuredImage { url }
@@ -51,6 +53,9 @@ const PRODUCT_BASIC_QUERY = `
     product(id: $id) {
       id
       title
+      productType
+      tags
+      descriptionHtml
       featuredImage { url }
     }
   }
@@ -66,6 +71,9 @@ export async function fetchProductBasicInfo(admin, productId) {
   return {
     id: data.product.id.replace("gid://shopify/Product/", ""),
     title: data.product.title,
+    productType: data.product.productType || "",
+    tags: data.product.tags || [],
+    descriptionHtml: data.product.descriptionHtml || "",
     image: data.product.featuredImage?.url || null,
   };
 }

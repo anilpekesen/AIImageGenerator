@@ -34,7 +34,7 @@ export const PHOTO_SET_TEMPLATES = [
     labelEN: "Sofa Set",
     descriptionTR: "3+2+1, köşe ve komple oturma grupları için 6 profesyonel sahne.",
     descriptionEN: "6 professional scenes for 3+2+1, corner and full sofa sets.",
-    keywords: ["koltuk takım", "sofa set", "3+2", "3+2+1", "köşe takım", "oturma grubu", "l kol", "sectional", "köşe kol"],
+    keywords: ["koltuk takım", "oturma takım", "sofa set", "3+2", "3+2+1", "köşe takım", "oturma grubu", "l kol", "sectional", "köşe kol", "corner sofa", "modular sofa"],
     systemPrompt: `You are a professional furniture photographer generating image prompts for a SOFA SET product (multiple matching seating pieces sold together).
 
 Analyze the uploaded sofa set image carefully:
@@ -68,7 +68,7 @@ ${JSON_OUTPUT_INSTRUCTION}`,
     labelEN: "Armchair & Bergère",
     descriptionTR: "Tekli koltuk ve berjerler için 6 profesyonel sahne.",
     descriptionEN: "6 professional scenes for single armchairs and bergères.",
-    keywords: ["berjer", "bergere", "bergère", "tekli koltuk", "accent chair", "armchair", "lounge chair", "reading chair"],
+    keywords: ["berjer", "bergere", "bergère", "tekli koltuk", "tekli kanepe", "accent chair", "armchair", "lounge chair", "reading chair", "single sofa"],
     systemPrompt: `You are a professional furniture photographer generating image prompts for a SOFA or ARMCHAIR product (single seating piece).
 
 Analyze the uploaded image carefully:
@@ -666,8 +666,25 @@ const KEYWORD_MAP = PHOTO_SET_TEMPLATES.flatMap((t) =>
   t.keywords.map((kw) => ({ kw: kw.toLowerCase(), id: t.id }))
 );
 
-export function detectCategory(productTitle = "") {
-  const lower = productTitle.toLowerCase();
+function stripHtml(value = "") {
+  return value.replace(/<[^>]*>/g, " ");
+}
+
+export function detectCategory(product = "") {
+  const searchable =
+    typeof product === "string"
+      ? product
+      : [
+          product.title,
+          product.productTitle,
+          product.productType,
+          Array.isArray(product.tags) ? product.tags.join(" ") : product.tags,
+          stripHtml(product.descriptionHtml || product.description || ""),
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+  const lower = searchable.toLocaleLowerCase("tr-TR");
   for (const { kw, id } of KEYWORD_MAP) {
     if (lower.includes(kw)) return id;
   }
@@ -676,4 +693,14 @@ export function detectCategory(productTitle = "") {
 
 export function getTemplateById(id) {
   return PHOTO_SET_TEMPLATES.find((t) => t.id === id) ?? PHOTO_SET_TEMPLATES.find((t) => t.id === "general");
+}
+
+export function getPhotoSetOptions(locale = "tr", { includeGeneral = true } = {}) {
+  return PHOTO_SET_TEMPLATES
+    .filter((template) => includeGeneral || template.id !== "general")
+    .map((template) => ({
+      id: template.id,
+      label: locale === "tr" ? template.labelTR : template.labelEN,
+      description: locale === "tr" ? template.descriptionTR : template.descriptionEN,
+    }));
 }

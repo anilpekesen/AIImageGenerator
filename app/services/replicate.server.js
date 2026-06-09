@@ -69,12 +69,12 @@ async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetrie
   }
 }
 
-export async function startGeneration({ imageUrl, productTitle, locale = "tr" }) {
+export async function startGeneration({ imageUrl, productTitle, locale = "tr", photoSetId, product }) {
   const imageInput = toImageInput(imageUrl);
 
   let scenes;
   try {
-    scenes = await generateScenePrompts(imageUrl, productTitle);
+    scenes = await generateScenePrompts(imageUrl, productTitle, { photoSetId, product });
   } catch (err) {
     console.error("[prompt-generator] failed, using fallback scenes:", err.message);
     scenes = FALLBACK_SCENES;
@@ -100,10 +100,19 @@ export async function startGeneration({ imageUrl, productTitle, locale = "tr" })
   return results;
 }
 
-export async function refineScene({ imageUrl, refinementPrompt }) {
+export async function refineScene({ imageUrl, refinementPrompt, sceneLabel, photoSetLabel }) {
+  const contextualPrompt = [
+    refinementPrompt,
+    sceneLabel ? `Keep this as the same "${sceneLabel}" shot type.` : "",
+    photoSetLabel ? `Maintain the visual language of the "${photoSetLabel}" photo set.` : "",
+    "Preserve the exact original product in full detail. Do not change product design, color, material, proportions, or key features. Photorealistic, professional commercial photography quality.",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   const output = await replicate.run("black-forest-labs/flux-kontext-pro", {
     input: {
-      prompt: refinementPrompt,
+      prompt: contextualPrompt,
       input_image: imageUrl,
       aspect_ratio: "1:1",
       output_format: "webp",

@@ -13,8 +13,17 @@ export const loader = async ({ request }) => {
   if (!generation) return json({ status: "not_found" }, { status: 404 });
 
   if (generation.status === "done") {
-    return json({ status: "done", outputs: JSON.parse(generation.outputs || "[]") });
+    return json({
+      status: "done",
+      outputs: JSON.parse(generation.outputs || "[]"),
+      photoSetId: generation.photoSetId,
+      photoSetLabel: generation.photoSetLabel,
+    });
   }
 
-  return json({ status: generation.status });
+  return json({
+    status: generation.status,
+    photoSetId: generation.photoSetId,
+    photoSetLabel: generation.photoSetLabel,
+  });
 };

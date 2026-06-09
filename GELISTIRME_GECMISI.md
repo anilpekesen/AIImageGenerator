@@ -113,7 +113,63 @@ kontrol edilsin."*
 
 ---
 
-## 5. Mevcut Durum / Sıradaki Adımlar
+## 5. Faz 3 — Kategori Bazlı Fotoğraf Seti Motoru ve Kredi Sistemi
+
+Kullanıcı isteği: FolioAI'dan alınan örnek çekim setleri dikkate alınarak,
+Snap6'nın ürünü ve ürün kategorisini anlayıp doğru fotoğraf seti yapısına göre
+6 görsel üretmesi; ayrıca kalite düşürmeden kredi bazlı kullanıma geçilmesi.
+
+### a) Fotoğraf Seti Şablonları
+- **Tek kaynak dosya:** `app/services/photo-set-templates.js`
+- FolioAI referanslarından öğrenilen çekim mantığı, üretim promptlarına doğrudan
+  işlenecek şekilde kategori şablonlarına dönüştürüldü.
+- Desteklenen set ailesi:
+  Koltuk & Berjer, Koltuk Takımı, Yemek Masası Takımı, Sandalye, Karyola,
+  Ofis Mobilyası, Minder, Kırlent, Perde, Masa Örtüsü, Battaniye,
+  Yatak Örtüsü & Pike, Bebek Kıyafeti, Takı, Çanta ve mevcut genel ürün
+  kategorileri.
+- `/app/generate` üzerinde yeni **Fotoğraf Seti Türü** seçimi eklendi.
+  Sistem ürün bilgisinden otomatik öneri yapar, merchant isterse manuel değiştirir.
+
+### b) Ürün Metadata Algılama
+- Shopify ürününden artık yalnızca başlık ve görsel değil; `productType`, `tags`
+  ve `descriptionHtml` da alınır.
+- Kategori tespiti ürün başlığı, ürün tipi, etiketler ve açıklama üzerinden yapılır.
+- Admin UI Extension da aynı metadata'yı backend'e gönderir; Shopify ürün sayfası
+  içinden yapılan üretimler ile `/app/generate` aynı kategori motorunu kullanır.
+
+### c) Prompt ve Refine Davranışı
+- `prompt-generator.server.js`, seçilen fotoğraf setinin 6 sahne yapısını Claude'a
+  bağlam olarak verir.
+- Dashboard önizleme setleri de artık ayrı bir prompt kataloğu tutmaz;
+  `app/services/photo-sets.js`, `photo-set-templates.js` üzerinden türetilir.
+  Böylece UI'da görünen set ile Replicate'a giden gerçek üretim yapısı aynı kalır.
+- Tek görsel yeniden üretim (`refine`) artık sahne adı ve fotoğraf seti bağlamını
+  koruyarak prompt üretir. Amaç: sadece sorunlu görseli yenilemek, ürün kimliğini
+  ve set bütünlüğünü bozmamak.
+- Kalite düşürülmedi: Flux Kontext Pro ve mevcut yüksek kalite ayarı korunur.
+
+### d) Kredi Kararı
+- **1 kredi = 1 görsel**
+- Tam set üretimi: **6 kredi**
+- Tek görsel refine: **1 kredi**
+- SEO denetimi: **1 kredi**
+- Rakip analizi: **3 kredi**
+- AI kredileri her ay yenilenir; kullanılmayan krediler bir sonraki aya devretmez.
+- Fiyatlar sabit kalırken limitler kârlılık için kredi bazlı düşürüldü:
+  Solo 450 kredi, Pro 2.000 kredi, Premium 4.500 kredi.
+- Hedef: tüm ücretli paketlerde API maliyetlerinden sonra en az yaklaşık
+  %30-35 brüt kâr payı bırakmak.
+
+### e) Veritabanı ve İzlenebilirlik
+- `Generation` modeline `photoSetId` ve `photoSetLabel` alanları eklendi.
+- Migration: `prisma/migrations/20260609182000_add_generation_photo_set_metadata/`
+- Geçmiş ekranında üretimin hangi fotoğraf setiyle yapıldığı gösterilir.
+- Generation status API'si de fotoğraf seti bilgisini döndürür.
+
+---
+
+## 6. Mevcut Durum / Sıradaki Adımlar
 
 ✅ Tüm kod yazıldı, Prisma migration uygulandı, extension bağımlılıkları kuruldu
 (`npm install` — 0 vulnerability), tüm 5 tablo (`Session`, `Generation`,
@@ -138,7 +194,7 @@ kontrol edilsin."*
 
 ---
 
-## 6. Önemli Dosya Haritası
+## 7. Önemli Dosya Haritası
 
 ```
 AIImageGenerator/
@@ -153,6 +209,9 @@ AIImageGenerator/
 │   │   └── api.extension.save.jsx      → Extension'dan ürüne kaydetme
 │   ├── services/
 │   │   ├── replicate.server.js     → 6 sahne üretim motoru
+│   │   ├── prompt-generator.server.js → Fotoğraf seti bazlı Claude prompt üretimi
+│   │   ├── photo-set-templates.js  → Kategori bazlı set şablonları
+│   │   ├── photo-sets.js           → Dashboard set önizleme adaptörü
 │   │   ├── ai-text.server.js       → Claude API wrapper (özet + SEO önerisi)
 │   │   ├── google-search.server.js → Google Custom Search wrapper
 │   │   └── seo-audit.server.js     → SEO denetim mantığı + puanlama
@@ -166,5 +225,9 @@ AIImageGenerator/
 │       └── src/BlockExtension.jsx  → Ürün sayfasına gömülü üretim arayüzü
 ├── prisma/schema.prisma            → Session, Generation, Subscription,
 │                                      CompetitorAnalysis, SeoAudit
+├── prisma/migrations/
+│   └── 20260609182000_add_generation_photo_set_metadata/
+│                                      → Generation photoSetId/photoSetLabel alanları
+├── PRODUCT.md                       → Ürün bağlamı ve karar özeti
 └── APP_STORE_LISTING.md            → App Store başvuru metinleri (EN)
 ```

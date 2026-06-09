@@ -7,6 +7,7 @@ import {
   consumeCredits,
   refundCredits,
 } from "../models/subscription.server";
+import { detectCategory, getTemplateById } from "../services/photo-set-templates.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,7 +25,15 @@ export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const { shop } = session;
   const body = await request.json();
-  const { productId, productTitle, imageUrl, photoSetId } = body;
+  const {
+    productId,
+    productTitle,
+    productType = "",
+    tags = [],
+    descriptionHtml = "",
+    imageUrl,
+    photoSetId,
+  } = body;
 
   if (!productId || !imageUrl) {
     return json({ error: "productId ve imageUrl zorunlu" }, { status: 400, headers: corsHeaders });
@@ -38,15 +47,26 @@ export const action = async ({ request }) => {
     );
   }
 
+  const product = { title: productTitle || "", productType, tags, descriptionHtml };
+  const selectedPhotoSetId = photoSetId || detectCategory(product);
+  const photoSet = getTemplateById(selectedPhotoSetId);
+
   const generation = await createGeneration({
     shop,
     productId,
     productTitle: productTitle || "Ürün",
     inputImage: imageUrl,
+    photoSetId: photoSet.id,
+    photoSetLabel: photoSet.labelTR,
   });
 
   try {
-    const outputs = await startGeneration({ imageUrl, productTitle: productTitle || "ürün", photoSetId: photoSetId || "general" });
+    const outputs = await startGeneration({
+      imageUrl,
+      productTitle: productTitle || "ürün",
+      photoSetId: photoSet.id,
+      product,
+    });
 
     await updateGeneration(generation.id, {
       outputs: JSON.stringify(outputs),

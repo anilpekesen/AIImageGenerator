@@ -131,12 +131,13 @@
       "body": "Seçili görseller ürününüze eklendi."
     },
     "photoSet": {
-      "heading": "Fotoğraf Seti Türü Seç",
+      "heading": "2. Fotoğraf Seti Türü Seç",
       "description": "Ürün kategorinize özel 6 sahne alın. Mobilya, takı, kıyafet ve daha fazlası için ayrı prompt setleri hazır.",
-      "label": "Fotoğraf Seti"
+      "label": "Fotoğraf Seti",
+      "autoSelected": "AI önerisi: {{set}}. İsterseniz farklı bir set seçebilirsiniz."
     },
     "step1": {
-      "heading": "2. Ürün Seç",
+      "heading": "1. Ürün Seç",
       "selected": "Seçildi"
     },
     "step2": {

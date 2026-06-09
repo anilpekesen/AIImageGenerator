@@ -13,8 +13,9 @@ function buildImageContent(imageUrl) {
   return { type: "image", source: { type: "url", url: imageUrl } };
 }
 
-export async function generateScenePrompts(imageUrl, productTitle) {
-  const categoryId = detectCategory(productTitle);
+export async function generateScenePrompts(imageUrl, productTitle, options = {}) {
+  const product = options.product || { title: productTitle };
+  const categoryId = options.photoSetId || detectCategory(product);
   const template = getTemplateById(categoryId);
 
   console.log(`[prompt-generator] category: "${categoryId}" for product: "${productTitle}"`);
@@ -32,7 +33,7 @@ export async function generateScenePrompts(imageUrl, productTitle) {
           imageContent,
           {
             type: "text",
-            text: `Product: "${productTitle}"\n\nAnalyze this product image carefully and generate 6 professional photography scene prompts following the template. Return JSON array only.`,
+            text: `Product: "${productTitle}"\nProduct type: "${product.productType || ""}"\nTags: "${Array.isArray(product.tags) ? product.tags.join(", ") : product.tags || ""}"\n\nAnalyze this product image carefully and generate 6 professional photography scene prompts following the selected "${template.labelEN}" template. Return JSON array only.`,
           },
         ],
       },
@@ -52,7 +53,12 @@ export async function generateScenePrompts(imageUrl, productTitle) {
   }
 
   console.log(`[prompt-generator] generated ${scenes.length} scenes`);
-  return scenes;
+  return scenes.map((scene) => ({
+    ...scene,
+    photoSetId: template.id,
+    photoSetLabelTR: template.labelTR,
+    photoSetLabelEN: template.labelEN,
+  }));
 }
 
 export const FALLBACK_SCENES = [

@@ -24,6 +24,9 @@ const PRODUCT_QUERY = `
   query ProductForSnap6($id: ID!) {
     product(id: $id) {
       title
+      productType
+      tags
+      descriptionHtml
       featuredImage { url }
     }
   }
@@ -82,6 +85,9 @@ function Snap6Block() {
       const result = await callBackend("/api/extension/generate", {
         productId: productGid.replace("gid://shopify/Product/", ""),
         productTitle: product?.title,
+        productType: product?.productType,
+        tags: product?.tags || [],
+        descriptionHtml: product?.descriptionHtml || "",
         imageUrl,
       });
 

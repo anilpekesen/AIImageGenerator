@@ -16,6 +16,7 @@ import {
   Badge,
   Divider,
   TextField,
+  Select,
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
@@ -32,19 +33,32 @@ import { createGeneration, updateGeneration } from "../models/generation.server"
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
 import { fetchProductBasicInfo } from "../services/product.server";
+import { detectCategory, getPhotoSetOptions, getTemplateById } from "../services/photo-set-templates.js";
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
   const subscription = await getOrCreateSubscription(session.shop);
+  const locale = await i18next.getLocale(request);
 
   const url = new URL(request.url);
   const productId = url.searchParams.get("productId");
+  const requestedPhotoSetId = url.searchParams.get("photoSetId");
+  const requestedPhotoSet = requestedPhotoSetId ? getTemplateById(requestedPhotoSetId) : null;
 
   const preselectedProduct = productId
     ? await fetchProductBasicInfo(admin, productId)
     : null;
 
-  return json({ subscription, preselectedProduct });
+  const suggestedPhotoSetId = requestedPhotoSet?.id || (preselectedProduct
+    ? detectCategory(preselectedProduct)
+    : "general");
+
+  return json({
+    subscription,
+    preselectedProduct,
+    suggestedPhotoSetId,
+    photoSetOptions: getPhotoSetOptions(locale),
+  });
 };
 
 export const action = async ({ request }) => {
@@ -60,18 +74,36 @@ export const action = async ({ request }) => {
     const imageUrl = formData.get("imageUrl");
     const productId = formData.get("productId");
     const productTitle = formData.get("productTitle");
+    const photoSetId = formData.get("photoSetId") || "general";
+    const productType = formData.get("productType") || "";
+    const tags = JSON.parse(formData.get("tags") || "[]");
+    const descriptionHtml = formData.get("descriptionHtml") || "";
+    const photoSet = getTemplateById(photoSetId);
 
     const creditsReserved = await consumeCredits(shop, CREDIT_COSTS.PHOTO_SET);
     if (!creditsReserved) {
       return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
-    const generation = await createGeneration({ shop, productId, productTitle, inputImage: imageUrl });
+    const generation = await createGeneration({
+      shop,
+      productId,
+      productTitle,
+      inputImage: imageUrl,
+      photoSetId: photoSet.id,
+      photoSetLabel: locale === "tr" ? photoSet.labelTR : photoSet.labelEN,
+    });
 
     // Fire and forget — respond immediately, generate in background
     (async () => {
       try {
-        const outputs = await startGeneration({ imageUrl, productTitle, locale });
+        const outputs = await startGeneration({
+          imageUrl,
+          productTitle,
+          locale,
+          photoSetId: photoSet.id,
+          product: { title: productTitle, productType, tags, descriptionHtml },
+        });
         await updateGeneration(generation.id, { outputs: JSON.stringify(outputs), status: "done" });
         const successCount = outputs.filter((o) => o.url).length;
         await refundCredits(shop, CREDIT_COSTS.PHOTO_SET - successCount);
@@ -122,6 +154,9 @@ export const action = async ({ request }) => {
     const outputIndex = parseInt(formData.get("outputIndex"), 10);
     const scene = formData.get("scene") || "";
     const label = formData.get("label") || "";
+    const aspectRatio = formData.get("aspectRatio") || "1:1";
+    const photoSetId = formData.get("photoSetId") || "general";
+    const photoSetLabel = formData.get("photoSetLabel") || "";
 
     const creditsReserved = await consumeCredits(shop, CREDIT_COSTS.REFINE);
     if (!creditsReserved) {
@@ -129,8 +164,17 @@ export const action = async ({ request }) => {
     }
 
     try {
-      const newUrl = await refineScene({ imageUrl, refinementPrompt });
-      return json({ refined: true, outputIndex, newOutput: { url: newUrl, scene, label } });
+      const newUrl = await refineScene({
+        imageUrl,
+        refinementPrompt,
+        sceneLabel: label || scene,
+        photoSetLabel,
+      });
+      return json({
+        refined: true,
+        outputIndex,
+        newOutput: { url: newUrl, scene, label, aspectRatio, photoSetId, photoSetLabel },
+      });
     } catch (error) {
       await refundCredits(shop, CREDIT_COSTS.REFINE);
       return json({ error: t("generate.errors.generationFailed", { message: error.message }) }, { status: 500 });
@@ -141,7 +185,7 @@ export const action = async ({ request }) => {
 };
 
 export default function Generate() {
-  const { subscription, preselectedProduct } = useLoaderData();
+  const { subscription, preselectedProduct, suggestedPhotoSetId, photoSetOptions } = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -149,6 +193,7 @@ export default function Generate() {
   const { t, i18n } = useTranslation();
 
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
+  const [selectedPhotoSetId, setSelectedPhotoSetId] = useState(suggestedPhotoSetId || "general");
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [selectedOutputs, setSelectedOutputs] = useState([]);
   const [currentOutputs, setCurrentOutputs] = useState([]);
@@ -201,6 +246,7 @@ export default function Generate() {
     }
   }, [statusFetcher.data]);
   const locale = i18n.resolvedLanguage ?? "tr";
+  const selectedPhotoSet = photoSetOptions.find((option) => option.id === selectedPhotoSetId) || photoSetOptions[0];
 
   const handleProductPick = useCallback(async () => {
     const selected = await shopify.resourcePicker({
@@ -212,13 +258,17 @@ export default function Generate() {
 
     if (selected?.selection?.length > 0) {
       const product = selected.selection[0];
+      const imageUrl = product.images?.[0]?.originalSrc || product.images?.[0]?.url;
       setSelectedProduct({
         id: product.id.replace("gid://shopify/Product/", ""),
         title: product.title,
-        image: product.images[0]?.originalSrc,
+        productType: product.productType || "",
+        tags: product.tags || [],
+        descriptionHtml: product.descriptionHtml || "",
+        image: imageUrl,
       });
-      if (product.images[0]?.originalSrc) {
-        setUploadedImageUrl(product.images[0].originalSrc);
+      if (imageUrl) {
+        setUploadedImageUrl(imageUrl);
       }
     }
   }, [shopify, selectedProduct]);
@@ -231,9 +281,13 @@ export default function Generate() {
     formData.append("imageUrl", uploadedImageUrl);
     formData.append("productId", selectedProduct.id);
     formData.append("productTitle", selectedProduct.title);
+    formData.append("photoSetId", selectedPhotoSetId);
+    formData.append("productType", selectedProduct.productType || "");
+    formData.append("tags", JSON.stringify(selectedProduct.tags || []));
+    formData.append("descriptionHtml", selectedProduct.descriptionHtml || "");
 
     submit(formData, { method: "post" });
-  }, [uploadedImageUrl, selectedProduct, submit]);
+  }, [uploadedImageUrl, selectedProduct, selectedPhotoSetId, submit]);
 
   const handleSaveToProduct = useCallback(() => {
     if (!selectedOutputs.length || !selectedProduct) return;
@@ -258,8 +312,11 @@ export default function Generate() {
     fd.append("outputIndex", String(refineIndex));
     fd.append("scene", output.scene || "");
     fd.append("label", output.label || "");
+    fd.append("aspectRatio", output.aspectRatio || "1:1");
+    fd.append("photoSetId", output.photoSetId || selectedPhotoSetId);
+    fd.append("photoSetLabel", selectedPhotoSet?.label || "");
     submit(fd, { method: "post" });
-  }, [refineIndex, refinePrompt, currentOutputs, submit]);
+  }, [refineIndex, refinePrompt, currentOutputs, selectedPhotoSetId, selectedPhotoSet, submit]);
 
   return (
     <Page
@@ -347,6 +404,30 @@ export default function Generate() {
               <Button onClick={handleProductPick}>
                 {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
               </Button>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section variant="oneHalf">
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">{t("generate.photoSet.heading")}</Text>
+              <Select
+                label={t("generate.photoSet.label")}
+                options={photoSetOptions.map((option) => ({
+                  label: option.label,
+                  value: option.id,
+                }))}
+                value={selectedPhotoSetId}
+                onChange={setSelectedPhotoSetId}
+              />
+              {selectedPhotoSet?.description && (
+                <Text as="p" tone="subdued" variant="bodySm">
+                  {selectedPhotoSetId === suggestedPhotoSetId
+                    ? t("generate.photoSet.autoSelected", { set: selectedPhotoSet.label })
+                    : selectedPhotoSet.description}
+                </Text>
+              )}
             </BlockStack>
           </Card>
         </Layout.Section>

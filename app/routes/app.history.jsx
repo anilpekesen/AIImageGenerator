@@ -76,15 +76,20 @@ export default function History() {
                         <Text as="p" fontWeight="semibold">
                           {gen.productTitle}
                         </Text>
-                        <Text as="p" tone="subdued" variant="bodySm">
-                          {new Date(gen.createdAt).toLocaleDateString(dateLocale, {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </Text>
+                        <InlineStack gap="200" blockAlign="center">
+                          {gen.photoSetLabel && (
+                            <Badge tone="info">{gen.photoSetLabel}</Badge>
+                          )}
+                          <Text as="p" tone="subdued" variant="bodySm">
+                            {new Date(gen.createdAt).toLocaleDateString(dateLocale, {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </Text>
+                        </InlineStack>
                       </BlockStack>
                       <Badge tone={tone}>{label}</Badge>
                     </InlineStack>

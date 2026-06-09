@@ -1,11 +1,20 @@
 import { prisma } from "../shopify.server";
 
-export async function createGeneration({ shop, productId, productTitle, inputImage }) {
+export async function createGeneration({
+  shop,
+  productId,
+  productTitle,
+  inputImage,
+  photoSetId = "general",
+  photoSetLabel,
+}) {
   return prisma.generation.create({
     data: {
       shop,
       productId,
       productTitle,
+      photoSetId,
+      photoSetLabel,
       inputImage,
       status: "processing",
       outputs: "[]",
