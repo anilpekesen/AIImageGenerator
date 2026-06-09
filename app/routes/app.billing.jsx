@@ -66,6 +66,26 @@ export const action = async ({ request }) => {
 
 const PLAN_ORDER = ["free", "starter", "professional", "business"];
 
+const popularPillStyle = {
+  position: "absolute",
+  top: 0,
+  left: "50%",
+  transform: "translateX(-50%)",
+  background: "var(--p-color-bg-fill-brand)",
+  color: "white",
+  padding: "3px 14px",
+  borderRadius: "100px",
+  fontSize: "12px",
+  fontWeight: "650",
+  whiteSpace: "nowrap",
+  zIndex: 1,
+};
+
+const popularWrapperStyle = {
+  borderRadius: "12px",
+  outline: "2px solid var(--p-color-border-brand)",
+};
+
 export default function Billing() {
   const { subscription } = useLoaderData();
   const submit = useSubmit();
@@ -110,41 +130,10 @@ export default function Billing() {
   };
 
   const plans = [
-    {
-      key: "free",
-      price: "$0",
-      index: 0,
-      highlight: false,
-      badges: currentPlan === "free" ? [{ tone: "info", label: t("billing.badges.currentPlan") }] : [],
-    },
-    {
-      key: "starter",
-      price: "$14.99",
-      index: 1,
-      highlight: false,
-      badges: [
-        ...(currentPlan === "starter" ? [{ tone: "success", label: t("billing.badges.active") }] : []),
-      ],
-    },
-    {
-      key: "professional",
-      price: "$39.99",
-      index: 2,
-      highlight: true,
-      badges: [
-        { tone: "attention", label: t("billing.badges.popular") },
-        ...(currentPlan === "professional" ? [{ tone: "success", label: t("billing.badges.active") }] : []),
-      ],
-    },
-    {
-      key: "business",
-      price: "$99.99",
-      index: 3,
-      highlight: false,
-      badges: [
-        ...(currentPlan === "business" ? [{ tone: "success", label: t("billing.badges.active") }] : []),
-      ],
-    },
+    { key: "free",         price: "$0",     index: 0, highlight: false },
+    { key: "starter",      price: "$14.99", index: 1, highlight: false },
+    { key: "professional", price: "$39.99", index: 2, highlight: true  },
+    { key: "business",     price: "$99.99", index: 3, highlight: false },
   ];
 
   const planNameDisplay = {
@@ -177,22 +166,23 @@ export default function Billing() {
 
         <Layout.Section>
           <InlineGrid columns={{ xs: 1, sm: 2, md: 4 }} gap="400">
-            {plans.map(({ key, price, index, highlight, badges }) => {
+            {plans.map(({ key, price, index, highlight }) => {
               const features = t(`billing.plans.${key}.features`, { returnObjects: true });
-              return (
-                <Card key={key} background={highlight ? "bg-fill-brand" : undefined}>
+              const isActive = currentPlan === key;
+
+              const cardInner = (
+                <Card>
                   <BlockStack gap="400">
                     <BlockStack gap="100">
-                      <InlineStack align="space-between" blockAlign="start">
+                      <InlineStack align="space-between" blockAlign="center">
                         <Text as="h2" variant="headingLg">
                           {t(`billing.plans.${key}.name`)}
                         </Text>
-                        {badges.length > 0 && (
-                          <InlineStack gap="100">
-                            {badges.map((b) => (
-                              <Badge key={b.label} tone={b.tone}>{b.label}</Badge>
-                            ))}
-                          </InlineStack>
+                        {isActive && (
+                          <Badge tone="success">{t("billing.badges.active")}</Badge>
+                        )}
+                        {!isActive && key === "free" && currentPlan === "free" && (
+                          <Badge tone="info">{t("billing.badges.currentPlan")}</Badge>
                         )}
                       </InlineStack>
                       <Text as="p" variant="headingXl" fontWeight="bold">{price}</Text>
@@ -213,6 +203,21 @@ export default function Billing() {
                   </BlockStack>
                 </Card>
               );
+
+              if (highlight) {
+                return (
+                  <div key={key} style={{ position: "relative", paddingTop: "20px" }}>
+                    <div style={popularPillStyle}>
+                      ⭐ {t("billing.badges.popular")}
+                    </div>
+                    <div style={popularWrapperStyle}>
+                      {cardInner}
+                    </div>
+                  </div>
+                );
+              }
+
+              return <div key={key}>{cardInner}</div>;
             })}
           </InlineGrid>
         </Layout.Section>
