@@ -8,10 +8,12 @@ import {
   Button,
   BlockStack,
   InlineStack,
+  InlineGrid,
   Badge,
   List,
   Divider,
   Banner,
+  Box,
 } from "@shopify/polaris";
 import { Trans, useTranslation } from "react-i18next";
 import { authenticate, PLANS } from "../shopify.server";
@@ -24,7 +26,11 @@ export const loader = async ({ request }) => {
   let activeSubscription = null;
   try {
     const { hasActivePayment, appSubscriptions } = await billing.check({
-      plans: [PLANS.BASIC.shopifyPlanName, PLANS.PRO.shopifyPlanName],
+      plans: [
+        PLANS.STARTER.shopifyPlanName,
+        PLANS.PROFESSIONAL.shopifyPlanName,
+        PLANS.BUSINESS.shopifyPlanName,
+      ],
       isTest: true,
     });
     if (hasActivePayment && appSubscriptions.length > 0) {
@@ -40,10 +46,14 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const planKey = formData.get("plan");
 
-  const planName =
-    planKey === "basic"
-      ? PLANS.BASIC.shopifyPlanName
-      : PLANS.PRO.shopifyPlanName;
+  const planMap = {
+    starter: PLANS.STARTER.shopifyPlanName,
+    professional: PLANS.PROFESSIONAL.shopifyPlanName,
+    business: PLANS.BUSINESS.shopifyPlanName,
+  };
+
+  const planName = planMap[planKey];
+  if (!planName) return json({ error: "Invalid plan" }, { status: 400 });
 
   await billing.request({
     plan: planName,
@@ -54,22 +64,94 @@ export const action = async ({ request }) => {
   return null;
 };
 
+const PLAN_ORDER = ["free", "starter", "professional", "business"];
+
 export default function Billing() {
-  const { subscription, activeSubscription } = useLoaderData();
+  const { subscription } = useLoaderData();
   const submit = useSubmit();
   const { t } = useTranslation();
 
   const currentPlan = subscription.plan;
-  const planFeatures = {
-    free: t("billing.plans.free.features", { returnObjects: true }),
-    basic: t("billing.plans.basic.features", { returnObjects: true }),
-    pro: t("billing.plans.pro.features", { returnObjects: true }),
-  };
+  const currentIndex = PLAN_ORDER.indexOf(currentPlan);
 
   const handleUpgrade = (plan) => {
     const formData = new FormData();
     formData.append("plan", plan);
     submit(formData, { method: "post" });
+  };
+
+  const getPlanButton = (planKey, planIndex) => {
+    if (currentPlan === planKey) {
+      return (
+        <Button disabled fullWidth>
+          {t("billing.buttons.currentPlan")}
+        </Button>
+      );
+    }
+    if (planKey === "free") {
+      return (
+        <Button disabled fullWidth>
+          {t("billing.buttons.downgrade")}
+        </Button>
+      );
+    }
+    const isUpgrade = planIndex > currentIndex;
+    return (
+      <Button
+        variant={isUpgrade ? "primary" : "secondary"}
+        onClick={() => handleUpgrade(planKey)}
+        fullWidth
+      >
+        {isUpgrade
+          ? t(`billing.buttons.upgradeTo.${planKey}`)
+          : t("billing.buttons.downgrade")}
+      </Button>
+    );
+  };
+
+  const plans = [
+    {
+      key: "free",
+      price: "$0",
+      index: 0,
+      highlight: false,
+      badges: currentPlan === "free" ? [{ tone: "info", label: t("billing.badges.currentPlan") }] : [],
+    },
+    {
+      key: "starter",
+      price: "$14.99",
+      index: 1,
+      highlight: false,
+      badges: [
+        ...(currentPlan === "starter" ? [{ tone: "success", label: t("billing.badges.active") }] : []),
+      ],
+    },
+    {
+      key: "professional",
+      price: "$39.99",
+      index: 2,
+      highlight: true,
+      badges: [
+        { tone: "attention", label: t("billing.badges.popular") },
+        ...(currentPlan === "professional" ? [{ tone: "success", label: t("billing.badges.active") }] : []),
+      ],
+    },
+    {
+      key: "business",
+      price: "$99.99",
+      index: 3,
+      highlight: false,
+      badges: [
+        ...(currentPlan === "business" ? [{ tone: "success", label: t("billing.badges.active") }] : []),
+      ],
+    },
+  ];
+
+  const planNameDisplay = {
+    free: t("billing.plans.free.name"),
+    starter: t("billing.plans.starter.name"),
+    professional: t("billing.plans.professional.name"),
+    business: t("billing.plans.business.name"),
   };
 
   return (
@@ -82,7 +164,7 @@ export default function Billing() {
                 <Trans
                   i18nKey="billing.activeBanner.body"
                   values={{
-                    plan: currentPlan === "basic" ? t("billing.plans.basic.name") : t("billing.plans.pro.name"),
+                    plan: planNameDisplay[currentPlan] || currentPlan,
                     used: subscription.usedCount,
                     limit: subscription.limitCount,
                   }}
@@ -94,98 +176,56 @@ export default function Billing() {
         )}
 
         <Layout.Section>
-          <InlineStack gap="400" align="start" wrap={false}>
-            {/* Free Plan */}
-            <Card>
-              <BlockStack gap="400">
-                <BlockStack gap="100">
-                  <InlineStack align="space-between">
-                    <Text as="h2" variant="headingLg">{t("billing.plans.free.name")}</Text>
-                    {currentPlan === "free" && <Badge tone="info">{t("billing.badges.currentPlan")}</Badge>}
-                  </InlineStack>
-                  <Text as="p" variant="headingXl" fontWeight="bold">$0</Text>
-                  <Text as="p" tone="subdued">{t("billing.perMonth")}</Text>
-                </BlockStack>
+          <InlineGrid columns={{ xs: 1, sm: 2, md: 4 }} gap="400">
+            {plans.map(({ key, price, index, highlight, badges }) => {
+              const features = t(`billing.plans.${key}.features`, { returnObjects: true });
+              return (
+                <Card key={key} background={highlight ? "bg-fill-brand" : undefined}>
+                  <BlockStack gap="400">
+                    <BlockStack gap="100">
+                      <InlineStack align="space-between" blockAlign="start">
+                        <Text as="h2" variant="headingLg">
+                          {t(`billing.plans.${key}.name`)}
+                        </Text>
+                        {badges.length > 0 && (
+                          <InlineStack gap="100">
+                            {badges.map((b) => (
+                              <Badge key={b.label} tone={b.tone}>{b.label}</Badge>
+                            ))}
+                          </InlineStack>
+                        )}
+                      </InlineStack>
+                      <Text as="p" variant="headingXl" fontWeight="bold">{price}</Text>
+                      <Text as="p" tone="subdued">{t("billing.perMonth")}</Text>
+                    </BlockStack>
 
-                <Divider />
+                    <Divider />
 
-                <List type="bullet">
-                  {planFeatures.free.map((f) => (
-                    <List.Item key={f}>{f}</List.Item>
-                  ))}
-                </List>
+                    <List type="bullet">
+                      {Array.isArray(features) && features.map((f) => (
+                        <List.Item key={f}>{f}</List.Item>
+                      ))}
+                    </List>
 
-                <Button disabled={currentPlan === "free"} fullWidth>
-                  {currentPlan === "free" ? t("billing.buttons.currentPlan") : t("billing.buttons.downgrade")}
-                </Button>
-              </BlockStack>
-            </Card>
+                    <Box paddingBlockStart="200">
+                      {getPlanButton(key, index)}
+                    </Box>
+                  </BlockStack>
+                </Card>
+              );
+            })}
+          </InlineGrid>
+        </Layout.Section>
 
-            {/* Basic Plan */}
-            <Card>
-              <BlockStack gap="400">
-                <BlockStack gap="100">
-                  <InlineStack align="space-between">
-                    <Text as="h2" variant="headingLg">{t("billing.plans.basic.name")}</Text>
-                    {currentPlan === "basic" && <Badge tone="success">{t("billing.badges.active")}</Badge>}
-                  </InlineStack>
-                  <Text as="p" variant="headingXl" fontWeight="bold">$9.99</Text>
-                  <Text as="p" tone="subdued">{t("billing.perMonth")}</Text>
-                </BlockStack>
-
-                <Divider />
-
-                <List type="bullet">
-                  {planFeatures.basic.map((f) => (
-                    <List.Item key={f}>{f}</List.Item>
-                  ))}
-                </List>
-
-                <Button
-                  variant={currentPlan === "basic" ? "secondary" : "primary"}
-                  onClick={() => handleUpgrade("basic")}
-                  disabled={currentPlan === "basic"}
-                  fullWidth
-                >
-                  {currentPlan === "basic" ? t("billing.buttons.currentPlan") : t("billing.buttons.switchToBasic")}
-                </Button>
-              </BlockStack>
-            </Card>
-
-            {/* Pro Plan */}
-            <Card background="bg-fill-brand">
-              <BlockStack gap="400">
-                <BlockStack gap="100">
-                  <InlineStack align="space-between">
-                    <Text as="h2" variant="headingLg">{t("billing.plans.pro.name")}</Text>
-                    <InlineStack gap="100">
-                      <Badge tone="attention">{t("billing.badges.popular")}</Badge>
-                      {currentPlan === "pro" && <Badge tone="success">{t("billing.badges.active")}</Badge>}
-                    </InlineStack>
-                  </InlineStack>
-                  <Text as="p" variant="headingXl" fontWeight="bold">$29.99</Text>
-                  <Text as="p" tone="subdued">{t("billing.perMonth")}</Text>
-                </BlockStack>
-
-                <Divider />
-
-                <List type="bullet">
-                  {planFeatures.pro.map((f) => (
-                    <List.Item key={f}>{f}</List.Item>
-                  ))}
-                </List>
-
-                <Button
-                  variant="primary"
-                  onClick={() => handleUpgrade("pro")}
-                  disabled={currentPlan === "pro"}
-                  fullWidth
-                >
-                  {currentPlan === "pro" ? t("billing.buttons.currentPlan") : t("billing.buttons.switchToPro")}
-                </Button>
-              </BlockStack>
-            </Card>
-          </InlineStack>
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h3" variant="headingMd">{t("billing.costNote.heading")}</Text>
+              <Text as="p" tone="subdued" variant="bodySm">
+                {t("billing.costNote.body")}
+              </Text>
+            </BlockStack>
+          </Card>
         </Layout.Section>
       </Layout>
     </Page>

@@ -12,8 +12,9 @@
     "pageTitle": "Snap6 — Stüdyo Çekimine Son",
     "plan": {
       "free": "Ücretsiz",
-      "basic": "Basic",
-      "pro": "Pro"
+      "starter": "Başlangıç",
+      "professional": "Profesyonel",
+      "business": "İşletme"
     },
     "banner": {
       "title": "Stüdyo çekimi maliyetine son verin 📸",
@@ -25,7 +26,7 @@
       "usedThisMonth": "Bu ay kullanılan",
       "usageCount": "{{used}} / {{limit}} üretim",
       "remaining": "{{count}} üretim hakkı kaldı",
-      "upgrade": "Planı Yükselt — $9.99/ay'dan"
+      "upgrade": "Planı Yükselt — $14.99/ay'dan"
     },
     "stats": {
       "totalProducts": "Toplam Ürün",
@@ -240,27 +241,68 @@
     "badges": {
       "currentPlan": "Mevcut Plan",
       "active": "Aktif",
-      "popular": "Popüler"
+      "popular": "En Popüler"
     },
     "buttons": {
       "currentPlan": "Mevcut Planınız",
       "downgrade": "Düşür",
-      "switchToBasic": "Basic'e Geç",
-      "switchToPro": "Pro'ya Geç"
+      "upgradeTo": {
+        "starter": "Başlangıç'a Geç",
+        "professional": "Profesyonel'e Geç",
+        "business": "İşletme'ye Geç"
+      }
     },
     "plans": {
       "free": {
         "name": "Ücretsiz",
-        "features": ["10 üretim/ay", "6 otomatik sahne", "Temel destek"]
+        "features": [
+          "5 üretim/ay",
+          "16 fotoğraf seti türü",
+          "Üretim başına 6 otomatik sahne",
+          "SEO denetimi",
+          "Topluluk desteği"
+        ]
       },
-      "basic": {
-        "name": "Basic",
-        "features": ["100 üretim/ay", "6 otomatik sahne", "Öncelikli destek", "Toplu indirme"]
+      "starter": {
+        "name": "Başlangıç",
+        "features": [
+          "30 üretim/ay",
+          "16 fotoğraf seti türü",
+          "Üretim başına 6 otomatik sahne",
+          "SEO denetimi",
+          "Rakip fiyat analizi",
+          "Öncelikli e-posta desteği"
+        ]
       },
-      "pro": {
-        "name": "Pro",
-        "features": ["500 üretim/ay", "6 otomatik sahne", "7/24 öncelikli destek", "Toplu indirme", "Özel prompt desteği", "API erişimi"]
+      "professional": {
+        "name": "Profesyonel",
+        "features": [
+          "100 üretim/ay",
+          "16 fotoğraf seti türü",
+          "Üretim başına 6 otomatik sahne",
+          "Sınırsız SEO denetimi",
+          "Sınırsız rakip analizi",
+          "Toplu görsel indirme",
+          "Öncelikli destek"
+        ]
+      },
+      "business": {
+        "name": "İşletme",
+        "features": [
+          "300 üretim/ay",
+          "16 fotoğraf seti türü",
+          "Üretim başına 6 otomatik sahne",
+          "Sınırsız SEO denetimi",
+          "Sınırsız rakip analizi",
+          "Toplu görsel indirme",
+          "Özel hesap yöneticisi",
+          "API erişimi"
+        ]
       }
+    },
+    "costNote": {
+      "heading": "Flux Dev AI ile Güçlendirilmiştir",
+      "body": "Tüm planlar Black Forest Labs Flux Dev modelini kullanır — önde gelen AI fotoğraf stüdyolarına güç veren aynı model. Her üretimde otomatik arka plan kaldırma ile 6 profesyonel sahne üretilir."
     }
   },
   "generationGrid": {

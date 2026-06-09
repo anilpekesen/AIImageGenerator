@@ -14,7 +14,7 @@ export async function getOrCreateSubscription(shop) {
         shop,
         plan: "free",
         usedCount: 0,
-        limitCount: 10,
+        limitCount: 5,
         resetDate: getNextResetDate(),
         isActive: true,
       },
@@ -40,12 +40,12 @@ export async function decrementUsage(shop) {
 }
 
 export async function upgradePlan(shop, plan, chargeId) {
-  const limits = { free: 10, basic: 100, pro: 500 };
+  const limits = { free: 5, starter: 30, professional: 100, business: 300 };
   return prisma.subscription.update({
     where: { shop },
     data: {
       plan,
-      limitCount: limits[plan] ?? 10,
+      limitCount: limits[plan] ?? 5,
       chargeId,
       isActive: true,
     },

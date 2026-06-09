@@ -12,8 +12,9 @@
     "pageTitle": "Snap6 — End Studio Photoshoots",
     "plan": {
       "free": "Free",
-      "basic": "Basic",
-      "pro": "Pro"
+      "starter": "Starter",
+      "professional": "Professional",
+      "business": "Business"
     },
     "banner": {
       "title": "Stop paying for studio photoshoots 📸",
@@ -25,7 +26,7 @@
       "usedThisMonth": "Used this month",
       "usageCount": "{{used}} / {{limit}} generations",
       "remaining": "{{count}} generations remaining",
-      "upgrade": "Upgrade Plan — from $9.99/mo"
+      "upgrade": "Upgrade Plan — from $14.99/mo"
     },
     "stats": {
       "totalProducts": "Total Products",
@@ -240,27 +241,68 @@
     "badges": {
       "currentPlan": "Current Plan",
       "active": "Active",
-      "popular": "Popular"
+      "popular": "Most Popular"
     },
     "buttons": {
       "currentPlan": "Your Current Plan",
       "downgrade": "Downgrade",
-      "switchToBasic": "Switch to Basic",
-      "switchToPro": "Switch to Pro"
+      "upgradeTo": {
+        "starter": "Get Starter",
+        "professional": "Get Professional",
+        "business": "Get Business"
+      }
     },
     "plans": {
       "free": {
         "name": "Free",
-        "features": ["10 generations/month", "6 automatic scenes", "Basic support"]
+        "features": [
+          "5 generations/month",
+          "16 photo set types",
+          "6 automatic scenes per generation",
+          "SEO audit",
+          "Community support"
+        ]
       },
-      "basic": {
-        "name": "Basic",
-        "features": ["100 generations/month", "6 automatic scenes", "Priority support", "Bulk download"]
+      "starter": {
+        "name": "Starter",
+        "features": [
+          "30 generations/month",
+          "16 photo set types",
+          "6 automatic scenes per generation",
+          "SEO audit",
+          "Competitor price analysis",
+          "Priority email support"
+        ]
       },
-      "pro": {
-        "name": "Pro",
-        "features": ["500 generations/month", "6 automatic scenes", "24/7 priority support", "Bulk download", "Custom prompt support", "API access"]
+      "professional": {
+        "name": "Professional",
+        "features": [
+          "100 generations/month",
+          "16 photo set types",
+          "6 automatic scenes per generation",
+          "Unlimited SEO audits",
+          "Unlimited competitor analyses",
+          "Bulk image download",
+          "Priority support"
+        ]
+      },
+      "business": {
+        "name": "Business",
+        "features": [
+          "300 generations/month",
+          "16 photo set types",
+          "6 automatic scenes per generation",
+          "Unlimited SEO audits",
+          "Unlimited competitor analyses",
+          "Bulk image download",
+          "Dedicated account manager",
+          "API access"
+        ]
       }
+    },
+    "costNote": {
+      "heading": "Powered by Flux Dev AI",
+      "body": "All plans use Black Forest Labs Flux Dev — the same model powering leading AI photo studios. Each generation produces 6 professional scenes with automatic background removal."
     }
   },
   "generationGrid": {
