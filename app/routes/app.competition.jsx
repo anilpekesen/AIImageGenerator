@@ -20,6 +20,7 @@ import {
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
+import { getOrCreateSubscription, decrementUsage } from "../models/subscription.server";
 import { searchCompetitorPrices } from "../services/serp-search.server";
 import { summarizeCompetitors } from "../services/ai-text.server";
 import { createCompetitorAnalysis } from "../models/competitor-analysis.server";
@@ -39,6 +40,8 @@ export const loader = async ({ request }) => {
   return json({ preselectedProduct });
 };
 
+const CREDITS_PER_COMPETITOR = 3;
+
 export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const locale = await i18next.getLocale(request);
@@ -50,6 +53,11 @@ export const action = async ({ request }) => {
 
   if (!productTitle) {
     return json({ error: t("competition.errors.titleMissing") }, { status: 400 });
+  }
+
+  const subscription = await getOrCreateSubscription(session.shop);
+  if (subscription.limitCount - subscription.usedCount < CREDITS_PER_COMPETITOR) {
+    return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
   }
 
   const query = productTitle;
@@ -71,6 +79,8 @@ export const action = async ({ request }) => {
       results,
       aiSummary,
     });
+
+    await decrementUsage(session.shop, CREDITS_PER_COMPETITOR);
 
     return json({ success: true, results, aiSummary, productTitle });
   } catch (error) {

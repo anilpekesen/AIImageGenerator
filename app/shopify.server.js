@@ -10,29 +10,30 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Credits: 1 set=6cr, 1 refine=1cr, 1 SEO=1cr, 1 competitor=3cr
 export const PLANS = {
   FREE: {
     name: "Free",
-    limit: 8,
+    limit: 50,
     price: 0,
   },
   SOLO: {
     name: "Solo",
-    limit: 150,
+    limit: 450,
     price: 29.99,
-    shopifyPlanName: "Solo - 150 Sets/mo",
+    shopifyPlanName: "Solo - 450 Credits/mo",
   },
   PRO: {
     name: "Pro",
-    limit: 750,
+    limit: 2000,
     price: 129.99,
-    shopifyPlanName: "Pro - 750 Sets/mo",
+    shopifyPlanName: "Pro - 2000 Credits/mo",
   },
   PREMIUM: {
     name: "Premium",
-    limit: 2000,
+    limit: 4500,
     price: 299.99,
-    shopifyPlanName: "Premium - 2000 Sets/mo",
+    shopifyPlanName: "Premium - 4500 Credits/mo",
   },
 };
 
@@ -47,31 +48,25 @@ const shopify = shopifyApp({
   distribution: AppDistribution.AppStore,
   billing: {
     [PLANS.SOLO.shopifyPlanName]: {
-      lineItems: [
-        {
-          amount: PLANS.SOLO.price,
-          currencyCode: "USD",
-          interval: BillingInterval.Every30Days,
-        },
-      ],
+      lineItems: [{
+        amount: PLANS.SOLO.price,
+        currencyCode: "USD",
+        interval: BillingInterval.Every30Days,
+      }],
     },
     [PLANS.PRO.shopifyPlanName]: {
-      lineItems: [
-        {
-          amount: PLANS.PRO.price,
-          currencyCode: "USD",
-          interval: BillingInterval.Every30Days,
-        },
-      ],
+      lineItems: [{
+        amount: PLANS.PRO.price,
+        currencyCode: "USD",
+        interval: BillingInterval.Every30Days,
+      }],
     },
     [PLANS.PREMIUM.shopifyPlanName]: {
-      lineItems: [
-        {
-          amount: PLANS.PREMIUM.price,
-          currencyCode: "USD",
-          interval: BillingInterval.Every30Days,
-        },
-      ],
+      lineItems: [{
+        amount: PLANS.PREMIUM.price,
+        currencyCode: "USD",
+        interval: BillingInterval.Every30Days,
+      }],
     },
   },
   future: {

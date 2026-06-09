@@ -229,6 +229,9 @@ export default function Billing() {
               <Text as="p" tone="subdued" variant="bodySm">
                 {t("billing.costNote.body")}
               </Text>
+              <Text as="p" variant="bodySm" fontWeight="semibold">
+                {t("billing.creditInfo")}
+              </Text>
               <Text as="p" tone="subdued" variant="bodySm">
                 ⓘ {t("billing.renewalNote")}
               </Text>

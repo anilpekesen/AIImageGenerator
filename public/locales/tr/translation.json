@@ -25,8 +25,8 @@
       "heading": "Plan Durumu",
       "usedThisMonth": "Bu ay kullanılan",
       "usageCount": "{{used}} / {{limit}} üretim",
-      "remaining": "{{count}} üretim hakkı kaldı",
-      "upgrade": "Planı Yükselt — $14.99/ay'dan"
+      "remaining": "{{count}} kredi kaldı",
+      "upgrade": "Planı Yükselt — $29.99/ay'dan"
     },
     "stats": {
       "totalProducts": "Toplam Ürün",
@@ -146,7 +146,7 @@
     "step3": {
       "heading": "4. Tek Tıkla 6 Sahne Üret",
       "description": "Prompt yazmanıza gerek yok — stüdyo beyazı, lifestyle, dış mekan, mermer/lüks, dramatik koyu ve flat lay otomatik gelir (~30-60 sn)",
-      "remaining": "Kalan: {{count}} üretim",
+      "remaining": "Kalan: {{count}} kredi",
       "cta": "Stüdyo Çekimi Yerine — 6 Sahne Üret",
       "ctaLoading": "6 Sahne Hazırlanıyor..."
     },
@@ -284,39 +284,38 @@
         "premium": "Premium'a Geç"
       }
     },
+    "creditInfo": "1 set = 6 kredi · 1 refine = 1 kredi · 1 SEO = 1 kredi · 1 rakip = 3 kredi",
     "plans": {
       "free": {
         "name": "Ücretsiz",
         "features": [
-          "8 üretim/ay",
+          "50 kredi/ay (~8 set üretimi)",
           "AI ürün analizi (16 kategori)",
-          "Üretim başına 6 profesyonel sahne",
-          "Farklı aspect ratio desteği",
-          "SEO denetimi",
+          "Flux Kontext Pro kalitesi",
+          "SEO denetimi (1 kredi/denetim)",
+          "Rakip analizi (3 kredi/analiz)",
           "Topluluk desteği"
         ]
       },
       "solo": {
         "name": "Solo",
         "features": [
-          "150 üretim/ay",
+          "450 kredi/ay (~75 set üretimi)",
           "AI ürün analizi (16 kategori)",
-          "Üretim başına 6 profesyonel sahne",
           "Flux Kontext Pro kalitesi",
-          "SEO denetimi",
-          "Rakip fiyat analizi",
+          "SEO denetimi (1 kredi/denetim)",
+          "Rakip analizi (3 kredi/analiz)",
           "Öncelikli e-posta desteği"
         ]
       },
       "pro": {
         "name": "Pro",
         "features": [
-          "750 üretim/ay",
+          "2.000 kredi/ay (~333 set üretimi)",
           "AI ürün analizi (16 kategori)",
-          "Üretim başına 6 profesyonel sahne",
           "Flux Kontext Pro kalitesi",
-          "Sınırsız SEO denetimi",
-          "Sınırsız rakip analizi",
+          "SEO denetimi (1 kredi/denetim)",
+          "Rakip analizi (3 kredi/analiz)",
           "Toplu görsel indirme",
           "Öncelikli destek"
         ]
@@ -324,12 +323,11 @@
       "premium": {
         "name": "Premium",
         "features": [
-          "2000 üretim/ay",
+          "4.500 kredi/ay (~750 set üretimi)",
           "AI ürün analizi (16 kategori)",
-          "Üretim başına 6 profesyonel sahne",
           "Flux Kontext Pro kalitesi",
-          "Sınırsız SEO denetimi",
-          "Sınırsız rakip analizi",
+          "SEO denetimi (1 kredi/denetim)",
+          "Rakip analizi (3 kredi/analiz)",
           "Toplu görsel indirme",
           "Özel hesap yöneticisi"
         ]

@@ -14,14 +14,13 @@ export async function getOrCreateSubscription(shop) {
         shop,
         plan: "free",
         usedCount: 0,
-        limitCount: 5,
+        limitCount: 50,
         resetDate: getNextResetDate(),
         isActive: true,
       },
     });
   }
 
-  // Ay başında sayacı sıfırla
   if (new Date() >= new Date(subscription.resetDate)) {
     subscription = await prisma.subscription.update({
       where: { shop },
@@ -32,20 +31,21 @@ export async function getOrCreateSubscription(shop) {
   return subscription;
 }
 
-export async function decrementUsage(shop) {
+// credits: 6 for full set, 1 for single refine/SEO, 3 for competitor analysis
+export async function decrementUsage(shop, credits = 1) {
   return prisma.subscription.update({
     where: { shop },
-    data: { usedCount: { increment: 1 } },
+    data: { usedCount: { increment: credits } },
   });
 }
 
 export async function upgradePlan(shop, plan, chargeId) {
-  const limits = { free: 8, solo: 150, pro: 750, premium: 2000 };
+  const limits = { free: 50, solo: 450, pro: 2000, premium: 4500 };
   return prisma.subscription.update({
     where: { shop },
     data: {
       plan,
-      limitCount: limits[plan] ?? 8,
+      limitCount: limits[plan] ?? 50,
       chargeId,
       isActive: true,
     },

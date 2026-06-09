@@ -23,6 +23,7 @@ import { AlertTriangleIcon, CheckCircleIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
+import { getOrCreateSubscription, decrementUsage } from "../models/subscription.server";
 import { fetchProductSeoData, auditProduct } from "../services/seo-audit.server";
 import { generateSeoSuggestions } from "../services/ai-text.server";
 import { createSeoAudit, markAudited } from "../models/seo-audit.server";
@@ -60,6 +61,8 @@ const MEDIA_ALT_MUTATION = `
   }
 `;
 
+const CREDITS_PER_SEO = 1;
+
 export const action = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
   const locale = await i18next.getLocale(request);
@@ -70,6 +73,11 @@ export const action = async ({ request }) => {
   if (intent === "audit") {
     const productId = formData.get("productId");
     const productTitle = formData.get("productTitle");
+
+    const subscription = await getOrCreateSubscription(session.shop);
+    if (subscription.limitCount - subscription.usedCount < CREDITS_PER_SEO) {
+      return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
+    }
 
     try {
       const product = await fetchProductSeoData(admin, productId);
@@ -93,6 +101,8 @@ export const action = async ({ request }) => {
         issues: audit.issues,
         suggestions,
       });
+
+      await decrementUsage(session.shop, CREDITS_PER_SEO);
 
       return json({
         success: true,

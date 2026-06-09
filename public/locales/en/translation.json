@@ -25,8 +25,8 @@
       "heading": "Plan Status",
       "usedThisMonth": "Used this month",
       "usageCount": "{{used}} / {{limit}} generations",
-      "remaining": "{{count}} generations remaining",
-      "upgrade": "Upgrade Plan — from $14.99/mo"
+      "remaining": "{{count}} credits remaining",
+      "upgrade": "Upgrade Plan — from $29.99/mo"
     },
     "stats": {
       "totalProducts": "Total Products",
@@ -146,7 +146,7 @@
     "step3": {
       "heading": "4. Generate 6 Scenes in One Click",
       "description": "No need to write prompts — studio white, lifestyle, outdoor, marble/luxury, dramatic dark, and flat lay come automatically (~30-60 sec)",
-      "remaining": "Remaining: {{count}} generations",
+      "remaining": "Remaining: {{count}} credits",
       "cta": "Replace Studio Photoshoots — Generate 6 Scenes",
       "ctaLoading": "Preparing 6 Scenes..."
     },
@@ -284,39 +284,38 @@
         "premium": "Get Premium"
       }
     },
+    "creditInfo": "1 set = 6 credits · 1 refine = 1 credit · 1 SEO = 1 credit · 1 competitor = 3 credits",
     "plans": {
       "free": {
         "name": "Free",
         "features": [
-          "8 generations/month",
+          "50 credits/month (~8 sets)",
           "AI product analysis (16 categories)",
-          "6 professional scenes per generation",
-          "Multiple aspect ratio support",
-          "SEO audit",
+          "Flux Kontext Pro quality",
+          "SEO audit (1 credit each)",
+          "Competitor analysis (3 credits each)",
           "Community support"
         ]
       },
       "solo": {
         "name": "Solo",
         "features": [
-          "150 generations/month",
+          "450 credits/month (~75 sets)",
           "AI product analysis (16 categories)",
-          "6 professional scenes per generation",
           "Flux Kontext Pro quality",
-          "SEO audit",
-          "Competitor price analysis",
+          "SEO audit (1 credit each)",
+          "Competitor analysis (3 credits each)",
           "Priority email support"
         ]
       },
       "pro": {
         "name": "Pro",
         "features": [
-          "750 generations/month",
+          "2,000 credits/month (~333 sets)",
           "AI product analysis (16 categories)",
-          "6 professional scenes per generation",
           "Flux Kontext Pro quality",
-          "Unlimited SEO audits",
-          "Unlimited competitor analyses",
+          "SEO audit (1 credit each)",
+          "Competitor analysis (3 credits each)",
           "Bulk image download",
           "Priority support"
         ]
@@ -324,12 +323,11 @@
       "premium": {
         "name": "Premium",
         "features": [
-          "2000 generations/month",
+          "4,500 credits/month (~750 sets)",
           "AI product analysis (16 categories)",
-          "6 professional scenes per generation",
           "Flux Kontext Pro quality",
-          "Unlimited SEO audits",
-          "Unlimited competitor analyses",
+          "SEO audit (1 credit each)",
+          "Competitor analysis (3 credits each)",
           "Bulk image download",
           "Dedicated account manager"
         ]

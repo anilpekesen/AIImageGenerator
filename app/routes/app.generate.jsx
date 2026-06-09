@@ -51,13 +51,17 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
+  const CREDITS_PER_SET = 6;
+  const CREDITS_PER_REFINE = 1;
+
   if (intent === "generate") {
     const imageUrl = formData.get("imageUrl");
     const productId = formData.get("productId");
     const productTitle = formData.get("productTitle");
 
     const subscription = await getOrCreateSubscription(shop);
-    if (subscription.usedCount >= subscription.limitCount) {
+    const creditsAvailable = subscription.limitCount - subscription.usedCount;
+    if (creditsAvailable < CREDITS_PER_SET) {
       return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
@@ -68,7 +72,8 @@ export const action = async ({ request }) => {
       try {
         const outputs = await startGeneration({ imageUrl, productTitle, locale });
         await updateGeneration(generation.id, { outputs: JSON.stringify(outputs), status: "done" });
-        await decrementUsage(shop);
+        const successCount = outputs.filter((o) => o.url).length;
+        if (successCount > 0) await decrementUsage(shop, successCount);
       } catch (error) {
         await updateGeneration(generation.id, { status: "failed" });
         console.error("[generate] background generation failed:", error.message);
@@ -117,13 +122,14 @@ export const action = async ({ request }) => {
     const label = formData.get("label") || "";
 
     const subscription = await getOrCreateSubscription(shop);
-    if (subscription.usedCount >= subscription.limitCount) {
+    const creditsAvailable = subscription.limitCount - subscription.usedCount;
+    if (creditsAvailable < CREDITS_PER_REFINE) {
       return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
     try {
       const newUrl = await refineScene({ imageUrl, refinementPrompt });
-      await decrementUsage(shop);
+      await decrementUsage(shop, CREDITS_PER_REFINE);
       return json({ refined: true, outputIndex, newOutput: { url: newUrl, scene, label } });
     } catch (error) {
       return json({ error: t("generate.errors.generationFailed", { message: error.message }) }, { status: 500 });
@@ -154,6 +160,8 @@ export default function Generate() {
   const isGenerating = (navigation.state === "submitting" && navigation.formData?.get("intent") === "generate") || !!pendingGenerationId;
   const isRefining = navigation.state === "submitting" && navigation.formData?.get("intent") === "refine-scene";
   const remaining = subscription.limitCount - subscription.usedCount;
+  const canGenerate = remaining >= 6;
+  const canRefine = remaining >= 1;
 
   // Start polling when action returns pending
   useEffect(() => {
@@ -259,7 +267,7 @@ export default function Generate() {
       backAction={{ url: "/app" }}
     >
       <Layout>
-        {remaining <= 0 && (
+        {!canGenerate && (
           <Layout.Section>
             <Banner
               title={t("generate.limitBanner.title")}
@@ -384,7 +392,7 @@ export default function Generate() {
                 size="large"
                 onClick={handleGenerate}
                 loading={isGenerating}
-                disabled={!uploadedImageUrl || !selectedProduct || remaining <= 0}
+                disabled={!uploadedImageUrl || !selectedProduct || !canGenerate}
               >
                 {isGenerating ? t("generate.step3.ctaLoading") : t("generate.step3.cta")}
               </Button>
@@ -484,7 +492,7 @@ export default function Generate() {
                     variant="primary"
                     onClick={handleRefine}
                     loading={isRefining}
-                    disabled={!refinePrompt.trim() || remaining <= 0}
+                    disabled={!refinePrompt.trim() || !canRefine}
                   >
                     {isRefining ? t("generate.refine.loading") : t("generate.refine.cta")}
                   </Button>
