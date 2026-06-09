@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
+import { useLoaderData, useSubmit, useNavigation, useActionData, useFetcher } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
   Page,
@@ -22,10 +22,9 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import i18next from "../i18next.server";
-import { getOrCreateSubscription } from "../models/subscription.server";
+import { getOrCreateSubscription, decrementUsage } from "../models/subscription.server";
 import { startGeneration, refineScene } from "../services/replicate.server";
 import { createGeneration, updateGeneration } from "../models/generation.server";
-import { decrementUsage } from "../models/subscription.server";
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
 import { fetchProductBasicInfo } from "../services/product.server";
@@ -66,28 +65,21 @@ export const action = async ({ request }) => {
       return json({ error: t("generate.errors.monthlyLimitReached") }, { status: 400 });
     }
 
-    const generation = await createGeneration({
-      shop,
-      productId,
-      productTitle,
-      inputImage: imageUrl,
-    });
+    const generation = await createGeneration({ shop, productId, productTitle, inputImage: imageUrl });
 
-    try {
-      const outputs = await startGeneration({ imageUrl, productTitle, photoSetId, locale });
+    // Fire and forget — respond immediately, generate in background
+    (async () => {
+      try {
+        const outputs = await startGeneration({ imageUrl, productTitle, photoSetId, locale });
+        await updateGeneration(generation.id, { outputs: JSON.stringify(outputs), status: "done" });
+        await decrementUsage(shop);
+      } catch (error) {
+        await updateGeneration(generation.id, { status: "failed" });
+        console.error("[generate] background generation failed:", error.message);
+      }
+    })();
 
-      await updateGeneration(generation.id, {
-        outputs: JSON.stringify(outputs),
-        status: "done",
-      });
-
-      await decrementUsage(shop);
-
-      return json({ success: true, generationId: generation.id, outputs });
-    } catch (error) {
-      await updateGeneration(generation.id, { status: "failed" });
-      return json({ error: t("generate.errors.generationFailed", { message: error.message }) }, { status: 500 });
-    }
+    return json({ pending: true, generationId: generation.id });
   }
 
   if (intent === "save-to-product") {
@@ -160,16 +152,18 @@ export default function Generate() {
   const [currentOutputs, setCurrentOutputs] = useState([]);
   const [refineIndex, setRefineIndex] = useState(null);
   const [refinePrompt, setRefinePrompt] = useState("");
+  const [pendingGenerationId, setPendingGenerationId] = useState(null);
 
-  const isGenerating = navigation.state === "submitting" && navigation.formData?.get("intent") === "generate";
+  const statusFetcher = useFetcher();
+
+  const isGenerating = (navigation.state === "submitting" && navigation.formData?.get("intent") === "generate") || !!pendingGenerationId;
   const isRefining = navigation.state === "submitting" && navigation.formData?.get("intent") === "refine-scene";
   const remaining = subscription.limitCount - subscription.usedCount;
 
+  // Start polling when action returns pending
   useEffect(() => {
-    if (actionData?.outputs) {
-      setCurrentOutputs(actionData.outputs);
-      setRefineIndex(null);
-      setRefinePrompt("");
+    if (actionData?.pending && actionData.generationId) {
+      setPendingGenerationId(actionData.generationId);
     }
     if (actionData?.refined) {
       setCurrentOutputs((prev) => {
@@ -181,6 +175,27 @@ export default function Generate() {
       setRefinePrompt("");
     }
   }, [actionData]);
+
+  // Poll every 4 seconds while pending
+  useEffect(() => {
+    if (!pendingGenerationId) return;
+    const interval = setInterval(() => {
+      statusFetcher.load(`/app/api/generation-status?id=${pendingGenerationId}`);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [pendingGenerationId]);
+
+  // Handle poll result
+  useEffect(() => {
+    if (statusFetcher.data?.status === "done") {
+      setCurrentOutputs(statusFetcher.data.outputs);
+      setPendingGenerationId(null);
+      setRefineIndex(null);
+      setRefinePrompt("");
+    } else if (statusFetcher.data?.status === "failed") {
+      setPendingGenerationId(null);
+    }
+  }, [statusFetcher.data]);
   const locale = i18n.resolvedLanguage ?? "tr";
 
   const photoSetOptions = PHOTO_SETS.map((ps) => ({
@@ -282,6 +297,14 @@ export default function Generate() {
           <Layout.Section>
             <Banner title={t("generate.savedBanner.title")} tone="success">
               <p>{t("generate.savedBanner.body")}</p>
+            </Banner>
+          </Layout.Section>
+        )}
+
+        {statusFetcher.data?.status === "failed" && (
+          <Layout.Section>
+            <Banner title={t("generate.errorBanner.title")} tone="critical">
+              <p>{t("generate.errors.generationFailed", { message: "Background generation failed" })}</p>
             </Banner>
           </Layout.Section>
         )}

@@ -38,3 +38,7 @@ export async function getAllGenerations(shop) {
 export async function countDoneGenerations(shop) {
   return prisma.generation.count({ where: { shop, status: "done" } });
 }
+
+export async function getGenerationById(id, shop) {
+  return prisma.generation.findFirst({ where: { id, shop } });
+}
