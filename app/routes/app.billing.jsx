@@ -70,7 +70,7 @@ const popularPillStyle = {
   position: "absolute",
   top: 0,
   left: "50%",
-  transform: "translateX(-50%)",
+  transform: "translate(-50%, -50%)",
   background: "var(--p-color-bg-fill-brand)",
   color: "white",
   padding: "3px 14px",
@@ -206,7 +206,7 @@ export default function Billing() {
 
               if (highlight) {
                 return (
-                  <div key={key} style={{ position: "relative", paddingTop: "20px" }}>
+                  <div key={key} style={{ position: "relative" }}>
                     <div style={popularPillStyle}>
                       ⭐ {t("billing.badges.popular")}
                     </div>
