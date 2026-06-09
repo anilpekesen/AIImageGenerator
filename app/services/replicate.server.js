@@ -51,7 +51,7 @@ async function generateScene(imageInput, sceneConfig, locale) {
   return { url: url?.toString(), scene: sceneConfig.scene, label, aspectRatio };
 }
 
-async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetries = 2) {
+async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetries = 5) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await generateScene(imageInput, sceneConfig, locale);
@@ -59,8 +59,9 @@ async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetrie
       const retryAfterMatch = err.message?.match(/"retry_after":(\d+)/);
       const is429 = err.message?.includes("429");
       if (is429 && attempt < maxRetries) {
-        const wait = ((retryAfterMatch ? parseInt(retryAfterMatch[1]) : 10) + 2) * 1000;
-        console.log(`[replicate] 429 on "${sceneConfig.scene}", retry ${attempt + 1} in ${wait / 1000}s`);
+        const baseWait = retryAfterMatch ? parseInt(retryAfterMatch[1]) : 12;
+        const wait = (baseWait + 5 + attempt * 3) * 1000;
+        console.log(`[replicate] 429 on "${sceneConfig.scene}", retry ${attempt + 1}/${maxRetries} in ${wait / 1000}s`);
         await new Promise((r) => setTimeout(r, wait));
         continue;
       }
