@@ -77,3 +77,35 @@ export async function fetchProductBasicInfo(admin, productId) {
     image: data.product.featuredImage?.url || null,
   };
 }
+
+const PRODUCT_CREATE_MEDIA_MUTATION = `
+  mutation productCreateMedia($productId: ID!, $media: [CreateMediaInput!]!) {
+    productCreateMedia(productId: $productId, media: $media) {
+      media {
+        ... on MediaImage {
+          id
+          image { url }
+        }
+      }
+      mediaUserErrors { field message }
+    }
+  }
+`;
+
+export async function addImagesToProduct(admin, productId, imageUrls) {
+  const errors = [];
+  for (const url of imageUrls) {
+    const response = await admin.graphql(PRODUCT_CREATE_MEDIA_MUTATION, {
+      variables: {
+        productId: `gid://shopify/Product/${productId}`,
+        media: [{ alt: "AI Generated Photo", mediaContentType: "IMAGE", originalSource: url }],
+      },
+    });
+    const { data } = await response.json();
+    const userErrors = data?.productCreateMedia?.mediaUserErrors || [];
+    if (userErrors.length > 0) {
+      errors.push(...userErrors.map((e) => e.message));
+    }
+  }
+  return { success: errors.length === 0, errors };
+}

@@ -32,7 +32,7 @@ import { startGeneration, refineScene } from "../services/replicate.server";
 import { createGeneration, updateGeneration, maintainGenerations } from "../models/generation.server";
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
-import { fetchProductBasicInfo } from "../services/product.server";
+import { fetchProductBasicInfo, addImagesToProduct } from "../services/product.server";
 import { detectCategory, getPhotoSetOptions, getTemplateById } from "../services/photo-set-templates.js";
 
 export const loader = async ({ request }) => {
@@ -125,25 +125,9 @@ export const action = async ({ request }) => {
     const imageUrls = JSON.parse(formData.get("imageUrls") || "[]");
 
     try {
-      for (const url of imageUrls) {
-        await admin.graphql(`
-          mutation productCreateMedia($productId: ID!, $media: [CreateMediaInput!]!) {
-            productCreateMedia(productId: $productId, media: $media) {
-              media {
-                ... on MediaImage {
-                  id
-                  image { url }
-                }
-              }
-              mediaUserErrors { field message }
-            }
-          }
-        `, {
-          variables: {
-            productId: `gid://shopify/Product/${productId}`,
-            media: [{ alt: "AI Generated Photo", mediaContentType: "IMAGE", originalSource: url }],
-          },
-        });
+      const result = await addImagesToProduct(admin, productId, imageUrls);
+      if (!result.success) {
+        return json({ error: t("generate.errors.saveFailed", { message: result.errors.join(", ") }) }, { status: 500 });
       }
       return json({ saved: true });
     } catch (error) {

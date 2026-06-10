@@ -106,7 +106,8 @@
     "actions": {
       "seo": "SEO",
       "competitorAnalysis": "Competitor Analysis",
-      "generateImage": "Generate Image"
+      "generateImage": "Generate Image",
+      "viewShoots": "View Shoots"
     },
     "firstFiftyNotice": "Showing the first 50 products.",
     "tabs": {
@@ -181,7 +182,9 @@
   "seo": {
     "pageTitle": "SEO Check",
     "pageSubtitle": "Audit your product's SEO fields and apply AI suggestions in one click",
-    "errorBanner": { "title": "Error" },
+    "errorBanner": {
+      "title": "Error"
+    },
     "appliedBanner": {
       "title": "Applied",
       "body": "The SEO suggestions were successfully written to your product."
@@ -212,10 +215,16 @@
         "label": "Meta Description",
         "helpText": "{{count}} characters (ideal: 150-160)"
       },
-      "handle": { "label": "URL Handle" },
-      "altText": { "label": "Image Alt Text (will apply to {{count}} images)" }
+      "handle": {
+        "label": "URL Handle"
+      },
+      "altText": {
+        "label": "Image Alt Text (will apply to {{count}} images)"
+      }
     },
-    "toast": { "applied": "SEO suggestions applied to product!" },
+    "toast": {
+      "applied": "SEO suggestions applied to product!"
+    },
     "errors": {
       "auditFailed": "Audit failed: {{message}}",
       "applyFailed": "Apply failed: {{message}}",
@@ -225,7 +234,9 @@
   "competition": {
     "pageTitle": "Competitor Price Analysis",
     "pageSubtitle": "Compare real prices charged by competitors selling your product, and find your edge with AI",
-    "resultBanner": { "title": "Result" },
+    "resultBanner": {
+      "title": "Result"
+    },
     "step1": {
       "heading": "1. Select Product",
       "selected": "Selected",
@@ -404,6 +415,12 @@
     "cancel": "Cancel",
     "selectProduct": "Select Product",
     "changeProduct": "Change Product",
-    "noProductSelected": "No product selected yet"
+    "noProductSelected": "No product selected yet",
+    "close": "Close"
+  },
+  "productShoots": {
+    "loading": "Loading shoots...",
+    "empty": "No images yet for this product.",
+    "zoom": "Zoom"
   }
 }

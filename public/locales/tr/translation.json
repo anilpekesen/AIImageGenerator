@@ -106,7 +106,8 @@
     "actions": {
       "seo": "SEO",
       "competitorAnalysis": "Rakip Analizi",
-      "generateImage": "Resim Üret"
+      "generateImage": "Resim Üret",
+      "viewShoots": "Çekimleri Gör"
     },
     "firstFiftyNotice": "İlk 50 ürün gösteriliyor.",
     "tabs": {
@@ -181,7 +182,9 @@
   "seo": {
     "pageTitle": "SEO Kontrolü",
     "pageSubtitle": "Ürün SEO alanlarını denetleyin, AI önerilerini tek tıkla uygulayın",
-    "errorBanner": { "title": "Hata" },
+    "errorBanner": {
+      "title": "Hata"
+    },
     "appliedBanner": {
       "title": "Uygulandı",
       "body": "SEO önerileri ürününüze başarıyla yazıldı."
@@ -212,10 +215,16 @@
         "label": "Meta Açıklama",
         "helpText": "{{count}} karakter (ideal: 150-160)"
       },
-      "handle": { "label": "URL Handle" },
-      "altText": { "label": "Görsel Alt-Text ({{count}} görsele uygulanacak)" }
+      "handle": {
+        "label": "URL Handle"
+      },
+      "altText": {
+        "label": "Görsel Alt-Text ({{count}} görsele uygulanacak)"
+      }
     },
-    "toast": { "applied": "SEO önerileri ürüne uygulandı!" },
+    "toast": {
+      "applied": "SEO önerileri ürüne uygulandı!"
+    },
     "errors": {
       "auditFailed": "Denetim başarısız: {{message}}",
       "applyFailed": "Uygulama başarısız: {{message}}",
@@ -225,7 +234,9 @@
   "competition": {
     "pageTitle": "Rakip Fiyat Analizi",
     "pageSubtitle": "Ürününüzü satan rakiplerin gerçek fiyatlarını karşılaştırın, AI ile farkınızı bulun",
-    "resultBanner": { "title": "Sonuç" },
+    "resultBanner": {
+      "title": "Sonuç"
+    },
     "step1": {
       "heading": "1. Ürün Seç",
       "selected": "Seçildi",
@@ -404,6 +415,12 @@
     "cancel": "İptal",
     "selectProduct": "Ürün Seç",
     "changeProduct": "Ürünü Değiştir",
-    "noProductSelected": "Henüz ürün seçilmedi"
+    "noProductSelected": "Henüz ürün seçilmedi",
+    "close": "Kapat"
+  },
+  "productShoots": {
+    "loading": "Çekimler yükleniyor...",
+    "empty": "Bu ürün için henüz görsel yok.",
+    "zoom": "Büyüt"
   }
 }

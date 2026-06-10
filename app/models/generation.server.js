@@ -97,6 +97,28 @@ export async function countDoneGenerations(shop) {
   return prisma.generation.count({ where: { shop, status: "done" } });
 }
 
+export async function getProductIdsWithGenerations(shop) {
+  const generations = await prisma.generation.findMany({
+    where: { shop, status: "done" },
+    select: { productId: true, outputs: true },
+  });
+  const ids = new Set();
+  for (const generation of generations) {
+    const outputs = JSON.parse(generation.outputs || "[]");
+    if (outputs.some((output) => output.url)) {
+      ids.add(generation.productId);
+    }
+  }
+  return ids;
+}
+
+export async function getDoneGenerationsForProduct(shop, productId) {
+  return prisma.generation.findMany({
+    where: { shop, productId, status: "done" },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getGenerationById(id, shop) {
   const generation = await prisma.generation.findFirst({ where: { id, shop } });
   if (!generation) return null;

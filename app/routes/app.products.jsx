@@ -18,30 +18,61 @@ import {
 import { ImageIcon } from "@shopify/polaris-icons";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
-import { fetchProductsForList } from "../services/product.server";
+import { fetchProductsForList, addImagesToProduct } from "../services/product.server";
 import { auditProduct } from "../services/seo-audit.server";
+import { getProductIdsWithGenerations } from "../models/generation.server";
 import i18next from "../i18next.server";
+import ProductShootsModal from "../components/ProductShootsModal";
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const locale = await i18next.getLocale(request);
   const t = await i18next.getFixedT(locale);
 
   const { nodes, pageInfo } = await fetchProductsForList(admin, { first: 50 });
+  const productIdsWithGenerations = await getProductIdsWithGenerations(session.shop);
 
   const products = nodes.map((product) => {
     const audit = auditProduct(product, t);
+    const id = product.id.replace("gid://shopify/Product/", "");
     return {
-      id: product.id.replace("gid://shopify/Product/", ""),
+      id,
       title: product.title,
       image: product.featuredImage?.url || null,
       isActive: product.status === "ACTIVE",
       score: audit.score,
       issueCount: audit.issues.length,
+      hasGenerations: productIdsWithGenerations.has(id),
     };
   });
 
   return json({ products, hasNextPage: pageInfo.hasNextPage });
+};
+
+export const action = async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
+
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "save-to-product") {
+    const productId = formData.get("productId");
+    const imageUrls = JSON.parse(formData.get("imageUrls") || "[]");
+
+    try {
+      const result = await addImagesToProduct(admin, productId, imageUrls);
+      if (!result.success) {
+        return json({ error: t("generate.errors.saveFailed", { message: result.errors.join(", ") }) }, { status: 500 });
+      }
+      return json({ saved: true });
+    } catch (error) {
+      return json({ error: t("generate.errors.saveFailed", { message: error.message }) }, { status: 500 });
+    }
+  }
+
+  return json({ error: t("generate.errors.invalidAction") }, { status: 400 });
 };
 
 function scoreTone(score) {
@@ -57,6 +88,7 @@ export default function Products() {
 
   const [selectedTab, setSelectedTab] = useState(0);
   const handleTabChange = useCallback((index) => setSelectedTab(index), []);
+  const [shootsProduct, setShootsProduct] = useState(null);
 
   const activeProducts = useMemo(() => products.filter((p) => p.isActive), [products]);
   const passiveProducts = useMemo(() => products.filter((p) => !p.isActive), [products]);
@@ -130,6 +162,11 @@ export default function Products() {
                           <Button onClick={() => navigate(`/app/competition?productId=${product.id}`)}>
                             {t("products.actions.competitorAnalysis")}
                           </Button>
+                          {product.hasGenerations && (
+                            <Button onClick={() => setShootsProduct(product)}>
+                              {t("products.actions.viewShoots")}
+                            </Button>
+                          )}
                           <Button
                             variant="primary"
                             onClick={() => navigate(`/app/generate?productId=${product.id}`)}
@@ -156,6 +193,14 @@ export default function Products() {
           </Layout.Section>
         )}
       </Layout>
+
+      {shootsProduct && (
+        <ProductShootsModal
+          productId={shootsProduct.id}
+          productTitle={shootsProduct.title}
+          onClose={() => setShootsProduct(null)}
+        />
+      )}
     </Page>
   );
 }
