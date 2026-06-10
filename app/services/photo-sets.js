@@ -17,6 +17,9 @@ const EXAMPLE_IMAGES = {
   "baby-clothing": "/images/photo-sets/bebek-kiyafeti.png",
   jewelry: "/images/photo-sets/taki.png",
   bag: "/images/photo-sets/canta.png",
+  underwear: "/images/photo-sets/ic-giyim.png",
+  clothing: "/images/photo-sets/giyim.png",
+  hat: "/images/photo-sets/sapka.png",
 };
 
 function sceneIdFromTitle(title) {
