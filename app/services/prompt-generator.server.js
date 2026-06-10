@@ -61,6 +61,20 @@ export async function generateScenePrompts(imageUrl, productTitle, options = {})
   }));
 }
 
+// Used when Replicate's safety filter (E005) flags a scene prompt — rewrites
+// it to drop person/body/anatomical framing (e.g. "partial model", "waist to
+// mid-thigh") in favor of a product-only presentation, so the retry has a
+// real chance of passing instead of failing on the same content again.
+export async function rewritePromptWithoutPeople(prompt) {
+  const response = await anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 300,
+    system: "You are an expert product photography prompt editor. The given image-generation prompt was rejected by an AI image model's content safety filter, most likely because it describes a person's body wearing the product. Rewrite it to completely remove any person, body part, model, or anatomical framing (e.g. \"partial model\", \"waist to mid-thigh\", \"on the body\") — replace with a product-only presentation (ghost mannequin, hanging display, flat lay, or styled object) while preserving the original lighting, mood, and aspect ratio intent as closely as possible. Return ONLY the rewritten prompt text, no explanation, no quotes, no markdown.",
+    messages: [{ role: "user", content: prompt }],
+  });
+  return response.content[0]?.text?.trim() || prompt;
+}
+
 export const FALLBACK_SCENES = [
   {
     scene: "studio-white",

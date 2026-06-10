@@ -1,5 +1,5 @@
 import Replicate from "replicate";
-import { generateScenePrompts, FALLBACK_SCENES } from "./prompt-generator.server.js";
+import { generateScenePrompts, FALLBACK_SCENES, rewritePromptWithoutPeople } from "./prompt-generator.server.js";
 import { persistImage } from "./storage.server.js";
 
 const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
@@ -57,10 +57,16 @@ async function generateScene(imageInput, sceneConfig, locale, context = {}) {
   return { url, scene: sceneConfig.scene, label, aspectRatio };
 }
 
+function isModerationError(err) {
+  return /E005/.test(err.message || "") || /flagged as sensitive/i.test(err.message || "");
+}
+
 async function generateSceneWithRetry(imageInput, sceneConfig, locale, context, maxRetries = 5) {
+  let config = sceneConfig;
+  let moderationRetried = false;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await generateScene(imageInput, sceneConfig, locale, context);
+      return await generateScene(imageInput, config, locale, context);
     } catch (err) {
       const retryAfterMatch = err.message?.match(/"retry_after":(\d+)/);
       const is429 = err.message?.includes("429");
@@ -69,6 +75,20 @@ async function generateSceneWithRetry(imageInput, sceneConfig, locale, context, 
         const wait = (baseWait + 5 + attempt * 3) * 1000;
         console.log(`[replicate] 429 on "${sceneConfig.scene}", retry ${attempt + 1}/${maxRetries} in ${wait / 1000}s`);
         await new Promise((r) => setTimeout(r, wait));
+        continue;
+      }
+      // E005 means the prompt+image combo was flagged by Flux's safety
+      // classifier — retrying as-is always fails again, so ask Claude to
+      // rewrite the prompt without person/body framing before retrying once.
+      if (isModerationError(err) && !moderationRetried && attempt < maxRetries) {
+        moderationRetried = true;
+        try {
+          const rewritten = await rewritePromptWithoutPeople(config.prompt);
+          config = { ...config, prompt: rewritten };
+          console.log(`[replicate] E005 on "${sceneConfig.scene}", retrying with AI-rewritten people-free prompt`);
+        } catch (rewriteErr) {
+          console.error(`[replicate] prompt rewrite failed for "${sceneConfig.scene}":`, rewriteErr.message);
+        }
         continue;
       }
       throw err;
