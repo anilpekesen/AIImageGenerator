@@ -451,11 +451,11 @@ SHOT 2 — LIFESTYLE — BEDROOM MORNING (16:9): Product in a clean, minimal bed
 
 SHOT 3 — FABRIC & WAISTBAND DETAIL (1:1): Extreme macro of the waistband elastic, fabric texture, stitching quality, and logo branding. Sharp focus. White studio background. Soft studio lighting. Shows material quality.
 
-SHOT 4 — PARTIAL MODEL (4:5): Product shown on a partial model (waist to mid-thigh, no face). Neutral posture. Appropriate and tasteful. Hard directional side light or soft diffused — depending on brand positioning. Shows fit, proportion, and drape.
+SHOT 4 — GHOST MANNEQUIN FIT (4:5): Product displayed using the ghost mannequin / invisible mannequin technique, showing the natural 3D shape, fit, volume, and drape as if worn — no visible body, mannequin, or model. Soft directional side light or soft diffused — depending on brand positioning. Clean neutral background. Shows fit, proportion, and drape.
 
 SHOT 5 — FOLDED FLAT LAY (4:3): Product neatly folded and arranged on a clean marble, light wood, or white surface. Overhead or slightly angled. Soft natural light. Retail display presentation style.
 
-SHOT 6 — EDITORIAL (9:16): High-end fashion editorial atmosphere. Dramatic but tasteful lighting. Architectural or textured background (concrete, minimalist bedroom). Partial model or styled no-model display. Premium fashion brand quality.
+SHOT 6 — EDITORIAL (9:16): High-end fashion editorial atmosphere. Dramatic but tasteful lighting. Architectural or textured background (concrete, minimalist bedroom). Styled no-model display — product elegantly draped, hung, or arranged as a fashion object. No people. Premium fashion brand quality.
 
 ${JSON_OUTPUT_INSTRUCTION}`,
   },
