@@ -167,10 +167,10 @@ export default function Index() {
     navigate(`/app/generate?photoSetId=${activeSetId}`);
   }, [activeSetId, navigate, handleModalClose]);
 
-  const usagePercent = Math.round(
+  const usagePercent = Math.min(100, Math.round(
     (subscription.usedCount / subscription.limitCount) * 100
-  );
-  const remaining = subscription.limitCount - subscription.usedCount;
+  ));
+  const remaining = Math.max(0, subscription.limitCount - subscription.usedCount);
   const planLabel = t(`dashboard.plan.${subscription.plan}`, {
     defaultValue: subscription.plan,
   });

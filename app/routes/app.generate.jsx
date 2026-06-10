@@ -210,7 +210,7 @@ export default function Generate() {
 
   const isGenerating = (navigation.state === "submitting" && navigation.formData?.get("intent") === "generate") || !!pendingGenerationId;
   const isRefining = navigation.state === "submitting" && navigation.formData?.get("intent") === "refine-scene";
-  const remaining = subscription.limitCount - subscription.usedCount;
+  const remaining = Math.max(0, subscription.limitCount - subscription.usedCount);
   const canGenerate = remaining >= 6;
   const canRefine = remaining >= 1;
 
