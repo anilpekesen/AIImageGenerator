@@ -66,6 +66,8 @@ export const action = async ({ request }) => {
       productTitle: productTitle || "ürün",
       photoSetId: photoSet.id,
       product,
+      shop,
+      generationId: generation.id,
     });
 
     await updateGeneration(generation.id, {

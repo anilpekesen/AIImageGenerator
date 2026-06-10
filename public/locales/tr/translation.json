@@ -158,7 +158,8 @@
     "outputs": {
       "heading": "Üretilen Görseller",
       "subheading": "Kaydetmek istediklerinizi seçin",
-      "saveButton": "{{count}} Görseli Ürüne Kaydet"
+      "saveButton": "{{count}} Görseli Ürüne Kaydet",
+      "storageNotice": "Üretilen görseller 30 gün boyunca saklanır, bu sürenin sonunda sistemden otomatik olarak silinir. Beğendiğiniz görselleri süresi dolmadan ürün sayfanıza kaydedin."
     },
     "toast": {
       "saved": "{{count}} görsel ürüne eklendi!"

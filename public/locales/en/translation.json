@@ -158,7 +158,8 @@
     "outputs": {
       "heading": "Generated Images",
       "subheading": "Select the ones you want to save",
-      "saveButton": "Save {{count}} Images to Product"
+      "saveButton": "Save {{count}} Images to Product",
+      "storageNotice": "Generated images are stored for 30 days and automatically deleted afterwards. Save the ones you like to your product before they expire."
     },
     "toast": {
       "saved": "{{count}} images added to product!"

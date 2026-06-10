@@ -1,5 +1,6 @@
 import Replicate from "replicate";
 import { generateScenePrompts, FALLBACK_SCENES } from "./prompt-generator.server.js";
+import { persistImage } from "./storage.server.js";
 
 const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
 
@@ -31,7 +32,7 @@ async function removeBackground(imageInput) {
   }
 }
 
-async function generateScene(imageInput, sceneConfig, locale) {
+async function generateScene(imageInput, sceneConfig, locale, context = {}) {
   const label = locale === "tr" ? sceneConfig.labelTR : sceneConfig.labelEN;
   const aspectRatio = sceneConfig.aspectRatio || "1:1";
 
@@ -47,14 +48,19 @@ async function generateScene(imageInput, sceneConfig, locale) {
     },
   });
 
-  const url = Array.isArray(output) ? output[0] : output;
-  return { url: url?.toString(), scene: sceneConfig.scene, label, aspectRatio };
+  const replicateUrl = (Array.isArray(output) ? output[0] : output)?.toString();
+  const { shop, generationId } = context;
+  const url = shop && generationId
+    ? await persistImage(replicateUrl, `generations/${shop}/${generationId}/${sceneConfig.scene}.jpg`)
+    : replicateUrl;
+
+  return { url, scene: sceneConfig.scene, label, aspectRatio };
 }
 
-async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetries = 5) {
+async function generateSceneWithRetry(imageInput, sceneConfig, locale, context, maxRetries = 5) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await generateScene(imageInput, sceneConfig, locale);
+      return await generateScene(imageInput, sceneConfig, locale, context);
     } catch (err) {
       const retryAfterMatch = err.message?.match(/"retry_after":(\d+)/);
       const is429 = err.message?.includes("429");
@@ -70,7 +76,7 @@ async function generateSceneWithRetry(imageInput, sceneConfig, locale, maxRetrie
   }
 }
 
-export async function startGeneration({ imageUrl, productTitle, locale = "tr", photoSetId, product }) {
+export async function startGeneration({ imageUrl, productTitle, locale = "tr", photoSetId, product, shop, generationId }) {
   const imageInput = toImageInput(imageUrl);
 
   let scenes;
@@ -85,7 +91,7 @@ export async function startGeneration({ imageUrl, productTitle, locale = "tr", p
   const results = [];
 
   for (const sceneConfig of scenes) {
-    const result = await generateSceneWithRetry(bgRemovedUrl, sceneConfig, locale).catch((err) => {
+    const result = await generateSceneWithRetry(bgRemovedUrl, sceneConfig, locale, { shop, generationId }).catch((err) => {
       console.error(`[replicate] scene "${sceneConfig.scene}" failed:`, err.message);
       return {
         url: null,
@@ -101,7 +107,7 @@ export async function startGeneration({ imageUrl, productTitle, locale = "tr", p
   return results;
 }
 
-export async function refineScene({ imageUrl, refinementPrompt, sceneLabel, photoSetLabel }) {
+export async function refineScene({ imageUrl, refinementPrompt, sceneLabel, photoSetLabel, shop, scene }) {
   const contextualPrompt = [
     refinementPrompt,
     sceneLabel ? `Keep this as the same "${sceneLabel}" shot type.` : "",
@@ -122,6 +128,10 @@ export async function refineScene({ imageUrl, refinementPrompt, sceneLabel, phot
       prompt_upsampling: false,
     },
   });
-  const url = Array.isArray(output) ? output[0] : output;
-  return url?.toString();
+  const replicateUrl = (Array.isArray(output) ? output[0] : output)?.toString();
+
+  if (shop) {
+    return persistImage(replicateUrl, `generations/${shop}/refined/${Date.now()}-${scene || "scene"}.jpg`);
+  }
+  return replicateUrl;
 }

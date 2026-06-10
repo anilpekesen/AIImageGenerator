@@ -103,6 +103,8 @@ export const action = async ({ request }) => {
           locale,
           photoSetId: photoSet.id,
           product: { title: productTitle, productType, tags, descriptionHtml },
+          shop,
+          generationId: generation.id,
         });
         await updateGeneration(generation.id, { outputs: JSON.stringify(outputs), status: "done" });
         const successCount = outputs.filter((o) => o.url).length;
@@ -169,6 +171,8 @@ export const action = async ({ request }) => {
         refinementPrompt,
         sceneLabel: label || scene,
         photoSetLabel,
+        shop,
+        scene,
       });
       return json({
         refined: true,
@@ -531,6 +535,10 @@ export default function Generate() {
                     setRefinePrompt("");
                   }}
                 />
+
+                <Text as="p" tone="subdued" variant="bodySm">
+                  ⓘ {t("generate.outputs.storageNotice")}
+                </Text>
               </BlockStack>
             </Card>
           </Layout.Section>
