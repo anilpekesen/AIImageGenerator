@@ -33,6 +33,22 @@ export async function reconcileStaleGenerations(shop) {
   }
 }
 
+// Matches the R2 bucket's 30-day lifecycle rule on the generations/ prefix —
+// once the images are gone, drop the corresponding history records too.
+const GENERATION_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+export async function deleteExpiredGenerations(shop) {
+  const cutoff = new Date(Date.now() - GENERATION_RETENTION_MS);
+  await prisma.generation.deleteMany({
+    where: { shop, createdAt: { lt: cutoff } },
+  });
+}
+
+export async function maintainGenerations(shop) {
+  await reconcileStaleGenerations(shop);
+  await deleteExpiredGenerations(shop);
+}
+
 export async function createGeneration({
   shop,
   productId,

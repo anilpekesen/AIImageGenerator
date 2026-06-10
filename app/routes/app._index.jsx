@@ -33,7 +33,7 @@ import {
 import { Trans, useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
-import { getRecentGenerations, countDoneGenerations, reconcileStaleGenerations } from "../models/generation.server";
+import { getRecentGenerations, countDoneGenerations, maintainGenerations } from "../models/generation.server";
 import { fetchProductsForList, fetchProductsCount } from "../services/product.server";
 import { auditProduct } from "../services/seo-audit.server";
 import { countAnalyses } from "../models/competitor-analysis.server";
@@ -47,7 +47,7 @@ export const loader = async ({ request }) => {
   const locale = await i18next.getLocale(request);
   const t = await i18next.getFixedT(locale);
 
-  await reconcileStaleGenerations(shop);
+  await maintainGenerations(shop);
 
   const [
     subscription,
