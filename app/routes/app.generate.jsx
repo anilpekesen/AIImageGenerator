@@ -29,7 +29,7 @@ import {
   refundCredits,
 } from "../models/subscription.server";
 import { startGeneration, refineScene } from "../services/replicate.server";
-import { createGeneration, updateGeneration } from "../models/generation.server";
+import { createGeneration, updateGeneration, reconcileStaleGenerations } from "../models/generation.server";
 import GenerationGrid from "../components/GenerationGrid";
 import ImageUploader from "../components/ImageUploader";
 import { fetchProductBasicInfo } from "../services/product.server";
@@ -37,6 +37,7 @@ import { detectCategory, getPhotoSetOptions, getTemplateById } from "../services
 
 export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
+  await reconcileStaleGenerations(session.shop);
   const subscription = await getOrCreateSubscription(session.shop);
   const locale = await i18next.getLocale(request);
 

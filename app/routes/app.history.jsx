@@ -15,10 +15,11 @@ import {
 } from "@shopify/polaris";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
-import { getAllGenerations } from "../models/generation.server";
+import { getAllGenerations, reconcileStaleGenerations } from "../models/generation.server";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
+  await reconcileStaleGenerations(session.shop);
   const generations = await getAllGenerations(session.shop);
   return json({ generations });
 };

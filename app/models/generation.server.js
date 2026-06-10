@@ -1,4 +1,37 @@
 import { prisma } from "../shopify.server";
+import { CREDIT_COSTS, refundCredits } from "./subscription.server";
+
+// pm2 restarts during a deploy can kill an in-flight background generation,
+// leaving the record stuck at "processing" forever with credits never refunded.
+const STALE_GENERATION_MS = 10 * 60 * 1000;
+
+async function failIfStale(generation) {
+  if (generation.status !== "processing") return generation;
+  if (Date.now() - new Date(generation.updatedAt).getTime() < STALE_GENERATION_MS) {
+    return generation;
+  }
+
+  // updateMany + count guard ensures only one caller refunds credits
+  // even if the status check races with another reconciliation pass.
+  const result = await prisma.generation.updateMany({
+    where: { id: generation.id, status: "processing" },
+    data: { status: "failed" },
+  });
+  if (result.count === 1) {
+    await refundCredits(generation.shop, CREDIT_COSTS.PHOTO_SET);
+  }
+  return { ...generation, status: "failed" };
+}
+
+export async function reconcileStaleGenerations(shop) {
+  const cutoff = new Date(Date.now() - STALE_GENERATION_MS);
+  const stale = await prisma.generation.findMany({
+    where: { shop, status: "processing", updatedAt: { lt: cutoff } },
+  });
+  for (const generation of stale) {
+    await failIfStale(generation);
+  }
+}
 
 export async function createGeneration({
   shop,
@@ -49,5 +82,7 @@ export async function countDoneGenerations(shop) {
 }
 
 export async function getGenerationById(id, shop) {
-  return prisma.generation.findFirst({ where: { id, shop } });
+  const generation = await prisma.generation.findFirst({ where: { id, shop } });
+  if (!generation) return null;
+  return failIfStale(generation);
 }
