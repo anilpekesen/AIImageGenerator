@@ -409,6 +409,196 @@
     "shopLabel": "Mağaza adresi",
     "loginButton": "Giriş yap"
   },
+  "marketing": {
+    "meta": {
+      "title": "Rankavio — Shopify için AI Ürün Fotoğrafçılığı | Snap6",
+      "description": "Tek bir ürün fotoğrafından, tek tıkla 6 profesyonel e-ticaret sahnesi üretin. Prompt yok, stüdyo yok. Rankavio'nun Snap6 motoruyla saniyeler içinde Shopify ürün galerinize hazır görseller."
+    },
+    "nav": {
+      "features": "Özellikler",
+      "categories": "Kategoriler",
+      "howItWorks": "Nasıl Çalışır",
+      "pricing": "Fiyatlandırma",
+      "faq": "SSS",
+      "cta": "Ücretsiz Başla"
+    },
+    "hero": {
+      "badge": "Shopify için AI Ürün Fotoğrafçılığı",
+      "titleLine1": "1 Fotoğraf Yükle,",
+      "titleLine2": "6 Stüdyo Sahnesi Al.",
+      "subtitle": "Rankavio'nun Snap6 motoru, ürün fotoğrafınızı saniyeler içinde kategorinize özel 6 profesyonel sahneye dönüştürür. Prompt yazmaya, stüdyo kiralamaya ya da Photoshop'a gerek yok.",
+      "ctaPrimary": "Ücretsiz Dene",
+      "ctaSecondary": "Nasıl Çalıştığını Gör",
+      "meta": {
+        "noPrompt": "Prompt yazmaya gerek yok",
+        "categories": "16+ ürün kategorisine özel şablon",
+        "directSave": "Tek tıkla Shopify ürün galerisine kayıt"
+      },
+      "showcaseLabel": "1 Ürün Fotoğrafı",
+      "showcaseResultLabel": "6 Hazır Sahne"
+    },
+    "showcaseScenes": {
+      "studioWhite": "Stüdyo Beyaz",
+      "lifestyle": "Yaşam Alanı",
+      "detail": "Detay Çekimi",
+      "luxury": "Lüks Sunum",
+      "editorial": "Editöryal",
+      "flatLay": "Üstten Düzen"
+    },
+    "features": {
+      "eyebrow": "Neden Rankavio",
+      "heading": "Diğer AI foto araçları gibi değil",
+      "subheading": "Rakipler sizi tek tek prompt yazmaya zorlar. Rankavio, fotoğrafçılık uzmanları tarafından tasarlanmış 6'lı sahne setlerini tek tıkla sunar.",
+      "items": [
+        {
+          "title": "Tek tık → 6 sahne",
+          "description": "Bir ürün fotoğrafı yükleyin; arka plan otomatik kaldırılır ve kategorinize özel 6 profesyonel sahne aynı anda üretilir."
+        },
+        {
+          "title": "Kategoriye özel reçeteler",
+          "description": "İç giyimden mobilyaya, takıdan bebek kıyafetine kadar 16+ ürün kategorisi için uzmanlar tarafından kurgulanmış sahne şablonları."
+        },
+        {
+          "title": "Doğrudan Shopify'a kayıt",
+          "description": "Beğendiğiniz sahneleri seçin; indirme/yükleme derdi olmadan tek tıkla ürün galerinize ekleyin."
+        },
+        {
+          "title": "Öngörülebilir kredi sistemi",
+          "description": "Sürpriz faturalar yok. Her plan net bir aylık kredi limiti sunar; 1 foto seti (6 sahne) = 6 kredi."
+        }
+      ]
+    },
+    "categories": {
+      "eyebrow": "Kategoriler",
+      "heading": "Her ürün tipine özel sahne tasarımı",
+      "subheading": "16'dan fazla kategori için ayrı ayrı kurgulanmış çekim reçeteleri — mobilyadan modaya, takıdan ev tekstiline kadar.",
+      "items": {
+        "general": "Genel Editöryal",
+        "sofaSet": "Koltuk Takımı",
+        "clothing": "Giyim",
+        "jewelry": "Takı & Mücevher",
+        "bag": "Çanta",
+        "underwear": "İç Giyim",
+        "hat": "Şapka & Bere",
+        "babyClothing": "Bebek Kıyafeti"
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "Nasıl Çalışır",
+      "heading": "3 adımda stüdyo kalitesinde görseller",
+      "subheading": "Hiç prompt yazmadan, dakikalar içinde.",
+      "steps": [
+        {
+          "title": "Ürününüzü seçin",
+          "description": "Shopify mağazanızdaki bir ürünü seçin veya yeni bir ürün fotoğrafı yükleyin."
+        },
+        {
+          "title": "Kategorinizi onaylayın",
+          "description": "Rankavio ürün tipini otomatik tanır ve en uygun 6 sahnelik foto setini önerir."
+        },
+        {
+          "title": "AI 6 sahneyi üretsin",
+          "description": "Arka plan kaldırma, sahne kurgusu ve render — hepsi otomatik, tek tıkla."
+        },
+        {
+          "title": "Beğendiklerinizi kaydedin",
+          "description": "Sonuçları inceleyin, istediğiniz görselleri seçin ve doğrudan ürün galerinize ekleyin."
+        }
+      ]
+    },
+    "compare": {
+      "eyebrow": "Karşılaştırma",
+      "heading": "Rankavio'yu farklı kılan ne?",
+      "subheading": "Diğer AI görsel araçları tek tek, prompt yazarak üretim yaptırır. Rankavio kategoriye özel, hazır 6'lı setler sunar.",
+      "headers": ["", "Rankavio", "Diğer AI foto araçları"],
+      "rows": [
+        ["Üretim modeli", "1 tık → 6 hazır sahne", "Tek tek, prompt yazarak"],
+        ["Kullanıcı eforu", "Sıfır — sahneler hazır", "Yüksek — prompt deneme yanılma"],
+        ["Sonuç tutarlılığı", "Kategoriye özel, garantili 6 sahne", "Prompt kalitesine bağlı, değişken"],
+        ["Shopify entegrasyonu", "Tek tık, doğrudan ürün galerisine", "Genelde manuel indir / yükle"],
+        ["Fiyatlandırma", "Sabit aylık kredi, sürpriz yok", "Kullanım başına değişken ücret"]
+      ]
+    },
+    "pricing": {
+      "eyebrow": "Fiyatlandırma",
+      "heading": "Mağazanıza uygun planı seçin",
+      "subheading": "Her plan net bir aylık kredi limiti sunar. 1 foto seti (6 sahne) = 6 kredi, 1 yeniden düzenleme = 1 kredi.",
+      "perMonth": "/ay",
+      "plans": [
+        {
+          "name": "Free",
+          "price": "$0",
+          "credits": "50 kredi/ay",
+          "features": ["~8 foto seti / ay", "Tüm kategori şablonları", "Otomatik arka plan kaldırma"],
+          "cta": "Ücretsiz Başla"
+        },
+        {
+          "name": "Solo",
+          "price": "$29.99",
+          "credits": "450 kredi/ay",
+          "features": ["~75 foto seti / ay", "Tüm kategori şablonları", "Öncelikli üretim kuyruğu"],
+          "cta": "Solo'yu Seç"
+        },
+        {
+          "name": "Pro",
+          "price": "$129.99",
+          "credits": "2.000 kredi/ay",
+          "features": ["~333 foto seti / ay", "SEO ve rakip analizi araçları", "Öncelikli destek"],
+          "cta": "Pro'yu Seç",
+          "highlight": "En Popüler"
+        },
+        {
+          "name": "Premium",
+          "price": "$299.99",
+          "credits": "4.500 kredi/ay",
+          "features": ["~750 foto seti / ay", "SEO ve rakip analizi araçları", "Öncelikli destek"],
+          "cta": "Premium'u Seç"
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "SSS",
+      "heading": "Sıkça sorulan sorular",
+      "items": [
+        {
+          "q": "Rankavio tam olarak ne yapıyor?",
+          "a": "Yüklediğiniz tek bir ürün fotoğrafından arka planı otomatik kaldırır ve ürün kategorinize özel, kullanıma hazır 6 farklı profesyonel sahne üretir — stüdyo, yaşam alanı, detay çekimi, lüks sunum, editöryal ve üstten düzen gibi."
+        },
+        {
+          "q": "Prompt yazmam gerekiyor mu?",
+          "a": "Hayır. Her kategori için sahne reçeteleri fotoğrafçılık uzmanları tarafından önceden tasarlandı. Tek yapmanız gereken bir fotoğraf yüklemek."
+        },
+        {
+          "q": "Üretilen görselleri nasıl kullanabilirim?",
+          "a": "Beğendiğiniz görselleri seçip tek tıkla doğrudan Shopify ürün galerinize ekleyebilir, ya da indirip istediğiniz yerde kullanabilirsiniz."
+        },
+        {
+          "q": "Krediler nasıl çalışıyor?",
+          "a": "Her plan aylık bir kredi limiti içerir. 6 sahnelik bir foto seti üretmek 6 kredi, tek bir görseli yeniden düzenlemek 1 kredi harcar. Kullanılmayan krediler bir sonraki aya devretmez."
+        },
+        {
+          "q": "İstediğim zaman plan değiştirebilir miyim?",
+          "a": "Evet. Planınızı Shopify üzerinden istediğiniz zaman yükseltebilir veya düşürebilirsiniz; değişiklik bir sonraki fatura döneminde geçerli olur."
+        }
+      ]
+    },
+    "finalCta": {
+      "heading": "Stüdyo çekimine veda edin.",
+      "subheading": "İlk foto setinizi ücretsiz oluşturun — kredi kartı gerekmez.",
+      "ctaPrimary": "Rankavio'yu Ücretsiz Dene",
+      "ctaSecondary": "Fiyatlandırmayı İncele"
+    },
+    "footer": {
+      "tagline": "Shopify mağazaları için AI destekli ürün fotoğrafçılığı.",
+      "links": {
+        "features": "Özellikler",
+        "pricing": "Fiyatlandırma",
+        "faq": "SSS",
+        "app": "Uygulamaya Git"
+      },
+      "copyright": "Tüm hakları saklıdır."
+    }
+  },
   "common": {
     "loading": "Yükleniyor...",
     "save": "Kaydet",
