@@ -99,11 +99,30 @@ export default function History() {
                       <InlineStack gap="200" wrap>
                         {outputs.map((output, i) => (
                           <Box key={i} borderRadius="150" overflow="hidden">
-                            <Thumbnail
-                              source={output.url}
-                              alt={output.scene}
-                              size="medium"
-                            />
+                            {output.url ? (
+                              <Thumbnail
+                                source={output.url}
+                                alt={output.scene}
+                                size="medium"
+                              />
+                            ) : (
+                              <div
+                                style={{
+                                  width: "60px",
+                                  height: "60px",
+                                  background: "#f4f6f8",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  textAlign: "center",
+                                  padding: "2px",
+                                }}
+                              >
+                                <span style={{ fontSize: "9px", lineHeight: "1.2", color: "#6d7175", wordBreak: "break-word" }}>
+                                  {t("generationGrid.notGenerated")}
+                                </span>
+                              </div>
+                            )}
                           </Box>
                         ))}
                       </InlineStack>
