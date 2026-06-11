@@ -286,7 +286,8 @@
       "pending": "Bekliyor",
       "processing": "İşleniyor",
       "failed": "Başarısız"
-    }
+    },
+    "imageUnavailable": "Görsel kullanılamıyor"
   },
   "billing": {
     "pageTitle": "Abonelik Planları",

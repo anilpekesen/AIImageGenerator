@@ -286,7 +286,8 @@
       "pending": "Pending",
       "processing": "Processing",
       "failed": "Failed"
-    }
+    },
+    "imageUnavailable": "Image unavailable"
   },
   "billing": {
     "pageTitle": "Subscription Plans",

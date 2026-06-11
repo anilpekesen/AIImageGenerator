@@ -13,29 +13,37 @@ const BUCKET = process.env.R2_BUCKET;
 const PUBLIC_URL = (process.env.R2_PUBLIC_URL || "").replace(/\/$/, "");
 
 // Downloads an image from a (temporary) source URL and re-uploads it to R2,
-// returning a permanent public URL. Falls back to the source URL on failure
-// so a storage outage never breaks generation.
-export async function persistImage(sourceUrl, key) {
-  try {
-    const res = await fetch(sourceUrl);
-    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+// returning a permanent public URL. Retries a couple of times before falling
+// back to the source URL, since that source URL (e.g. a Replicate delivery
+// link) expires and would otherwise leave a permanently broken image.
+export async function persistImage(sourceUrl, key, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(sourceUrl);
+      if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
 
-    const buffer = Buffer.from(await res.arrayBuffer());
-    const contentType = res.headers.get("content-type") || "image/jpeg";
+      const buffer = Buffer.from(await res.arrayBuffer());
+      const contentType = res.headers.get("content-type") || "image/jpeg";
 
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: BUCKET,
-        Key: key,
-        Body: buffer,
-        ContentType: contentType,
-      })
-    );
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: BUCKET,
+          Key: key,
+          Body: buffer,
+          ContentType: contentType,
+        })
+      );
 
-    return `${PUBLIC_URL}/${key}`;
-  } catch (err) {
-    console.error("[storage] persistImage failed, keeping source URL:", err.message);
-    return sourceUrl;
+      return `${PUBLIC_URL}/${key}`;
+    } catch (err) {
+      if (attempt < retries) {
+        console.error(`[storage] persistImage attempt ${attempt + 1} failed, retrying:`, err.message);
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+      console.error("[storage] persistImage failed, keeping source URL:", err.message);
+      return sourceUrl;
+    }
   }
 }
 

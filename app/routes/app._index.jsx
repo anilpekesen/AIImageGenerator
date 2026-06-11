@@ -145,6 +145,32 @@ function StatTile({ icon, tone, label, value }) {
   );
 }
 
+function RecentGenerationImage({ src, alt }) {
+  const [errored, setErrored] = useState(false);
+
+  if (!src || errored) {
+    return <Box minHeight="80px" background="bg-fill-tertiary" borderRadius="150" />;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width="120"
+      height="80"
+      loading="lazy"
+      decoding="async"
+      onError={() => setErrored(true)}
+      style={{
+        width: "100%",
+        height: "80px",
+        objectFit: "cover",
+        borderRadius: "8px",
+      }}
+    />
+  );
+}
+
 function ProductHighlightRow({ icon, tone, label, product, actionLabel, onAction, t }) {
   return (
     <InlineStack align="space-between" blockAlign="center" wrap={false} gap="400">
@@ -406,28 +432,7 @@ export default function Index() {
                         padding="200"
                         minWidth="120px"
                       >
-                        {firstImage ? (
-                          <img
-                            src={firstImage}
-                            alt={gen.productTitle}
-                            width="120"
-                            height="80"
-                            loading="lazy"
-                            decoding="async"
-                            style={{
-                              width: "100%",
-                              height: "80px",
-                              objectFit: "cover",
-                              borderRadius: "8px",
-                            }}
-                          />
-                        ) : (
-                          <Box
-                            minHeight="80px"
-                            background="bg-fill-tertiary"
-                            borderRadius="150"
-                          />
-                        )}
+                        <RecentGenerationImage src={firstImage} alt={gen.productTitle} />
                         <Text as="p" variant="bodySm" truncate>
                           {gen.productTitle}
                         </Text>
