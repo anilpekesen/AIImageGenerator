@@ -25,6 +25,10 @@
       "action": "Generate 6 Scenes Now",
       "body": "Upload a photo and get 6 professional scenes <strong>in one click</strong>: studio white, lifestyle, outdoor, luxury marble, dramatic dark, and flat lay. No prompts to write, no photographer to wait for."
     },
+    "productAccessError": {
+      "title": "Product data is unavailable right now",
+      "body": "The app loaded, but product counts and SEO insights are temporarily hidden until Shopify product permissions refresh."
+    },
     "planStatus": {
       "heading": "Plan Status",
       "usedThisMonth": "Used this month",
@@ -104,6 +108,10 @@
     "empty": {
       "heading": "No products yet",
       "body": "Once you add products to your store, they'll be listed here."
+    },
+    "productAccessError": {
+      "title": "Products could not be loaded",
+      "body": "Your product list is temporarily hidden until Shopify product permissions refresh."
     },
     "seoScore": "SEO Score: {{score}}",
     "issueCount": "{{count}} improvement suggestions",

@@ -25,6 +25,10 @@
       "action": "Şimdi 6 Sahne Üret",
       "body": "Bir fotoğraf yükleyin, <strong>tek tıkla</strong> 6 profesyonel sahne elinizde olsun: stüdyo beyazı, lifestyle, dış mekan, lüks mermer, dramatik koyu ve flat lay. Prompt yazmaya, fotoğrafçı beklemeye gerek yok."
     },
+    "productAccessError": {
+      "title": "Ürün verileri şu anda alınamadı",
+      "body": "Uygulama açıldı, ancak Shopify ürün izinleri yenilenene kadar ürün sayısı ve SEO içgörüleri geçici olarak gösterilemiyor."
+    },
     "planStatus": {
       "heading": "Plan Durumu",
       "usedThisMonth": "Bu ay kullanılan",
@@ -104,6 +108,10 @@
     "empty": {
       "heading": "Henüz ürün yok",
       "body": "Mağazanıza ürün ekleyince burada listelenecek."
+    },
+    "productAccessError": {
+      "title": "Ürünler yüklenemedi",
+      "body": "Shopify ürün izinleri yenilenene kadar ürün listeniz geçici olarak gösterilemiyor."
     },
     "seoScore": "SEO Puanı: {{score}}",
     "issueCount": "{{count}} iyileştirme önerisi",

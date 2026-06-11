@@ -7,6 +7,7 @@ import {
   Card,
   Text,
   Button,
+  Banner,
   BlockStack,
   InlineStack,
   Badge,
@@ -29,7 +30,20 @@ export const loader = async ({ request }) => {
   const locale = await i18next.getLocale(request);
   const t = await i18next.getFixedT(locale);
 
-  const { nodes, pageInfo } = await fetchProductsForList(admin, { first: 50 });
+  let productList;
+  try {
+    productList = await fetchProductsForList(admin, { first: 50 });
+  } catch (error) {
+    console.error("Products page product fetch failed", {
+      shop: session.shop,
+      status: error?.status || error?.response?.status || error?.response?.code,
+      name: error?.name,
+      message: error?.message,
+    });
+    return json({ products: [], hasNextPage: false, productAccessError: true });
+  }
+
+  const { nodes, pageInfo } = productList;
   const productIdsWithGenerations = await getProductIdsWithGenerations(session.shop);
 
   const products = nodes.map((product) => {
@@ -46,7 +60,7 @@ export const loader = async ({ request }) => {
     };
   });
 
-  return json({ products, hasNextPage: pageInfo.hasNextPage });
+  return json({ products, hasNextPage: pageInfo.hasNextPage, productAccessError: false });
 };
 
 export const action = async ({ request }) => {
@@ -82,7 +96,7 @@ function scoreTone(score) {
 }
 
 export default function Products() {
-  const { products, hasNextPage } = useLoaderData();
+  const { products, hasNextPage, productAccessError } = useLoaderData();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -102,6 +116,14 @@ export default function Products() {
   return (
     <Page title={t("products.pageTitle")} subtitle={t("products.pageSubtitle")}>
       <Layout>
+        {productAccessError && (
+          <Layout.Section>
+            <Banner title={t("products.productAccessError.title")} tone="warning">
+              <p>{t("products.productAccessError.body")}</p>
+            </Banner>
+          </Layout.Section>
+        )}
+
         {products.length === 0 ? (
           <Layout.Section>
             <Card>

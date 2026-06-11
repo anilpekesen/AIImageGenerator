@@ -52,20 +52,37 @@ export const loader = async ({ request }) => {
   const [
     subscription,
     recentGenerations,
-    { nodes: productNodes },
-    productsCount,
     competitorAnalysesCount,
     seoAuditsCount,
     doneGenerationsCount,
   ] = await Promise.all([
     getOrCreateSubscription(shop),
     getRecentGenerations(shop, 3),
-    fetchProductsForList(admin, { first: 50 }),
-    fetchProductsCount(admin),
     countAnalyses(shop),
     countAudits(shop),
     countDoneGenerations(shop),
   ]);
+
+  let productNodes = [];
+  let productsCount = 0;
+  let productAccessError = false;
+
+  try {
+    const [productsList, count] = await Promise.all([
+      fetchProductsForList(admin, { first: 50 }),
+      fetchProductsCount(admin),
+    ]);
+    productNodes = productsList?.nodes || [];
+    productsCount = count;
+  } catch (error) {
+    productAccessError = true;
+    console.error("Dashboard product data fetch failed", {
+      shop,
+      status: error?.status || error?.response?.status || error?.response?.code,
+      name: error?.name,
+      message: error?.message,
+    });
+  }
 
   const scoredProducts = productNodes.map((product) => {
     const audit = auditProduct(product, t);
@@ -93,6 +110,7 @@ export const loader = async ({ request }) => {
     avgSeoScore,
     bestProduct,
     worstProduct,
+    productAccessError,
     stats: {
       competitorAnalysesCount,
       seoAuditsCount,
@@ -139,7 +157,7 @@ function ProductHighlightRow({ icon, tone, label, product, actionLabel, onAction
 }
 
 export default function Index() {
-  const { subscription, recentGenerations, productsCount, avgSeoScore, bestProduct, worstProduct, stats } = useLoaderData();
+  const { subscription, recentGenerations, productsCount, avgSeoScore, bestProduct, worstProduct, productAccessError, stats } = useLoaderData();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? "tr";
@@ -189,6 +207,14 @@ export default function Index() {
             </p>
           </Banner>
         </Layout.Section>
+
+        {productAccessError && (
+          <Layout.Section>
+            <Banner title={t("dashboard.productAccessError.title")} tone="warning">
+              <p>{t("dashboard.productAccessError.body")}</p>
+            </Banner>
+          </Layout.Section>
+        )}
 
         <Layout.Section>
           <InlineGrid columns={{ xs: 1, sm: 2, md: 4 }} gap="400">
