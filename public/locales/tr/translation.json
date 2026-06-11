@@ -445,6 +445,14 @@
       "faq": "SSS",
       "cta": "Ücretsiz Başla"
     },
+    "consent": {
+      "ariaLabel": "Çerez ve analiz izni",
+      "title": "Analitik izni",
+      "body": "Rankavio'yu iyileştirmek için anonim kullanım verilerini Google Analytics ile ölçmek istiyoruz. Kabul etmezseniz analitik çerezleri kapalı kalır.",
+      "privacyLink": "Gizlilik politikasını okuyun.",
+      "decline": "Reddet",
+      "accept": "Kabul et"
+    },
     "hero": {
       "badge": "Shopify için AI Ürün Fotoğrafçılığı",
       "titleLine1": "Tek ürün fotoğrafından",

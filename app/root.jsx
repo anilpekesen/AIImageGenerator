@@ -10,6 +10,7 @@ import {
 import { useChangeLanguage } from "remix-i18next/react";
 import { useTranslation } from "react-i18next";
 import i18next from "./i18next.server";
+import ConsentBanner from "./components/marketing/ConsentBanner";
 
 const MARKETING_HOSTS = ["rankavio.com", "www.rankavio.com"];
 
@@ -46,6 +47,17 @@ export default function App() {
                 __html: `
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
+                  var rankavioConsent = null;
+                  try {
+                    rankavioConsent = window.localStorage.getItem('rankavio_cookie_consent');
+                  } catch (error) {}
+                  gtag('consent', 'default', {
+                    analytics_storage: rankavioConsent === 'accepted' ? 'granted' : 'denied',
+                    ad_storage: 'denied',
+                    ad_user_data: 'denied',
+                    ad_personalization: 'denied',
+                    wait_for_update: 500
+                  });
                   gtag('js', new Date());
                   gtag('config', 'G-BW8FN5HVNT');
                 `,
@@ -68,6 +80,7 @@ export default function App() {
       </head>
       <body>
         <Outlet />
+        {isMarketingHost && <ConsentBanner />}
         <ScrollRestoration />
         <Scripts />
       </body>

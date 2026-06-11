@@ -445,6 +445,14 @@
       "faq": "FAQ",
       "cta": "Start Free"
     },
+    "consent": {
+      "ariaLabel": "Cookie and analytics consent",
+      "title": "Analytics consent",
+      "body": "We would like to measure anonymous usage with Google Analytics to improve Rankavio. If you decline, analytics cookies stay disabled.",
+      "privacyLink": "Read the privacy policy.",
+      "decline": "Decline",
+      "accept": "Accept"
+    },
     "hero": {
       "badge": "AI Product Photography for Shopify",
       "titleLine1": "One product photo,",
