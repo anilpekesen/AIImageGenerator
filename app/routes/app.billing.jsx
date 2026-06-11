@@ -95,10 +95,13 @@ export const action = async ({ request }) => {
   const planName = planMap[planKey];
   if (!planName) return json({ error: "Invalid plan" }, { status: 400 });
 
+  const shopHandle = session.shop.replace(".myshopify.com", "");
+  const returnUrl = `https://admin.shopify.com/store/${shopHandle}/apps/${process.env.SHOPIFY_API_KEY}/app/billing`;
+
   await billing.request({
     plan: planName,
     isTest: true,
-    returnUrl: `${process.env.SHOPIFY_APP_URL}/app/billing`,
+    returnUrl,
   });
 
   return null;
