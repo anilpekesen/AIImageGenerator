@@ -8,6 +8,10 @@
     "history": "Geçmiş",
     "billing": "Abonelik"
   },
+  "planBar": {
+    "usage": "{{used}} / {{limit}} kredi kullanıldı",
+    "manage": "Planı Yönet"
+  },
   "dashboard": {
     "pageTitle": "Snap6 — Stüdyo Çekimine Son",
     "plan": {
@@ -350,7 +354,18 @@
       "heading": "Flux Kontext Pro ile Güçlendirilmiştir",
       "body": "Tüm planlar Black Forest Labs Flux Kontext Pro modelini kullanır — GPT-4o image edit kalitesinde, ürün kimliğini koruyan en iyi AI görsel düzenleme modeli. Her üretimde 16 kategoriye özel AI analizi ile 6 profesyonel sahne üretilir."
     },
-    "renewalNote": "AI kredileri her ay yenilenir ve kullanılmayan krediler bir sonraki aya devredilmez."
+    "renewalNote": "AI kredileri her ay yenilenir ve kullanılmayan krediler bir sonraki aya devredilmez.",
+    "cancel": {
+      "heading": "Aboneliği iptal et",
+      "body": "İptal ettiğinizde mağazanız hemen Ücretsiz plana geçer. Bu fatura döneminde kalan kullanılmamış krediler kaybedilir ve bundan sonra Ücretsiz planın aylık kredi hakkına sahip olursunuz.",
+      "button": "Planı iptal et",
+      "modalTitle": "Aboneliğini iptal etmek istiyor musun?",
+      "modalBody": "<strong>{{plan}}</strong> planını iptal edip Ücretsiz plana geçmek üzeresin. Bu işlem hemen uygulanır ve geri alınamaz.",
+      "confirm": "Evet, planı iptal et",
+      "dismiss": "Planımı koru",
+      "successTitle": "Abonelik iptal edildi",
+      "successBody": "Mağazan artık Ücretsiz planda. Dilediğin zaman tekrar yükseltebilirsin."
+    }
   },
   "generationGrid": {
     "selectAll": "Tümünü Seç",
@@ -521,13 +536,37 @@
       "eyebrow": "Karşılaştırma",
       "heading": "Prompt aracı değil, Shopify fotoğraf üretim hattı",
       "subheading": "Amaç tek güzel görsel bulmak değil. Ürün sayfasında birlikte çalışan, tutarlı ve maliyeti hesaplanabilir bir görsel seti üretmek.",
-      "headers": ["", "Rankavio", "Diğer AI foto araçları"],
+      "headers": [
+        "",
+        "Rankavio",
+        "Diğer AI foto araçları"
+      ],
       "rows": [
-        ["Üretim modeli", "1 tık → 6 hazır sahne", "Tek tek, prompt yazarak"],
-        ["Kullanıcı eforu", "Sahneler hazır, kategori önerisi otomatik", "Prompt deneme yanılma gerekir"],
-        ["Sonuç tutarlılığı", "Kategoriye özel, garantili 6 sahne", "Prompt kalitesine bağlı, değişken"],
-        ["Shopify entegrasyonu", "Tek tık, doğrudan ürün galerisine", "Genelde manuel indir / yükle"],
-        ["Fiyatlandırma", "Sabit aylık kredi, sürpriz yok", "Kullanım başına değişken ücret"]
+        [
+          "Üretim modeli",
+          "1 tık → 6 hazır sahne",
+          "Tek tek, prompt yazarak"
+        ],
+        [
+          "Kullanıcı eforu",
+          "Sahneler hazır, kategori önerisi otomatik",
+          "Prompt deneme yanılma gerekir"
+        ],
+        [
+          "Sonuç tutarlılığı",
+          "Kategoriye özel, garantili 6 sahne",
+          "Prompt kalitesine bağlı, değişken"
+        ],
+        [
+          "Shopify entegrasyonu",
+          "Tek tık, doğrudan ürün galerisine",
+          "Genelde manuel indir / yükle"
+        ],
+        [
+          "Fiyatlandırma",
+          "Sabit aylık kredi, sürpriz yok",
+          "Kullanım başına değişken ücret"
+        ]
       ]
     },
     "pricing": {
@@ -540,21 +579,33 @@
           "name": "Free",
           "price": "$0",
           "credits": "50 kredi/ay",
-          "features": ["~8 foto seti / ay", "Tüm kategori şablonları", "Otomatik arka plan kaldırma"],
+          "features": [
+            "~8 foto seti / ay",
+            "Tüm kategori şablonları",
+            "Otomatik arka plan kaldırma"
+          ],
           "cta": "Ücretsiz Başla"
         },
         {
           "name": "Solo",
           "price": "$29.99",
           "credits": "450 kredi/ay",
-          "features": ["~75 foto seti / ay", "Tüm kategori şablonları", "Öncelikli üretim kuyruğu"],
+          "features": [
+            "~75 foto seti / ay",
+            "Tüm kategori şablonları",
+            "Öncelikli üretim kuyruğu"
+          ],
           "cta": "Solo'yu Seç"
         },
         {
           "name": "Pro",
           "price": "$129.99",
           "credits": "2.000 kredi/ay",
-          "features": ["~333 foto seti / ay", "SEO ve rakip analizi araçları", "Öncelikli destek"],
+          "features": [
+            "~333 foto seti / ay",
+            "SEO ve rakip analizi araçları",
+            "Öncelikli destek"
+          ],
           "cta": "Pro'yu Seç",
           "highlight": "En Popüler"
         },
@@ -562,7 +613,11 @@
           "name": "Premium",
           "price": "$299.99",
           "credits": "4.500 kredi/ay",
-          "features": ["~750 foto seti / ay", "SEO ve rakip analizi araçları", "Öncelikli destek"],
+          "features": [
+            "~750 foto seti / ay",
+            "SEO ve rakip analizi araçları",
+            "Öncelikli destek"
+          ],
           "cta": "Premium'u Seç"
         }
       ]
@@ -605,7 +660,9 @@
         "features": "Özellikler",
         "pricing": "Fiyatlandırma",
         "faq": "SSS",
-        "app": "Uygulamaya Git"
+        "app": "Uygulamaya Git",
+        "privacy": "Gizlilik Politikası",
+        "terms": "Kullanım Koşulları"
       },
       "copyright": "Tüm hakları saklıdır."
     }
@@ -623,5 +680,180 @@
     "loading": "Çekimler yükleniyor...",
     "empty": "Bu ürün için henüz görsel yok.",
     "zoom": "Büyüt"
+  },
+  "legal": {
+    "backToHome": "Rankavio'ya dön",
+    "lastUpdated": "Son güncelleme: 11 Haziran 2026",
+    "privacy": {
+      "metaTitle": "Gizlilik Politikası | Rankavio",
+      "metaDescription": "Rankavio, Snap6 AI Fotoğraf Stüdyosu uygulamasında mağaza verilerinizi nasıl toplar, kullanır ve korur.",
+      "title": "Gizlilik Politikası",
+      "intro": "Rankavio (“Rankavio”, “biz”) Shopify mağazaları için rankavio.com adresinde ve Shopify Yönetici paneli içinde gömülü bir uygulama olarak Snap6 AI Fotoğraf Stüdyosu uygulamasını (“Hizmet”) sunar. Bu Gizlilik Politikası, hangi bilgileri topladığımızı, bunları nasıl kullandığımızı ve sahip olduğunuz seçenekleri açıklar.",
+      "sections": [
+        {
+          "heading": "1. Topladığımız Bilgiler",
+          "paragraphs": [
+            "Rankavio'yu kurduğunuzda Shopify, OAuth aracılığıyla bazı mağaza bilgilerini bizimle paylaşır ve uygulamanın özelliklerini kullanarak ek bilgiler sağlayabilirsiniz:"
+          ],
+          "items": [
+            "Mağaza bilgileri: mağaza alan adınız, mağaza adınız ve Shopify hesabınızla ilişkili e-posta adresi.",
+            "Ürün verileri: uygulama içinde üzerinde çalışmayı seçtiğiniz ürünlerin başlıkları, kimlikleri ve görselleri.",
+            "Yüklenen ve oluşturulan görseller: yüklediğiniz ürün fotoğrafları ve sizin için oluşturulan AI fotoğraf setleri.",
+            "Kullanım verileri: kullanılan AI kredisi sayısı, üretim geçmişi, SEO denetim sonuçları ve rakip analizi sorguları.",
+            "Faturalandırma verileri: abonelik planınız ve durumunuz. Ödemeler tamamen Shopify tarafından yönetilir — Rankavio kart bilgilerinizi asla görmez."
+          ]
+        },
+        {
+          "heading": "2. Bilgilerinizi Nasıl Kullanıyoruz",
+          "paragraphs": [
+            "Yukarıdaki bilgileri şu amaçlarla kullanırız:"
+          ],
+          "items": [
+            "Hizmeti sunmak — mağazanız için AI ürün fotoğrafları oluşturmak, SEO denetimleri yapmak ve rakip analizleri sağlamak.",
+            "Planınızın aylık AI kredisi hakkını takip etmek ve uygulamak.",
+            "Geçmiş sonuçları inceleyip tekrar indirebilmeniz için üretim geçmişinizi kaydetmek.",
+            "Müşteri desteği sağlamak ve taleplerinize yanıt vermek.",
+            "Hizmeti sürdürmek, güvenliğini sağlamak ve geliştirmek."
+          ]
+        },
+        {
+          "heading": "3. Üçüncü Taraf Hizmet Sağlayıcılar",
+          "paragraphs": [
+            "Hizmeti sunabilmek için, yalnızca aşağıda belirtilen amaçlar doğrultusunda sınırlı verileri aşağıdaki alt işleyicilerle paylaşırız. Bu sağlayıcılar verileri yalnızca Hizmetin kendi bölümlerini sunmak için gerekli olduğu ölçüde işler ve kendi gizlilik ve güvenlik taahhütleriyle bağlıdırlar."
+          ],
+          "items": [
+            "Shopify — kimlik doğrulama, mağaza verisi erişimi ve abonelik faturalandırması.",
+            "Replicate (Flux Kontext Pro modeli) — yeni AI görselleri oluşturmak için yüklenen ürün fotoğrafını işler.",
+            "Anthropic (Claude) — SEO denetimleri ve rakip analizi özetleri için ürün bilgilerini analiz eder.",
+            "SerpAPI — rakip analizi için kullanılan herkese açık arama motoru sonuçlarını alır.",
+            "Cloudflare R2 — yüklenen ve oluşturulan görsellerinizi bir içerik dağıtım ağı üzerinden depolar ve sunar."
+          ]
+        },
+        {
+          "heading": "4. Veri Depolama ve Güvenlik",
+          "paragraphs": [
+            "Verileriniz şifrelenmiş HTTPS bağlantıları üzerinden iletilir ve güvenilir bulut altyapılarında (görseller için Cloudflare R2, uygulama verileri için yönetilen bir veritabanı) saklanır. Erişim, Hizmeti işletmek ve desteklemek için gerekli olanla sınırlıdır.",
+            "Bilgilerinizi korumak için makul önlemler alsak da, hiçbir iletim veya depolama yöntemi %100 güvenli değildir ve mutlak güvenliği garanti edemeyiz."
+          ]
+        },
+        {
+          "heading": "5. Veri Saklama ve Silme",
+          "paragraphs": [
+            "Mağazanızın verilerini, üretim geçmişiniz, SEO denetimleriniz ve ayarlarınız erişilebilir kalsın diye uygulama yüklü kaldığı sürece saklıyoruz.",
+            "Rankavio'yu kaldırırsanız, Shopify bizi zorunlu gizlilik webhook'ları (shop/redact, customers/redact, customers/data_request) aracılığıyla bilgilendirir ve ilgili mağaza verilerini Shopify'ın gereklilikleri doğrultusunda sileriz veya anonimleştiririz.",
+            "Ayrıca aşağıdaki iletişim bilgilerinden bize ulaşarak istediğiniz zaman verilerinizin silinmesini talep edebilirsiniz."
+          ]
+        },
+        {
+          "heading": "6. Haklarınız",
+          "paragraphs": [
+            "Bulunduğunuz konuma bağlı olarak, GDPR veya CCPA gibi veri koruma yasaları kapsamında kişisel verilerinize erişme, bunları düzeltme, dışa aktarma veya silme ve belirli işlemlere itiraz etme ya da bunları sınırlama haklarına sahip olabilirsiniz. Bu haklardan herhangi birini kullanmak için bizimle iletişime geçin — makul bir süre içinde yanıt vereceğiz."
+          ]
+        },
+        {
+          "heading": "7. Çerezler ve Takip",
+          "paragraphs": [
+            "Rankavio yalnızca uygulamanın çalışması için gerekli çerezleri ve yerel depolamayı kullanır — öncelikle dil tercihinizi (Türkçe/İngilizce) hatırlamak için. Üçüncü taraf reklam veya siteler arası takip çerezleri kullanmayız."
+          ]
+        },
+        {
+          "heading": "8. Çocukların Gizliliği",
+          "paragraphs": [
+            "Hizmet, Shopify mağaza sahipleri tarafından iş amaçlı kullanım için tasarlanmıştır ve 16 yaşın altındaki bireylere yönelik değildir. Çocuklardan bilerek kişisel veri toplamayız."
+          ]
+        },
+        {
+          "heading": "9. Bu Politikadaki Değişiklikler",
+          "paragraphs": [
+            "Bu Gizlilik Politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler, bu sayfanın üst kısmındaki “Son güncelleme” tarihinin güncellenmesiyle yansıtılır. Değişikliklerin yürürlüğe girmesinden sonra Hizmeti kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
+          ]
+        },
+        {
+          "heading": "10. Bize Ulaşın",
+          "paragraphs": [
+            "Bu Gizlilik Politikası veya verilerinizin nasıl işlediği hakkında sorularınız varsa bizimle iletişime geçin:"
+          ],
+          "email": "support@rankavio.com"
+        }
+      ]
+    },
+    "terms": {
+      "metaTitle": "Kullanım Koşulları | Rankavio",
+      "metaDescription": "Rankavio'nun Shopify için Snap6 AI Fotoğraf Stüdyosu uygulamasını kullanımınızı düzenleyen koşullar.",
+      "title": "Kullanım Koşulları",
+      "intro": "Bu Kullanım Koşulları (“Koşullar”), Shopify App Store üzerinden sunulan Rankavio'nun Snap6 AI Fotoğraf Stüdyosu uygulamasına (“Hizmet”) erişiminizi ve kullanımınızı düzenler. Hizmeti kurarak veya kullanarak, hem kendiniz hem de temsil ettiğiniz mağaza hesabı adına bu Koşulları kabul etmiş olursunuz.",
+      "sections": [
+        {
+          "heading": "1. Hizmet",
+          "paragraphs": [
+            "Rankavio, Shopify mağaza sahiplerinin tek bir yüklenen görselden kategoriye özel, profesyonel AI ürün fotoğrafları oluşturmasına yardımcı olur ve SEO denetimi ile rakip analizi gibi destekleyici araçlar sağlar."
+          ]
+        },
+        {
+          "heading": "2. Abonelik Planları ve Krediler",
+          "paragraphs": [
+            "Rankavio, Fiyatlandırma sayfasında ve uygulamanın Abonelik bölümünde açıklandığı şekilde her biri aylık bir AI kredisi hakkına sahip Ücretsiz, Solo, Pro ve Premium planları sunar.",
+            "Krediler; fotoğraf seti oluşturduğunuzda, iyileştirme yaptığınızda, SEO denetimi veya rakip analizi çalıştırdığınızda kullanılır. Kullanılmayan krediler bir sonraki faturalandırma dönemine devretmez ve aylık olarak sıfırlanır.",
+            "Ücretli abonelikler, Shopify'ın Satıcı Kaydı (Merchant of Record) koşulları ve Shopify Partner/mağaza sözleşmeniz uyarınca, Shopify'ın faturalandırma sistemi üzerinden aylık olarak peşin tahsil edilir."
+          ]
+        },
+        {
+          "heading": "3. Planınızın Değiştirilmesi veya İptal Edilmesi",
+          "paragraphs": [
+            "Planınızı uygulama içindeki Abonelik sayfasından istediğiniz zaman yükseltebilir, düşürebilir veya iptal edebilirsiniz.",
+            "İptal etmek, mağazanızı hemen Ücretsiz plana geçirir. Mevcut dönem için kullanılmayan krediler kaybedilir ve Shopify, kendi faturalandırma politikaları doğrultusunda mağaza hesabınıza uygulanabilir oranlama veya kredi uygular."
+          ]
+        },
+        {
+          "heading": "4. Kabul Edilebilir Kullanım",
+          "paragraphs": [
+            "Hizmeti kullanarak şunları kabul edersiniz:"
+          ],
+          "items": [
+            "Yüklediğiniz ürün fotoğrafları ile bunlarda görünen ürün ve markalar üzerinde gerekli haklara sahip olduğunuzu.",
+            "Hizmeti yasadışı, hak ihlali oluşturan, yanıltıcı veya gerçek kişilerin rızası olmadan göründüğü içerikler üretmek için kullanmayacağınızı.",
+            "Hizmeti kötüye kullanmaya, ters mühendislik yapmaya veya aşırı yüklemeye çalışmayacağınızı ya da Shopify'ın Kabul Edilebilir Kullanım Politikasını veya Kullanım Koşullarını ihlal edecek şekilde kullanmayacağınızı."
+          ]
+        },
+        {
+          "heading": "5. İçeriğiniz ve AI Tarafından Oluşturulan Çıktılar",
+          "paragraphs": [
+            "Yüklediğiniz ürün fotoğraflarının ve mağazanız için oluşturulan AI görsellerinin sahipliği sizde kalır. Bize, yalnızca Hizmeti sunmak amacıyla görsellerinizi işleme konusunda sınırlı bir lisans vermiş olursunuz.",
+            "AI tarafından oluşturulan görseller üçüncü taraf makine öğrenmesi modelleri kullanılarak üretilir ve zaman zaman artılar, hatalar veya beklenmedik sonuçlar içerebilir. Oluşturulan içeriği mağazanızda veya başka bir yerde yayınlamadan önce incelemek sizin sorumluluğunuzdadır."
+          ]
+        },
+        {
+          "heading": "6. Hizmetin Kullanılabilirliği",
+          "paragraphs": [
+            "Hizmet, üçüncü taraf sağlayıcılara (Shopify, AI model sağlayıcıları ve bulut altyapısı dahil) bağlıdır. Yüksek kullanılabilirlik hedefliyoruz ancak kesintisiz veya hatasız çalışmayı garanti etmiyoruz ve üçüncü taraf sağlayıcılardan kaynaklanan kesintilerden sorumlu değiliz."
+          ]
+        },
+        {
+          "heading": "7. Sorumluluk Sınırlaması",
+          "paragraphs": [
+            "Yasaların izin verdiği azami ölçüde, Rankavio ve işletmecileri; gelir, veri veya itibar kaybı dahil olmak üzere Hizmetin kullanımından kaynaklanan dolaylı, arızi, özel veya sonuçsal zararlardan sorumlu tutulamaz. Hizmet, hiçbir garanti verilmeksizin “olduğu gibi” ve “mevcut olduğu şekilde” sunulur."
+          ]
+        },
+        {
+          "heading": "8. Fesih",
+          "paragraphs": [
+            "Uygulamayı Shopify Yönetici panelinizden kaldırarak Hizmeti kullanmayı istediğiniz zaman durdurabilirsiniz. Bu Koşulların ihlal edilmesi veya Shopify tarafından talep edilmesi halinde Hizmete erişimi askıya alabilir veya sonlandırabiliriz."
+          ]
+        },
+        {
+          "heading": "9. Bu Koşullardaki Değişiklikler",
+          "paragraphs": [
+            "Bu Koşulları zaman zaman güncelleyebiliriz. Önemli değişiklikler “Son güncelleme” tarihinin güncellenmesiyle yansıtılır. Değişikliklerin yürürlüğe girmesinden sonra Hizmeti kullanmaya devam etmeniz, güncellenmiş Koşulları kabul ettiğiniz anlamına gelir."
+          ]
+        },
+        {
+          "heading": "10. Bize Ulaşın",
+          "paragraphs": [
+            "Bu Koşullar hakkında sorularınız mı var? Bizimle iletişime geçin:"
+          ],
+          "email": "support@rankavio.com"
+        }
+      ]
+    }
   }
 }

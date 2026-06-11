@@ -5,16 +5,22 @@ import { NavMenu } from "@shopify/app-bridge-react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
+import { getOrCreateSubscription } from "../models/subscription.server";
+import PlanBar from "../components/PlanBar";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  const { session } = await authenticate.admin(request);
+  const subscription = await getOrCreateSubscription(session.shop);
+  return {
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    subscription,
+  };
 };
 
 export default function App() {
-  const { apiKey } = useLoaderData();
+  const { apiKey, subscription } = useLoaderData();
   const { t } = useTranslation();
 
   return (
@@ -28,6 +34,7 @@ export default function App() {
         <Link to="/app/history">{t("nav.history")}</Link>
         <Link to="/app/billing">{t("nav.billing")}</Link>
       </NavMenu>
+      <PlanBar subscription={subscription} />
       <Outlet />
     </AppProvider>
   );

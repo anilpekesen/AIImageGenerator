@@ -96,3 +96,15 @@ export async function upgradePlan(shop, plan, chargeId) {
     },
   });
 }
+
+export async function cancelSubscriptionPlan(shop) {
+  return prisma.subscription.update({
+    where: { shop },
+    data: {
+      plan: "free",
+      limitCount: PLAN_CREDIT_LIMITS.free,
+      chargeId: null,
+      isActive: true,
+    },
+  });
+}

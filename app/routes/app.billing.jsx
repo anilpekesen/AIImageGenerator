@@ -1,4 +1,5 @@
-import { useLoaderData, useSubmit } from "@remix-run/react";
+import { useState } from "react";
+import { useActionData, useLoaderData, useSubmit } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
   Page,
@@ -14,10 +15,15 @@ import {
   Divider,
   Banner,
   Box,
+  Modal,
 } from "@shopify/polaris";
 import { Trans, useTranslation } from "react-i18next";
 import { authenticate, PLANS } from "../shopify.server";
-import { getOrCreateSubscription, upgradePlan } from "../models/subscription.server";
+import {
+  getOrCreateSubscription,
+  upgradePlan,
+  cancelSubscriptionPlan,
+} from "../models/subscription.server";
 
 export const loader = async ({ request }) => {
   const { session, billing } = await authenticate.admin(request);
@@ -55,8 +61,29 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
-  const { billing } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
   const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "cancel") {
+    const subscription = await getOrCreateSubscription(session.shop);
+
+    if (subscription.chargeId) {
+      try {
+        await billing.cancel({
+          subscriptionId: subscription.chargeId,
+          isTest: true,
+          prorate: true,
+        });
+      } catch {
+        // Subscription may already be inactive on Shopify's side; sync local state regardless.
+      }
+    }
+
+    await cancelSubscriptionPlan(session.shop);
+    return json({ cancelled: true });
+  }
+
   const planKey = formData.get("plan");
 
   const planMap = {
@@ -101,8 +128,10 @@ const popularWrapperStyle = {
 
 export default function Billing() {
   const { subscription } = useLoaderData();
+  const actionData = useActionData();
   const submit = useSubmit();
   const { t } = useTranslation();
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
   const currentPlan = subscription.plan;
   const currentIndex = PLAN_ORDER.indexOf(currentPlan);
@@ -111,6 +140,13 @@ export default function Billing() {
     const formData = new FormData();
     formData.append("plan", plan);
     submit(formData, { method: "post" });
+  };
+
+  const handleCancel = () => {
+    const formData = new FormData();
+    formData.append("intent", "cancel");
+    submit(formData, { method: "post" });
+    setCancelModalOpen(false);
   };
 
   const getPlanButton = (planKey, planIndex) => {
@@ -159,6 +195,14 @@ export default function Billing() {
   return (
     <Page title={t("billing.pageTitle")} backAction={{ url: "/app" }}>
       <Layout>
+        {actionData?.cancelled && (
+          <Layout.Section>
+            <Banner title={t("billing.cancel.successTitle")} tone="info">
+              <p>{t("billing.cancel.successBody")}</p>
+            </Banner>
+          </Layout.Section>
+        )}
+
         {currentPlan !== "free" && (
           <Layout.Section>
             <Banner title={t("billing.activeBanner.title")} tone="success">
@@ -251,7 +295,52 @@ export default function Billing() {
             </BlockStack>
           </Card>
         </Layout.Section>
+
+        {currentPlan !== "free" && (
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h3" variant="headingMd">{t("billing.cancel.heading")}</Text>
+                <Text as="p" tone="subdued" variant="bodySm">
+                  {t("billing.cancel.body")}
+                </Text>
+                <Box>
+                  <Button tone="critical" variant="secondary" onClick={() => setCancelModalOpen(true)}>
+                    {t("billing.cancel.button")}
+                  </Button>
+                </Box>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        )}
       </Layout>
+
+      <Modal
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        title={t("billing.cancel.modalTitle")}
+        primaryAction={{
+          content: t("billing.cancel.confirm"),
+          destructive: true,
+          onAction: handleCancel,
+        }}
+        secondaryActions={[
+          {
+            content: t("billing.cancel.dismiss"),
+            onAction: () => setCancelModalOpen(false),
+          },
+        ]}
+      >
+        <Modal.Section>
+          <Text as="p">
+            <Trans
+              i18nKey="billing.cancel.modalBody"
+              values={{ plan: planNameDisplay[currentPlan] || currentPlan }}
+              components={{ strong: <strong /> }}
+            />
+          </Text>
+        </Modal.Section>
+      </Modal>
     </Page>
   );
 }

@@ -339,6 +339,8 @@ export default function MarketingHome() {
             <li><a href="#pricing">{t("marketing.footer.links.pricing")}</a></li>
             <li><a href="#faq">{t("marketing.footer.links.faq")}</a></li>
             <li><a href={APP_URL}>{t("marketing.footer.links.app")}</a></li>
+            <li><a href="/privacy-policy">{t("marketing.footer.links.privacy")}</a></li>
+            <li><a href="/terms-of-service">{t("marketing.footer.links.terms")}</a></li>
           </ul>
           <p className="rk__footer-copy">
             © {new Date().getFullYear()} Rankavio. {t("marketing.footer.copyright")}
