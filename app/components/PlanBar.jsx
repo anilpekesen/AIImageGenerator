@@ -1,6 +1,7 @@
 import { useNavigate } from "@remix-run/react";
 import { Badge, Box, Button, InlineStack, ProgressBar, Text } from "@shopify/polaris";
 import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const PLAN_TONE = {
   free: "info",
@@ -40,9 +41,12 @@ export default function PlanBar({ subscription }) {
             {t("planBar.usage", { used, limit })}
           </Text>
         </InlineStack>
-        <Button size="slim" onClick={() => navigate("/app/billing")}>
-          {t("planBar.manage")}
-        </Button>
+        <InlineStack gap="300" blockAlign="center" wrap={false}>
+          <LanguageSwitcher />
+          <Button size="slim" onClick={() => navigate("/app/billing")}>
+            {t("planBar.manage")}
+          </Button>
+        </InlineStack>
       </InlineStack>
     </Box>
   );
