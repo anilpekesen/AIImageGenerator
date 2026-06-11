@@ -12,7 +12,7 @@ jobs:
       - name: Write deploy key
         run: |
           echo "${{ secrets.DEPLOY_SSH_KEY_B64 }}" | base64 -d > deploy_key
-          chmod 600 deploy_key
+          chmod 644 deploy_key
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
