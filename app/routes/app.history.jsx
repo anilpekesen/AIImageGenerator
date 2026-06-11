@@ -17,6 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getAllGenerations, maintainGenerations } from "../models/generation.server";
+import ProductShootsModal from "../components/ProductShootsModal";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -83,6 +84,7 @@ export default function History() {
   const { t, i18n } = useTranslation();
   const dateLocale = dateLocales[i18n.language] || "en-US";
   const [previewImage, setPreviewImage] = useState(null);
+  const [shootsProduct, setShootsProduct] = useState(null);
 
   if (generations.length === 0) {
     return (
@@ -160,6 +162,14 @@ export default function History() {
                         ))}
                       </InlineStack>
                     )}
+
+                    {gen.productId && outputs.some((output) => output.url) && (
+                      <InlineStack align="end">
+                        <Button onClick={() => setShootsProduct({ id: gen.productId, title: gen.productTitle })}>
+                          {t("products.actions.viewShoots")}
+                        </Button>
+                      </InlineStack>
+                    )}
                   </BlockStack>
                 </Card>
               );
@@ -182,6 +192,14 @@ export default function History() {
             />
           </Modal.Section>
         </Modal>
+      )}
+
+      {shootsProduct && (
+        <ProductShootsModal
+          productId={shootsProduct.id}
+          productTitle={shootsProduct.title}
+          onClose={() => setShootsProduct(null)}
+        />
       )}
     </Page>
   );
