@@ -3,9 +3,9 @@ export function LogoMark({ size = 32 }) {
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="rk-logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FF5CAB" />
-          <stop offset="50%" stopColor="#7C5CFF" />
-          <stop offset="100%" stopColor="#00D4FF" />
+          <stop offset="0%" stopColor="#FF5A3D" />
+          <stop offset="52%" stopColor="#D8FF45" />
+          <stop offset="100%" stopColor="#28E5BE" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="9" fill="url(#rk-logo-grad)" />

@@ -411,8 +411,8 @@
   },
   "marketing": {
     "meta": {
-      "title": "Rankavio — AI Product Photography for Shopify | Snap6",
-      "description": "Turn one product photo into 6 professional e-commerce scenes with a single click. No prompts, no studio. Rankavio's Snap6 engine delivers ready-to-publish visuals for your Shopify product gallery in seconds."
+      "title": "Rankavio | AI Product Photo Studio for Shopify",
+      "description": "Create 6 category-specific sales visuals from one product photo. Rankavio builds studio, lifestyle, detail, and editorial scenes ready for your Shopify product gallery."
     },
     "nav": {
       "features": "Features",
@@ -424,14 +424,14 @@
     },
     "hero": {
       "badge": "AI Product Photography for Shopify",
-      "titleLine1": "Upload 1 Photo,",
-      "titleLine2": "Get 6 Studio Scenes.",
-      "subtitle": "Rankavio's Snap6 engine turns your product photo into 6 professional, category-specific scenes in seconds. No prompt writing, no studio rental, no Photoshop required.",
-      "ctaPrimary": "Try It Free",
-      "ctaSecondary": "See How It Works",
+      "titleLine1": "One product photo,",
+      "titleLine2": "six ready-to-sell scenes.",
+      "subtitle": "Rankavio reads your product, category, and shoot intent to produce a consistent photo set for Shopify. Furniture, fashion, jewelry, and home textile stores get professional results without prompt trial and error.",
+      "ctaPrimary": "Create a free photo set",
+      "ctaSecondary": "See the workflow",
       "meta": {
         "noPrompt": "No prompt writing required",
-        "categories": "16+ category-specific templates",
+        "categories": "19 category-specific shot recipes",
         "directSave": "One-click save to your Shopify gallery"
       },
       "showcaseLabel": "1 Product Photo",
@@ -446,47 +446,58 @@
       "flatLay": "Flat Lay"
     },
     "features": {
-      "eyebrow": "Why Rankavio",
-      "heading": "Not just another AI photo tool",
-      "subheading": "Other tools make you write prompts one image at a time. Rankavio delivers a curated 6-scene set, designed by photography experts, in a single click.",
+      "eyebrow": "Production logic",
+      "heading": "An AI studio that works like a photographer's brief",
+      "subheading": "Rankavio does not chase one image. It plans studio, lifestyle, detail, composition, and catalog needs as a complete set for each product type.",
       "items": [
         {
           "title": "One click → 6 scenes",
-          "description": "Upload a single product photo — the background is removed automatically and 6 professional scenes for your category are generated at once."
+          "description": "Choose one product photo; the background is cleaned, the product is preserved, and 6 category-ready scenes are prepared in one run."
         },
         {
-          "title": "Category-specific recipes",
-          "description": "From underwear to furniture, jewelry to baby clothing — 16+ product categories each have their own expert-designed scene templates."
+          "title": "Category-specific shot recipes",
+          "description": "A sofa set, blanket, curtain, jewelry piece, bag, and baby outfit should not share the same prompt. Each category gets its own scene structure."
         },
         {
           "title": "Save straight to Shopify",
-          "description": "Pick the scenes you love and add them to your product gallery in one click — no downloading or re-uploading."
+          "description": "Pick the scenes you love and add them to your product gallery in one click, with no downloading or re-uploading."
         },
         {
           "title": "Predictable credit pricing",
-          "description": "No surprise bills. Every plan has a clear monthly credit limit — one photo set (6 scenes) costs 6 credits."
+          "description": "No surprise bills. Every plan has a clear monthly credit limit, and one photo set costs 6 credits."
         }
       ]
     },
     "categories": {
-      "eyebrow": "Categories",
-      "heading": "Scene design tailored to every product type",
-      "subheading": "16+ categories, each with its own carefully crafted shot recipe — from furniture to fashion, jewelry to home textiles.",
+      "eyebrow": "Category sets",
+      "heading": "When the product language changes, the shoot changes",
+      "subheading": "Furniture needs room scale, jewelry needs macro detail, textiles need texture and drape. Rankavio carries those differences into the scene plan.",
       "items": {
         "general": "General Editorial",
+        "armchair": "Sofa & Armchair",
         "sofaSet": "Sofa Sets",
+        "diningTable": "Dining Table Sets",
+        "chair": "Chairs",
+        "bedFrame": "Bed Frames",
+        "officeFurniture": "Office Furniture",
+        "cushion": "Cushions",
+        "pillow": "Throw Pillows",
+        "curtain": "Curtains",
+        "tablecloth": "Tablecloths",
+        "blanket": "Blankets",
+        "bedspread": "Bedspread & Pique",
         "clothing": "Clothing",
+        "babyClothing": "Baby Clothing",
         "jewelry": "Jewelry",
         "bag": "Bags",
         "underwear": "Underwear",
-        "hat": "Hats & Beanies",
-        "babyClothing": "Baby Clothing"
+        "hat": "Hats & Beanies"
       }
     },
     "howItWorks": {
       "eyebrow": "How It Works",
-      "heading": "Studio-quality visuals in 3 steps",
-      "subheading": "No prompts. Just minutes.",
+      "heading": "A short, controlled workflow inside Shopify",
+      "subheading": "Product selection, set approval, generation, and saving stay in the same place.",
       "steps": [
         {
           "title": "Pick your product",
@@ -494,11 +505,11 @@
         },
         {
           "title": "Confirm your category",
-          "description": "Rankavio automatically detects the product type and suggests the best 6-scene photo set."
+          "description": "Rankavio detects the product type and suggests the best photo set. You can manually change the set when needed."
         },
         {
           "title": "Let AI generate the 6 scenes",
-          "description": "Background removal, scene composition, and rendering — all automatic, in one click."
+          "description": "Background removal, scene composition, and rendering run automatically in one click."
         },
         {
           "title": "Save the ones you love",
@@ -508,12 +519,12 @@
     },
     "compare": {
       "eyebrow": "Comparison",
-      "heading": "What makes Rankavio different?",
-      "subheading": "Other AI image tools generate one image at a time, prompt by prompt. Rankavio delivers ready-made, category-specific 6-scene sets.",
+      "heading": "Not a prompt tool, a Shopify photo production line",
+      "subheading": "The goal is not finding one nice image. The goal is a consistent, cost-aware visual set that works across the product page.",
       "headers": ["", "Rankavio", "Other AI photo tools"],
       "rows": [
         ["Generation model", "1 click → 6 ready scenes", "One at a time, with prompts"],
-        ["User effort", "Zero — scenes are pre-designed", "High — prompt trial and error"],
+        ["User effort", "Scenes are prepared, category suggestion is automatic", "Prompt trial and error is required"],
         ["Output consistency", "Category-specific, guaranteed 6 scenes", "Depends on prompt quality"],
         ["Shopify integration", "One click, straight to product gallery", "Mostly manual download / upload"],
         ["Pricing", "Fixed monthly credits, no surprises", "Variable pay-per-use pricing"]
@@ -521,8 +532,8 @@
     },
     "pricing": {
       "eyebrow": "Pricing",
-      "heading": "Pick the plan that fits your store",
-      "subheading": "Every plan includes a clear monthly credit limit. One photo set (6 scenes) = 6 credits, one refine = 1 credit.",
+      "heading": "Clear credit cost, fixed quality",
+      "subheading": "Every plan includes a clear monthly credit limit. One photo set costs 6 credits, one single-image refine costs 1 credit. Unused credits do not roll over.",
       "perMonth": "/mo",
       "plans": [
         {
@@ -562,7 +573,7 @@
       "items": [
         {
           "q": "What exactly does Rankavio do?",
-          "a": "From a single product photo, it automatically removes the background and generates 6 ready-to-use professional scenes tailored to your product category — studio, lifestyle, detail shot, luxury display, editorial, and flat lay."
+          "a": "From a single product photo, it automatically removes the background and generates 6 ready-to-use professional scenes tailored to your product category: studio, lifestyle, detail shot, luxury display, editorial, and flat lay."
         },
         {
           "q": "Do I need to write prompts?",
@@ -583,8 +594,8 @@
       ]
     },
     "finalCta": {
-      "heading": "Say goodbye to studio shoots.",
-      "subheading": "Create your first photo set for free — no credit card required.",
+      "heading": "Create your first product set today.",
+      "subheading": "Choose a Shopify product, confirm the photo set, and save the results to your store.",
       "ctaPrimary": "Try Rankavio for Free",
       "ctaSecondary": "View Pricing"
     },

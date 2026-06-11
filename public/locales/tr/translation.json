@@ -411,8 +411,8 @@
   },
   "marketing": {
     "meta": {
-      "title": "Rankavio — Shopify için AI Ürün Fotoğrafçılığı | Snap6",
-      "description": "Tek bir ürün fotoğrafından, tek tıkla 6 profesyonel e-ticaret sahnesi üretin. Prompt yok, stüdyo yok. Rankavio'nun Snap6 motoruyla saniyeler içinde Shopify ürün galerinize hazır görseller."
+      "title": "Rankavio | Shopify için AI Ürün Fotoğraf Stüdyosu",
+      "description": "Tek ürün fotoğrafından kategoriye özel 6 profesyonel satış görseli üretin. Rankavio, Shopify ürün galeriniz için hazır stüdyo, yaşam alanı, detay ve editöryal sahneler oluşturur."
     },
     "nav": {
       "features": "Özellikler",
@@ -424,14 +424,14 @@
     },
     "hero": {
       "badge": "Shopify için AI Ürün Fotoğrafçılığı",
-      "titleLine1": "1 Fotoğraf Yükle,",
-      "titleLine2": "6 Stüdyo Sahnesi Al.",
-      "subtitle": "Rankavio'nun Snap6 motoru, ürün fotoğrafınızı saniyeler içinde kategorinize özel 6 profesyonel sahneye dönüştürür. Prompt yazmaya, stüdyo kiralamaya ya da Photoshop'a gerek yok.",
-      "ctaPrimary": "Ücretsiz Dene",
-      "ctaSecondary": "Nasıl Çalıştığını Gör",
+      "titleLine1": "Tek ürün fotoğrafından",
+      "titleLine2": "satışa hazır 6 sahne.",
+      "subtitle": "Rankavio ürününüzü, kategorisini ve çekim ihtiyacını okuyarak Shopify için tutarlı bir fotoğraf seti üretir. Mobilya, moda, takı ve ev tekstilinde prompt denemeden profesyonel sonuç alın.",
+      "ctaPrimary": "Ücretsiz foto seti oluştur",
+      "ctaSecondary": "Çalışma şeklini incele",
       "meta": {
         "noPrompt": "Prompt yazmaya gerek yok",
-        "categories": "16+ ürün kategorisine özel şablon",
+        "categories": "19 kategoriye özel çekim reçetesi",
         "directSave": "Tek tıkla Shopify ürün galerisine kayıt"
       },
       "showcaseLabel": "1 Ürün Fotoğrafı",
@@ -446,17 +446,17 @@
       "flatLay": "Üstten Düzen"
     },
     "features": {
-      "eyebrow": "Neden Rankavio",
-      "heading": "Diğer AI foto araçları gibi değil",
-      "subheading": "Rakipler sizi tek tek prompt yazmaya zorlar. Rankavio, fotoğrafçılık uzmanları tarafından tasarlanmış 6'lı sahne setlerini tek tıkla sunar.",
+      "eyebrow": "Üretim mantığı",
+      "heading": "Fotoğrafçı brief'i gibi çalışan AI stüdyo",
+      "subheading": "Rankavio tek görsel üretmez. Ürün tipine göre stüdyo, yaşam alanı, detay, kompozisyon ve katalog ihtiyacını bir set olarak planlar.",
       "items": [
         {
           "title": "Tek tık → 6 sahne",
-          "description": "Bir ürün fotoğrafı yükleyin; arka plan otomatik kaldırılır ve kategorinize özel 6 profesyonel sahne aynı anda üretilir."
+          "description": "Bir ürün fotoğrafı seçin; arka plan temizlenir, ürün korunur ve kategorinize uygun 6 sahne aynı işlemde hazırlanır."
         },
         {
-          "title": "Kategoriye özel reçeteler",
-          "description": "İç giyimden mobilyaya, takıdan bebek kıyafetine kadar 16+ ürün kategorisi için uzmanlar tarafından kurgulanmış sahne şablonları."
+          "title": "Kategoriye özel çekim reçeteleri",
+          "description": "Koltuk takımı, battaniye, perde, takı, çanta ve bebek kıyafeti gibi ürünlerde aynı prompt kullanılmaz. Her kategori kendi sahne düzenini alır."
         },
         {
           "title": "Doğrudan Shopify'a kayıt",
@@ -469,24 +469,35 @@
       ]
     },
     "categories": {
-      "eyebrow": "Kategoriler",
-      "heading": "Her ürün tipine özel sahne tasarımı",
-      "subheading": "16'dan fazla kategori için ayrı ayrı kurgulanmış çekim reçeteleri — mobilyadan modaya, takıdan ev tekstiline kadar.",
+      "eyebrow": "Kategori setleri",
+      "heading": "Ürünün dili değişince çekim de değişir",
+      "subheading": "Mobilyada oda ölçeği, takıda makro detay, tekstilde doku ve döküm önemlidir. Rankavio bu farkı sahne planına taşır.",
       "items": {
         "general": "Genel Editöryal",
+        "armchair": "Koltuk & Berjer",
         "sofaSet": "Koltuk Takımı",
+        "diningTable": "Yemek Masası Takımı",
+        "chair": "Sandalye",
+        "bedFrame": "Karyola",
+        "officeFurniture": "Ofis Mobilyası",
+        "cushion": "Minder",
+        "pillow": "Kırlent",
+        "curtain": "Perde",
+        "tablecloth": "Masa Örtüsü",
+        "blanket": "Battaniye",
+        "bedspread": "Yatak Örtüsü & Pike",
         "clothing": "Giyim",
+        "babyClothing": "Bebek Kıyafeti",
         "jewelry": "Takı & Mücevher",
         "bag": "Çanta",
         "underwear": "İç Giyim",
-        "hat": "Şapka & Bere",
-        "babyClothing": "Bebek Kıyafeti"
+        "hat": "Şapka & Bere"
       }
     },
     "howItWorks": {
       "eyebrow": "Nasıl Çalışır",
-      "heading": "3 adımda stüdyo kalitesinde görseller",
-      "subheading": "Hiç prompt yazmadan, dakikalar içinde.",
+      "heading": "Shopify içinde kısa ve kontrollü akış",
+      "subheading": "Ürün seçimi, set onayı, üretim ve kayıt aynı yerde ilerler.",
       "steps": [
         {
           "title": "Ürününüzü seçin",
@@ -494,11 +505,11 @@
         },
         {
           "title": "Kategorinizi onaylayın",
-          "description": "Rankavio ürün tipini otomatik tanır ve en uygun 6 sahnelik foto setini önerir."
+          "description": "Rankavio ürün tipini otomatik tanır ve en uygun fotoğraf setini önerir. Gerekirse seti elle değiştirebilirsiniz."
         },
         {
           "title": "AI 6 sahneyi üretsin",
-          "description": "Arka plan kaldırma, sahne kurgusu ve render — hepsi otomatik, tek tıkla."
+          "description": "Arka plan kaldırma, sahne kurgusu ve render aynı işlemde, tek tıkla ilerler."
         },
         {
           "title": "Beğendiklerinizi kaydedin",
@@ -508,12 +519,12 @@
     },
     "compare": {
       "eyebrow": "Karşılaştırma",
-      "heading": "Rankavio'yu farklı kılan ne?",
-      "subheading": "Diğer AI görsel araçları tek tek, prompt yazarak üretim yaptırır. Rankavio kategoriye özel, hazır 6'lı setler sunar.",
+      "heading": "Prompt aracı değil, Shopify fotoğraf üretim hattı",
+      "subheading": "Amaç tek güzel görsel bulmak değil. Ürün sayfasında birlikte çalışan, tutarlı ve maliyeti hesaplanabilir bir görsel seti üretmek.",
       "headers": ["", "Rankavio", "Diğer AI foto araçları"],
       "rows": [
         ["Üretim modeli", "1 tık → 6 hazır sahne", "Tek tek, prompt yazarak"],
-        ["Kullanıcı eforu", "Sıfır — sahneler hazır", "Yüksek — prompt deneme yanılma"],
+        ["Kullanıcı eforu", "Sahneler hazır, kategori önerisi otomatik", "Prompt deneme yanılma gerekir"],
         ["Sonuç tutarlılığı", "Kategoriye özel, garantili 6 sahne", "Prompt kalitesine bağlı, değişken"],
         ["Shopify entegrasyonu", "Tek tık, doğrudan ürün galerisine", "Genelde manuel indir / yükle"],
         ["Fiyatlandırma", "Sabit aylık kredi, sürpriz yok", "Kullanım başına değişken ücret"]
@@ -521,8 +532,8 @@
     },
     "pricing": {
       "eyebrow": "Fiyatlandırma",
-      "heading": "Mağazanıza uygun planı seçin",
-      "subheading": "Her plan net bir aylık kredi limiti sunar. 1 foto seti (6 sahne) = 6 kredi, 1 yeniden düzenleme = 1 kredi.",
+      "heading": "Kredi karşılığı net, kalite sabit",
+      "subheading": "Her plan net bir aylık kredi limiti sunar. 1 foto seti 6 kredi, tek görsel yeniden üretim 1 kredi harcar. Kullanılmayan krediler devretmez.",
       "perMonth": "/ay",
       "plans": [
         {
@@ -562,7 +573,7 @@
       "items": [
         {
           "q": "Rankavio tam olarak ne yapıyor?",
-          "a": "Yüklediğiniz tek bir ürün fotoğrafından arka planı otomatik kaldırır ve ürün kategorinize özel, kullanıma hazır 6 farklı profesyonel sahne üretir — stüdyo, yaşam alanı, detay çekimi, lüks sunum, editöryal ve üstten düzen gibi."
+          "a": "Yüklediğiniz tek bir ürün fotoğrafından arka planı otomatik kaldırır ve ürün kategorinize özel, kullanıma hazır 6 farklı profesyonel sahne üretir: stüdyo, yaşam alanı, detay çekimi, lüks sunum, editöryal ve üstten düzen gibi."
         },
         {
           "q": "Prompt yazmam gerekiyor mu?",
@@ -583,8 +594,8 @@
       ]
     },
     "finalCta": {
-      "heading": "Stüdyo çekimine veda edin.",
-      "subheading": "İlk foto setinizi ücretsiz oluşturun — kredi kartı gerekmez.",
+      "heading": "İlk ürün setinizi bugün üretin.",
+      "subheading": "Shopify ürününüzü seçin, fotoğraf setini onaylayın ve sonuçları mağazanıza kaydedin.",
       "ctaPrimary": "Rankavio'yu Ücretsiz Dene",
       "ctaSecondary": "Fiyatlandırmayı İncele"
     },

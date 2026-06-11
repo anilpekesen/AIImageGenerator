@@ -13,29 +13,48 @@ const APP_URL = "https://app.rankavio.com";
 
 const CATEGORY_IMAGES = [
   { key: "general", file: "genel.png" },
+  { key: "armchair", file: "koltuk-berjer.png" },
   { key: "sofaSet", file: "koltuk-takimi.png" },
+  { key: "diningTable", file: "yemek-masasi.png" },
+  { key: "chair", file: "sandalye.png" },
+  { key: "bedFrame", file: "karyola.png" },
+  { key: "officeFurniture", file: "ofis-mobilyasi.png" },
+  { key: "cushion", file: "minder.png" },
+  { key: "pillow", file: "kirlent.png" },
+  { key: "curtain", file: "perde.png" },
+  { key: "tablecloth", file: "masa-ortusu.png" },
+  { key: "blanket", file: "battaniye.png" },
+  { key: "bedspread", file: "yatak-ortusu.png" },
   { key: "clothing", file: "giyim.png" },
+  { key: "babyClothing", file: "bebek-kiyafeti.png" },
   { key: "jewelry", file: "taki.png" },
   { key: "bag", file: "canta.png" },
   { key: "underwear", file: "ic-giyim.png" },
   { key: "hat", file: "sapka.png" },
-  { key: "babyClothing", file: "bebek-kiyafeti.png" },
 ];
 
 const SHOWCASE_RESULTS = [
-  { key: "studioWhite", file: "genel.png" },
-  { key: "lifestyle", file: "giyim.png" },
+  { key: "studioWhite", file: "koltuk-takimi.png" },
+  { key: "lifestyle", file: "yemek-masasi.png" },
   { key: "detail", file: "taki.png" },
   { key: "luxury", file: "canta.png" },
-  { key: "editorial", file: "sapka.png" },
-  { key: "flatLay", file: "bebek-kiyafeti.png" },
+  { key: "editorial", file: "perde.png" },
+  { key: "flatLay", file: "battaniye.png" },
 ];
 
 const FEATURE_ICONS = [IconBolt, IconGrid, IconUpload, IconCredit];
+const HERO_IMAGES = [
+  "koltuk-berjer.png",
+  "taki.png",
+  "canta.png",
+  "battaniye.png",
+  "bebek-kiyafeti.png",
+  "ofis-mobilyasi.png",
+];
 
 export default function MarketingHome() {
   const { t, i18n } = useTranslation();
-  const lang = i18n.language;
+  const lang = i18n.language?.startsWith("en") ? "en" : "tr";
 
   const features = t("marketing.features.items", { returnObjects: true });
   const steps = t("marketing.howItWorks.steps", { returnObjects: true });
@@ -46,10 +65,9 @@ export default function MarketingHome() {
 
   return (
     <div className="rk">
-      {/* ----------------------------- nav ----------------------------- */}
       <header className="rk__nav">
         <div className="rk__container rk__nav-inner">
-          <a href="#top" className="rk__logo">
+          <a href="#top" className="rk__logo" aria-label="Rankavio">
             <LogoMark />
             Rankavio
           </a>
@@ -61,7 +79,7 @@ export default function MarketingHome() {
             <a href="#faq">{t("marketing.nav.faq")}</a>
           </nav>
           <div className="rk__nav-right">
-            <div className="rk__lang-toggle">
+            <div className="rk__lang-toggle" aria-label="Language">
               <a href="?lng=tr" className={lang === "tr" ? "is-active" : ""}>TR</a>
               <a href="?lng=en" className={lang === "en" ? "is-active" : ""}>EN</a>
             </div>
@@ -72,21 +90,25 @@ export default function MarketingHome() {
         </div>
       </header>
 
-      {/* ----------------------------- hero ----------------------------- */}
       <section className="rk__hero" id="top">
-        <div className="rk__hero-glow" />
+        <div className="rk__hero-media" aria-hidden="true">
+          {HERO_IMAGES.map((file, index) => (
+            <img
+              key={file}
+              src={`/images/photo-sets/${file}`}
+              alt=""
+              className={`rk__hero-image rk__hero-image--${index + 1}`}
+            />
+          ))}
+        </div>
         <div className="rk__container rk__hero-inner">
-          <div>
-            <span className="rk__badge">
-              <span className="rk__dot" />
-              {t("marketing.hero.badge")}
-            </span>
-            <h1>
-              {t("marketing.hero.titleLine1")}
-              <br />
-              <span className="rk__grad-text">{t("marketing.hero.titleLine2")}</span>
-            </h1>
-            <p>{t("marketing.hero.subtitle")}</p>
+          <div className="rk__hero-copy">
+            <p className="rk__badge">{t("marketing.hero.badge")}</p>
+            <h1>Rankavio</h1>
+            <p className="rk__hero-title">
+              {t("marketing.hero.titleLine1")} {t("marketing.hero.titleLine2")}
+            </p>
+            <p className="rk__hero-text">{t("marketing.hero.subtitle")}</p>
             <div className="rk__hero-actions">
               <a href={APP_URL} className="rk__btn rk__btn--primary">
                 {t("marketing.hero.ctaPrimary")}
@@ -97,102 +119,112 @@ export default function MarketingHome() {
               </a>
             </div>
             <ul className="rk__hero-meta">
-              <li><IconCheck /> {t("marketing.hero.meta.noPrompt")}</li>
-              <li><IconCheck /> {t("marketing.hero.meta.categories")}</li>
-              <li><IconCheck /> {t("marketing.hero.meta.directSave")}</li>
+              <li><IconCheck aria-hidden="true" /> {t("marketing.hero.meta.noPrompt")}</li>
+              <li><IconCheck aria-hidden="true" /> {t("marketing.hero.meta.categories")}</li>
+              <li><IconCheck aria-hidden="true" /> {t("marketing.hero.meta.directSave")}</li>
             </ul>
           </div>
+        </div>
+      </section>
 
-          <div className="rk__showcase">
-            <div className="rk__showcase-header">
-              <span>{t("marketing.hero.showcaseLabel")}</span>
-              <span className="rk__grad-text">{t("marketing.hero.showcaseResultLabel")}</span>
+      <section className="rk__studio" aria-label={t("marketing.hero.showcaseResultLabel")}>
+        <div className="rk__container rk__studio-inner">
+          <div className="rk__studio-before">
+            <span>{t("marketing.hero.showcaseLabel")}</span>
+            <img src="/images/photo-sets/ic-giyim.png" alt={t("marketing.hero.showcaseLabel")} loading="lazy" />
+          </div>
+          <div className="rk__studio-arrow" aria-hidden="true"><IconArrow /></div>
+          <div className="rk__studio-after">
+            <div>
+              <span>{t("marketing.hero.showcaseResultLabel")}</span>
+              <strong>{features[0].title}</strong>
             </div>
-            <div className="rk__showcase-body">
-              <div className="rk__showcase-input">
-                <img src="/images/photo-sets/ic-giyim.png" alt={t("marketing.hero.showcaseLabel")} loading="lazy" />
-                <span className="rk__showcase-arrow"><IconArrow /></span>
-              </div>
-              <div className="rk__showcase-grid">
-                {SHOWCASE_RESULTS.map((item) => (
-                  <div key={item.key}>
-                    <img src={`/images/photo-sets/${item.file}`} alt={t(`marketing.showcaseScenes.${item.key}`)} loading="lazy" />
-                    <span>{t(`marketing.showcaseScenes.${item.key}`)}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="rk__scene-grid">
+              {SHOWCASE_RESULTS.map((item) => (
+                <figure key={item.key}>
+                  <img src={`/images/photo-sets/${item.file}`} alt={t(`marketing.showcaseScenes.${item.key}`)} loading="lazy" />
+                  <figcaption>{t(`marketing.showcaseScenes.${item.key}`)}</figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* --------------------------- features --------------------------- */}
       <section className="rk__section" id="features">
-        <div className="rk__container">
-          <div className="rk__section-head">
-            <span className="rk__eyebrow">{t("marketing.features.eyebrow")}</span>
+        <div className="rk__container rk__split-head">
+          <div>
+            <p className="rk__section-label">{t("marketing.features.eyebrow")}</p>
             <h2>{t("marketing.features.heading")}</h2>
-            <p>{t("marketing.features.subheading")}</p>
           </div>
-          <div className="rk__grid-4">
-            {features.map((feature, i) => {
-              const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length];
-              return (
-                <div className="rk__card" key={feature.title}>
-                  <div className="rk__card-icon"><Icon /></div>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.description}</p>
-                </div>
-              );
-            })}
+          <p>{t("marketing.features.subheading")}</p>
+        </div>
+        <div className="rk__container">
+          <div className="rk__feature-board">
+            <div className="rk__feature-main">
+              <IconBolt aria-hidden="true" />
+              <h3>{features[0].title}</h3>
+              <p>{features[0].description}</p>
+            </div>
+            <div className="rk__feature-stack">
+              {features.slice(1).map((feature, i) => {
+                const Icon = FEATURE_ICONS[(i + 1) % FEATURE_ICONS.length];
+                return (
+                  <article key={feature.title} className="rk__feature-row">
+                    <Icon aria-hidden="true" />
+                    <div>
+                      <h3>{feature.title}</h3>
+                      <p>{feature.description}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* -------------------------- categories --------------------------- */}
-      <section className="rk__section rk__section--light" id="categories">
-        <div className="rk__container">
-          <div className="rk__section-head">
-            <span className="rk__eyebrow">{t("marketing.categories.eyebrow")}</span>
+      <section className="rk__section rk__section--gallery" id="categories">
+        <div className="rk__container rk__split-head">
+          <div>
+            <p className="rk__section-label">{t("marketing.categories.eyebrow")}</p>
             <h2>{t("marketing.categories.heading")}</h2>
-            <p>{t("marketing.categories.subheading")}</p>
           </div>
-          <div className="rk__cat-grid">
-            {CATEGORY_IMAGES.map((item) => (
-              <div className="rk__cat-item" key={item.key}>
-                <img src={`/images/photo-sets/${item.file}`} alt={t(`marketing.categories.items.${item.key}`)} loading="lazy" />
-                <span>{t(`marketing.categories.items.${item.key}`)}</span>
-              </div>
-            ))}
-          </div>
+          <p>{t("marketing.categories.subheading")}</p>
+        </div>
+        <div className="rk__category-rail" aria-label={t("marketing.categories.heading")}>
+          {CATEGORY_IMAGES.map((item) => (
+            <figure className="rk__cat-item" key={item.key}>
+              <img src={`/images/photo-sets/${item.file}`} alt={t(`marketing.categories.items.${item.key}`)} loading="lazy" />
+              <figcaption>{t(`marketing.categories.items.${item.key}`)}</figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
-      {/* ------------------------- how it works --------------------------- */}
-      <section className="rk__section rk__section--soft" id="how-it-works">
+      <section className="rk__section rk__section--light" id="how-it-works">
         <div className="rk__container">
           <div className="rk__section-head">
-            <span className="rk__eyebrow">{t("marketing.howItWorks.eyebrow")}</span>
+            <p className="rk__section-label">{t("marketing.howItWorks.eyebrow")}</p>
             <h2>{t("marketing.howItWorks.heading")}</h2>
             <p>{t("marketing.howItWorks.subheading")}</p>
           </div>
-          <div className="rk__steps">
+          <ol className="rk__steps">
             {steps.map((step, i) => (
-              <div className="rk__step" key={step.title}>
-                <span className="rk__step-num">{i + 1}</span>
+              <li className="rk__step" key={step.title}>
+                <span>{String(i + 1).padStart(2, "0")}</span>
                 <h3>{step.title}</h3>
                 <p>{step.description}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      {/* --------------------------- comparison ---------------------------- */}
       <section className="rk__section">
-        <div className="rk__container">
-          <div className="rk__section-head">
-            <span className="rk__eyebrow">{t("marketing.compare.eyebrow")}</span>
+        <div className="rk__container rk__compare-layout">
+          <div className="rk__compare-copy">
+            <p className="rk__section-label">{t("marketing.compare.eyebrow")}</p>
             <h2>{t("marketing.compare.heading")}</h2>
             <p>{t("marketing.compare.subheading")}</p>
           </div>
@@ -219,11 +251,10 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ---------------------------- pricing ------------------------------ */}
-      <section className="rk__section" id="pricing">
+      <section className="rk__section rk__section--pricing" id="pricing">
         <div className="rk__container">
           <div className="rk__section-head">
-            <span className="rk__eyebrow">{t("marketing.pricing.eyebrow")}</span>
+            <p className="rk__section-label">{t("marketing.pricing.eyebrow")}</p>
             <h2>{t("marketing.pricing.heading")}</h2>
             <p>{t("marketing.pricing.subheading")}</p>
           </div>
@@ -242,7 +273,7 @@ export default function MarketingHome() {
                 <ul className="rk__price-features">
                   {plan.features.map((feature) => (
                     <li key={feature}>
-                      <IconCheck />
+                      <IconCheck aria-hidden="true" />
                       {feature}
                     </li>
                   ))}
@@ -259,11 +290,10 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ------------------------------ faq -------------------------------- */}
       <section className="rk__section rk__section--light" id="faq">
         <div className="rk__container">
           <div className="rk__section-head">
-            <span className="rk__eyebrow">{t("marketing.faq.eyebrow")}</span>
+            <p className="rk__section-label">{t("marketing.faq.eyebrow")}</p>
             <h2>{t("marketing.faq.heading")}</h2>
           </div>
           <div className="rk__faq">
@@ -277,11 +307,9 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* --------------------------- final cta ------------------------------ */}
       <section className="rk__section">
         <div className="rk__container">
           <div className="rk__cta">
-            <div className="rk__cta-glow" />
             <h2>{t("marketing.finalCta.heading")}</h2>
             <p>{t("marketing.finalCta.subheading")}</p>
             <div className="rk__hero-actions">
@@ -297,17 +325,14 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* ----------------------------- footer -------------------------------- */}
       <footer className="rk__footer">
         <div className="rk__container rk__footer-inner">
           <div>
-            <a href="#top" className="rk__logo" style={{ marginBottom: "10px" }}>
+            <a href="#top" className="rk__logo">
               <LogoMark size={26} />
               Rankavio
             </a>
-            <p className="rk__footer-copy" style={{ marginTop: "8px" }}>
-              {t("marketing.footer.tagline")}
-            </p>
+            <p className="rk__footer-copy">{t("marketing.footer.tagline")}</p>
           </div>
           <ul className="rk__footer-links">
             <li><a href="#features">{t("marketing.footer.links.features")}</a></li>
