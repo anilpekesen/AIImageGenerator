@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="rk-grad" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF5A3D"/>
+      <stop offset="52%" stop-color="#D8FF45"/>
+      <stop offset="100%" stop-color="#28E5BE"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#rk-grad)"/>
+
+  <rect x="232" y="232" width="480" height="480" rx="68"
+        fill="rgba(255,255,255,0.22)"
+        transform="rotate(-12 472 472)"/>
+
+  <rect x="312" y="232" width="480" height="480" rx="68"
+        fill="rgba(255,255,255,0.45)"
+        transform="rotate(9 552 472)"/>
+
+  <rect x="272" y="272" width="480" height="480" rx="72" fill="#ffffff"/>
+
+  <circle cx="512" cy="512" r="120" fill="url(#rk-grad)"/>
+  <circle cx="470" cy="470" r="30" fill="rgba(255,255,255,0.55)"/>
+
+  <path d="M 840 755 L 861 819 L 925 840 L 861 861 L 840 925 L 819 861 L 755 840 L 819 819 Z" fill="#ffffff"/>
+</svg>

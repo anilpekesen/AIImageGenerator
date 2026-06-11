@@ -37,6 +37,42 @@ export const PLANS = {
   },
 };
 
+const DISTRIBUTIONS = {
+  app_store: AppDistribution.AppStore,
+  single_merchant: AppDistribution.SingleMerchant,
+  shopify_admin: AppDistribution.ShopifyAdmin,
+};
+
+const appDistribution =
+  DISTRIBUTIONS[process.env.SHOPIFY_APP_DISTRIBUTION] ||
+  AppDistribution.SingleMerchant;
+
+const useTokenExchange = process.env.SHOPIFY_USE_TOKEN_EXCHANGE === "true";
+
+const billingConfig = {
+  [PLANS.SOLO.shopifyPlanName]: {
+    lineItems: [{
+      amount: PLANS.SOLO.price,
+      currencyCode: "USD",
+      interval: BillingInterval.Every30Days,
+    }],
+  },
+  [PLANS.PRO.shopifyPlanName]: {
+    lineItems: [{
+      amount: PLANS.PRO.price,
+      currencyCode: "USD",
+      interval: BillingInterval.Every30Days,
+    }],
+  },
+  [PLANS.PREMIUM.shopifyPlanName]: {
+    lineItems: [{
+      amount: PLANS.PREMIUM.price,
+      currencyCode: "USD",
+      interval: BillingInterval.Every30Days,
+    }],
+  },
+};
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
@@ -45,32 +81,10 @@ const shopify = shopifyApp({
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
-  distribution: AppDistribution.AppStore,
-  billing: {
-    [PLANS.SOLO.shopifyPlanName]: {
-      lineItems: [{
-        amount: PLANS.SOLO.price,
-        currencyCode: "USD",
-        interval: BillingInterval.Every30Days,
-      }],
-    },
-    [PLANS.PRO.shopifyPlanName]: {
-      lineItems: [{
-        amount: PLANS.PRO.price,
-        currencyCode: "USD",
-        interval: BillingInterval.Every30Days,
-      }],
-    },
-    [PLANS.PREMIUM.shopifyPlanName]: {
-      lineItems: [{
-        amount: PLANS.PREMIUM.price,
-        currencyCode: "USD",
-        interval: BillingInterval.Every30Days,
-      }],
-    },
-  },
+  distribution: appDistribution,
+  ...(appDistribution === AppDistribution.AppStore ? { billing: billingConfig } : {}),
   future: {
-    unstable_newEmbeddedAuthStrategy: true,
+    unstable_newEmbeddedAuthStrategy: useTokenExchange,
   },
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }

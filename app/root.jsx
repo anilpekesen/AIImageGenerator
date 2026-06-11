@@ -11,9 +11,16 @@ import { useChangeLanguage } from "remix-i18next/react";
 import { useTranslation } from "react-i18next";
 import i18next from "./i18next.server";
 
+const MARKETING_HOSTS = ["rankavio.com", "www.rankavio.com"];
+
 export const loader = async ({ request }) => {
+  const host = (request.headers.get("host") || "").split(":")[0].toLowerCase();
   const locale = await i18next.getLocale(request);
-  return json({ locale, apiKey: process.env.SHOPIFY_API_KEY || "" });
+  return json({
+    locale,
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    isMarketingHost: MARKETING_HOSTS.includes(host),
+  });
 };
 
 export const handle = {
@@ -21,7 +28,7 @@ export const handle = {
 };
 
 export default function App() {
-  const { locale, apiKey } = useLoaderData();
+  const { locale, apiKey, isMarketingHost } = useLoaderData();
   const { i18n } = useTranslation();
   useChangeLanguage(locale);
 
@@ -30,13 +37,19 @@ export default function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="preconnect" href="https://cdn.shopify.com/" />
-        <link
-          rel="stylesheet"
-          href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
-        />
-        <meta name="shopify-api-key" content={apiKey} />
-        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+        {isMarketingHost ? (
+          <link rel="icon" type="image/svg+xml" href="/images/logo/rankavio-icon.svg" />
+        ) : (
+          <>
+            <link rel="preconnect" href="https://cdn.shopify.com/" />
+            <link
+              rel="stylesheet"
+              href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
+            />
+            <meta name="shopify-api-key" content={apiKey} />
+            <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+          </>
+        )}
         <Meta />
         <Links />
       </head>
