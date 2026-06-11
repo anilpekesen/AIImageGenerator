@@ -68,20 +68,30 @@ export const loader = async ({ request }) => {
   let productAccessError = false;
 
   try {
-    const [productsList, count] = await Promise.all([
-      fetchProductsForList(admin, { first: 50 }),
-      fetchProductsCount(admin),
-    ]);
+    const productsList = await fetchProductsForList(admin, { first: 50 });
     productNodes = productsList?.nodes || [];
-    productsCount = count;
   } catch (error) {
     productAccessError = true;
-    console.error("Dashboard product data fetch failed", {
+    console.error("Dashboard product list fetch failed", {
       shop,
       status: error?.status || error?.response?.status || error?.response?.code,
       name: error?.name,
       message: error?.message,
     });
+  }
+
+  if (!productAccessError) {
+    try {
+      productsCount = await fetchProductsCount(admin);
+    } catch (error) {
+      productsCount = productNodes.length;
+      console.error("Dashboard product count fetch failed", {
+        shop,
+        status: error?.status || error?.response?.status || error?.response?.code,
+        name: error?.name,
+        message: error?.message,
+      });
+    }
   }
 
   const scoredProducts = productNodes.map((product) => {
