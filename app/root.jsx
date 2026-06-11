@@ -38,7 +38,20 @@ export default function App() {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         {isMarketingHost ? (
-          <link rel="icon" type="image/svg+xml" href="/images/logo/rankavio-icon.svg" />
+          <>
+            <link rel="icon" type="image/svg+xml" href="/images/logo/rankavio-icon.svg" />
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-BW8FN5HVNT"></script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-BW8FN5HVNT');
+                `,
+              }}
+            />
+          </>
         ) : (
           <>
             <link rel="preconnect" href="https://cdn.shopify.com/" />
