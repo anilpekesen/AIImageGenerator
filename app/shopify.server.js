@@ -86,6 +86,7 @@ const shopify = shopifyApp({
   ...(appDistribution === AppDistribution.AppStore ? { billing: billingConfig } : {}),
   future: {
     unstable_newEmbeddedAuthStrategy: useTokenExchange,
+    expiringOfflineAccessTokens: true,
   },
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
