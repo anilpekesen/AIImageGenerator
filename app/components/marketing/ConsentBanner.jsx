@@ -45,28 +45,30 @@ export default function ConsentBanner() {
 
   return (
     <aside className="rk-consent" aria-label={t("marketing.consent.ariaLabel")}>
-      <div className="rk-consent__copy">
-        <strong>{t("marketing.consent.title")}</strong>
-        <p>
-          {t("marketing.consent.body")}{" "}
-          <a href="/privacy-policy">{t("marketing.consent.privacyLink")}</a>
-        </p>
-      </div>
-      <div className="rk-consent__actions">
-        <button
-          type="button"
-          className="rk-consent__button rk-consent__button--secondary"
-          onClick={() => saveConsent("declined")}
-        >
-          {t("marketing.consent.decline")}
-        </button>
-        <button
-          type="button"
-          className="rk-consent__button rk-consent__button--primary"
-          onClick={() => saveConsent("accepted")}
-        >
-          {t("marketing.consent.accept")}
-        </button>
+      <div className="rk-consent__panel" role="dialog" aria-modal="true" aria-labelledby="rankavio-consent-title">
+        <div className="rk-consent__copy">
+          <strong id="rankavio-consent-title">{t("marketing.consent.title")}</strong>
+          <p>
+            {t("marketing.consent.body")}{" "}
+            <a href="/privacy-policy">{t("marketing.consent.privacyLink")}</a>
+          </p>
+        </div>
+        <div className="rk-consent__actions">
+          <button
+            type="button"
+            className="rk-consent__button rk-consent__button--secondary"
+            onClick={() => saveConsent("declined")}
+          >
+            {t("marketing.consent.decline")}
+          </button>
+          <button
+            type="button"
+            className="rk-consent__button rk-consent__button--primary"
+            onClick={() => saveConsent("accepted")}
+          >
+            {t("marketing.consent.accept")}
+          </button>
+        </div>
       </div>
     </aside>
   );
