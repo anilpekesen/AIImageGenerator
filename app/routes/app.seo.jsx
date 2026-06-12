@@ -465,6 +465,11 @@ export default function Seo() {
   });
   const allSuggestionsApplied =
     suggestionFieldKeys.length > 0 && suggestionFieldKeys.every((k) => appliedFields.includes(k));
+  const issueCount = (displayResult?.productIssues || []).length + (displayResult?.themeIssues || []).length;
+  const historyCount = historyItems.length;
+  const selectedImage = selectedProduct?.image;
+  const scoreValue = displayResult?.score ?? 0;
+  const scoreStateClass = scoreValue >= 80 ? "seo-score-good" : scoreValue >= 50 ? "seo-score-fair" : "seo-score-poor";
 
   return (
     <Page
@@ -472,144 +477,234 @@ export default function Seo() {
       subtitle={t("seo.pageSubtitle")}
       backAction={{ url: "/app" }}
     >
-      <Layout>
-        {error && (
-          <Layout.Section>
-            <Banner title={t("seo.errorBanner.title")} tone="critical"><p>{error}</p></Banner>
-          </Layout.Section>
-        )}
+      <style>{`
+        .seo-control-shell{background:#111827;border:1px solid rgba(148,163,184,.24);border-radius:24px;padding:18px;box-shadow:0 24px 70px rgba(15,23,42,.16);min-height:720px}
+        .seo-control-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+        .seo-control-title{display:flex;align-items:center;gap:12px;color:#f8fafc}
+        .seo-control-mark{width:36px;height:36px;border-radius:12px;background:rgba(20,184,166,.16);border:1px solid rgba(20,184,166,.35);display:flex;align-items:center;justify-content:center;color:#2dd4bf}
+        .seo-control-title h2{font-size:15px;line-height:1.2;font-weight:800;margin:0;color:#f8fafc}
+        .seo-control-title p{font-size:12px;line-height:1.45;margin:3px 0 0;color:#94a3b8}
+        .seo-control-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+        .seo-metric{background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:13px;padding:13px 14px;min-height:72px}
+        .seo-metric span{display:block;font-size:10px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:750}
+        .seo-metric strong{display:block;margin-top:7px;font-size:24px;line-height:1;color:#f8fafc}
+        .seo-score-good strong{color:#34d399}.seo-score-fair strong{color:#fbbf24}.seo-score-poor strong{color:#fb7185}
+        .seo-control-workspace{display:grid;grid-template-columns:minmax(280px,330px) minmax(0,1fr);gap:12px;align-items:start}
+        .seo-panel{background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:14px;padding:14px;color:#f8fafc}
+        .seo-panel-title{font-size:12px;font-weight:800;color:#f8fafc;margin:0 0 10px}
+        .seo-product-card{display:flex;gap:12px;align-items:center;background:#1d2639;border:1px solid rgba(148,163,184,.24);border-radius:12px;padding:10px}
+        .seo-product-fallback{width:48px;height:48px;border-radius:10px;background:#334155;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
+        .seo-product-title{font-size:13px;font-weight:750;color:#f8fafc;margin:0;line-height:1.25}
+        .seo-muted{font-size:12px;color:#94a3b8;line-height:1.45;margin:0}
+        .seo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+        .seo-history-list{display:grid;gap:8px;margin-top:10px;max-height:350px;overflow:auto;padding-right:2px}
+        .seo-history-item{width:100%;text-align:left;border:1px solid rgba(148,163,184,.26);background:#1d2639;border-radius:11px;padding:10px;cursor:pointer;color:#cbd5e1}
+        .seo-history-item:hover{border-color:rgba(20,184,166,.45);background:#223047}
+        .seo-main-empty{min-height:310px;display:flex;align-items:center;justify-content:center;text-align:center;background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:14px;color:#94a3b8}
+        .seo-main-empty-icon{width:48px;height:48px;border-radius:18px;margin:0 auto 14px;background:rgba(20,184,166,.13);border:1px solid rgba(20,184,166,.35);display:flex;align-items:center;justify-content:center;color:#2dd4bf}
+        .seo-result-head{display:flex;align-items:center;gap:18px;background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:14px;padding:16px;margin-bottom:12px;color:#f8fafc}
+        .seo-result-sections{display:grid;gap:12px}
+        .seo-control-shell .Polaris-Card{background:#263149;border-color:rgba(148,163,184,.32);box-shadow:none}
+        .seo-control-shell .Polaris-Text--root{color:inherit}
+        @media (max-width:900px){.seo-control-workspace{grid-template-columns:1fr}.seo-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-control-head{align-items:flex-start;flex-direction:column}}
+      `}</style>
+      <div className="seo-control-shell">
+        <div className="seo-control-head">
+          <div className="seo-control-title">
+            <div className="seo-control-mark">✦</div>
+            <div>
+              <h2>{t("seo.pageTitle")}</h2>
+              <p>{t("seo.pageSubtitle")}</p>
+            </div>
+          </div>
+          <InlineStack gap="200">
+            <Button onClick={handleProductPick}>
+              {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
+            </Button>
+            {selectedProduct && (
+              <Button
+                variant="primary"
+                onClick={handleAudit}
+                loading={isWorking && formIntent === "audit"}
+              >
+                {isWorking && formIntent === "audit" ? t("seo.step1.auditing") : t("seo.step1.runAudit")}
+              </Button>
+            )}
+          </InlineStack>
+        </div>
 
-        {fetcher.data?.applied && (
-          <Layout.Section>
-            <Banner title={t("seo.appliedBanner.title")} tone="success">
-              <p>{t("seo.appliedBanner.body")}</p>
-            </Banner>
-          </Layout.Section>
-        )}
+        <div className="seo-control-grid">
+          <div className={`seo-metric ${displayResult ? scoreStateClass : ""}`}>
+            <span>{t("seo.score.heading")}</span>
+            <strong>{displayResult ? scoreValue : "—"}</strong>
+          </div>
+          <div className="seo-metric seo-score-poor">
+            <span>{t("seo.score.issuesHeading", { count: issueCount })}</span>
+            <strong>{displayResult ? issueCount : "—"}</strong>
+          </div>
+          <div className="seo-metric">
+            <span>{t("seo.history.heading")}</span>
+            <strong>{selectedProduct ? historyCount : "—"}</strong>
+          </div>
+          <div className="seo-metric seo-score-good">
+            <span>{t("seo.history.appliedBadge")}</span>
+            <strong>{displayResult?.appliedAt || allSuggestionsApplied ? "✓" : "—"}</strong>
+          </div>
+        </div>
 
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">{t("seo.step1.heading")}</Text>
-
-              {selectedProduct ? (
-                <InlineStack gap="300" blockAlign="center">
-                  {selectedProduct.image && (
-                    <Thumbnail source={selectedProduct.image} alt={selectedProduct.title} size="medium" />
-                  )}
-                  <BlockStack gap="100">
-                    <Text as="p" fontWeight="semibold">{selectedProduct.title}</Text>
-                    <Badge tone="success">{t("seo.step1.selected")}</Badge>
-                  </BlockStack>
-                </InlineStack>
-              ) : (
-                <Text as="p" tone="subdued">{t("common.noProductSelected")}</Text>
-              )}
-
-              <InlineStack gap="200">
-                <Button onClick={handleProductPick}>
-                  {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
-                </Button>
-                {selectedProduct && (
-                  <Button
-                    variant="primary"
-                    onClick={handleAudit}
-                    loading={isWorking && formIntent === "audit"}
-                  >
-                    {isWorking && formIntent === "audit" ? t("seo.step1.auditing") : t("seo.step1.runAudit")}
-                  </Button>
-                )}
-              </InlineStack>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-
-        {selectedProduct && (
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="300">
-                <Text as="h2" variant="headingMd">{t("seo.history.heading")}</Text>
-                {historyItems.length === 0 ? (
-                  <Text as="p" tone="subdued">{t("seo.history.empty")}</Text>
+        <div className="seo-control-workspace">
+          <aside className="seo-panel">
+            <p className="seo-panel-title">{t("seo.step1.heading")}</p>
+            {selectedProduct ? (
+              <div className="seo-product-card">
+                {selectedImage ? (
+                  <Thumbnail source={selectedImage} alt={selectedProduct.title} size="medium" />
                 ) : (
-                  <BlockStack gap="200">
+                  <div className="seo-product-fallback">IMG</div>
+                )}
+                <div>
+                  <p className="seo-product-title">{selectedProduct.title}</p>
+                  <div style={{ marginTop: 6 }}>
+                    <Badge tone="success">{t("seo.step1.selected")}</Badge>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="seo-muted">{t("common.noProductSelected")}</p>
+            )}
+            <div className="seo-actions">
+              <Button onClick={handleProductPick}>
+                {selectedProduct ? t("common.changeProduct") : t("common.selectProduct")}
+              </Button>
+              {selectedProduct && (
+                <Button
+                  variant="primary"
+                  onClick={handleAudit}
+                  loading={isWorking && formIntent === "audit"}
+                >
+                  {isWorking && formIntent === "audit" ? t("seo.step1.auditing") : t("seo.step1.runAudit")}
+                </Button>
+              )}
+            </div>
+
+            {selectedProduct && (
+              <div style={{ marginTop: 18 }}>
+                <p className="seo-panel-title">{t("seo.history.heading")}</p>
+                {historyItems.length === 0 ? (
+                  <p className="seo-muted">{t("seo.history.empty")}</p>
+                ) : (
+                  <div className="seo-history-list">
                     {historyItems.map((item) => (
-                      <Box
+                      <button
                         key={item.id}
-                        as="button"
                         type="button"
+                        className="seo-history-item"
                         onClick={() => handleHistoryClick(item.id)}
-                        padding="200"
-                        borderRadius="200"
-                        borderWidth="025"
-                        borderColor="border"
-                        background={displayResult?.auditId === item.id ? "bg-surface-active" : "bg-surface"}
-                        width="100%"
                       >
                         <InlineStack align="space-between" blockAlign="center">
-                          <Text as="span" variant="bodySm" tone="subdued">
+                          <Text as="span" variant="bodySm">
                             {new Date(item.createdAt).toLocaleDateString(dateLocale, {
                               day: "numeric",
-                              month: "long",
+                              month: "short",
                               year: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
                           </Text>
-                          <InlineStack gap="200" blockAlign="center">
+                          <InlineStack gap="100" blockAlign="center">
                             {item.appliedAt && <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>}
                             <Badge tone={item.score >= 80 ? "success" : item.score >= 50 ? "warning" : "critical"}>
-                              {t("seo.score.value", { score: item.score })}
+                              {item.score}
                             </Badge>
                             {isLoadingHistoryItem && loadingAuditId === item.id && <Spinner size="small" />}
                           </InlineStack>
                         </InlineStack>
-                      </Box>
+                      </button>
                     ))}
-                  </BlockStack>
+                  </div>
                 )}
-              </BlockStack>
-            </Card>
-          </Layout.Section>
+              </div>
+            )}
+          </aside>
+
+          <main>
+        {error && (
+          <Box paddingBlockEnd="300">
+            <Banner title={t("seo.errorBanner.title")} tone="critical"><p>{error}</p></Banner>
+          </Box>
+        )}
+
+        {fetcher.data?.applied && (
+          <Box paddingBlockEnd="300">
+            <Banner title={t("seo.appliedBanner.title")} tone="success">
+              <p>{t("seo.appliedBanner.body")}</p>
+            </Banner>
+          </Box>
         )}
 
         {isWorking && formIntent === "audit" && (
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="300" inlineAlign="center">
-                <Spinner size="large" />
-                <Text as="p" tone="subdued">{t("seo.auditingMessage")}</Text>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
+          <div className="seo-main-empty">
+            <div>
+              <div className="seo-main-empty-icon"><Spinner size="small" /></div>
+              <p className="seo-product-title">{t("seo.step1.auditing")}</p>
+              <p className="seo-muted">{t("seo.auditingMessage")}</p>
+            </div>
+          </div>
         )}
 
-        {displayResult?.success && (
-          <>
-            <Layout.Section>
-              <Card>
-                <BlockStack gap="300">
-                  <InlineStack align="space-between" blockAlign="center">
-                    <InlineStack gap="300" blockAlign="center">
-                      <ScoreRing score={displayResult.score} />
-                      <BlockStack gap="100">
-                        <Text as="h2" variant="headingMd">{t("seo.score.heading")}</Text>
-                        <ProgressBar
-                          progress={displayResult.score}
-                          tone={displayResult.score >= 80 ? "success" : displayResult.score >= 50 ? "warning" : "critical"}
-                        />
-                      </BlockStack>
-                    </InlineStack>
-                    <InlineStack gap="200" blockAlign="center">
-                      {displayResult.fromHistory && (
-                        <Badge tone="info">{t("seo.history.fromHistoryBadge")}</Badge>
-                      )}
-                      <Badge tone={displayResult.score >= 80 ? "success" : displayResult.score >= 50 ? "warning" : "critical"}>
-                        {t("seo.score.value", { score: displayResult.score })}
-                      </Badge>
-                    </InlineStack>
-                  </InlineStack>
+        {!selectedProduct && !(isWorking && formIntent === "audit") && (
+          <div className="seo-main-empty">
+            <div>
+              <div className="seo-main-empty-icon">✦</div>
+              <p className="seo-product-title">{t("seo.step1.heading")}</p>
+              <p className="seo-muted">{t("common.noProductSelected")}</p>
+              <div style={{ marginTop: 14 }}>
+                <Button onClick={handleProductPick}>{t("common.selectProduct")}</Button>
+              </div>
+            </div>
+          </div>
+        )}
 
+        {selectedProduct && !displayResult?.success && !(isWorking && formIntent === "audit") && (
+          <div className="seo-main-empty">
+            <div>
+              <div className="seo-main-empty-icon">⌁</div>
+              <p className="seo-product-title">{t("seo.step1.runAudit")}</p>
+              <p className="seo-muted">{t("seo.pageSubtitle")}</p>
+              <div style={{ marginTop: 14 }}>
+                <Button variant="primary" onClick={handleAudit}>{t("seo.step1.runAudit")}</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {displayResult?.success && !(isWorking && formIntent === "audit") && (
+          <>
+            <div className="seo-result-head">
+              <ScoreRing score={displayResult.score} />
+              <div style={{ flex: 1 }}>
+                <p className="seo-product-title">{t("seo.score.heading")}</p>
+                <p className="seo-muted">{displayResult.productTitle}</p>
+                <Box paddingBlockStart="200">
+                  <ProgressBar
+                    progress={displayResult.score}
+                    tone={displayResult.score >= 80 ? "success" : displayResult.score >= 50 ? "warning" : "critical"}
+                  />
+                </Box>
+              </div>
+              <InlineStack gap="200" blockAlign="center">
+                {displayResult.fromHistory && (
+                  <Badge tone="info">{t("seo.history.fromHistoryBadge")}</Badge>
+                )}
+                <Badge tone={displayResult.score >= 80 ? "success" : displayResult.score >= 50 ? "warning" : "critical"}>
+                  {t("seo.score.value", { score: displayResult.score })}
+                </Badge>
+              </InlineStack>
+            </div>
+
+            <div className="seo-result-sections">
+              <Card>
+                <BlockStack gap="300" inlineAlign="center">
                   {(displayResult.productIssues || []).length === 0 ? (
                     <InlineStack gap="200" blockAlign="center">
                       <Icon source={CheckCircleIcon} tone="success" />
@@ -640,10 +735,10 @@ export default function Seo() {
                   )}
                 </BlockStack>
               </Card>
-            </Layout.Section>
+            </div>
 
             {showThemeSection && (
-              <Layout.Section>
+              <Box paddingBlockStart="300">
                 <Card>
                   <BlockStack gap="300">
                     <Text as="h2" variant="headingMd">{t("seo.themeSection.heading")}</Text>
@@ -675,11 +770,11 @@ export default function Seo() {
                     )}
                   </BlockStack>
                 </Card>
-              </Layout.Section>
+              </Box>
             )}
 
             {suggestionFieldKeys.length > 0 && (
-              <Layout.Section>
+              <Box paddingBlockStart="300">
                 <Card>
                   <BlockStack gap="400">
                     <InlineStack align="space-between" blockAlign="center">
@@ -833,11 +928,13 @@ export default function Seo() {
                     )}
                   </BlockStack>
                 </Card>
-              </Layout.Section>
+              </Box>
             )}
           </>
         )}
-      </Layout>
+          </main>
+        </div>
+      </div>
     </Page>
   );
 }
