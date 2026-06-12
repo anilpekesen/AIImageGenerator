@@ -10,6 +10,7 @@ import {
 } from "./icons";
 
 const APP_URL = "https://app.rankavio.com";
+const APP_STORE_URL = "https://apps.shopify.com/aiimagegenerator";
 
 const CATEGORY_IMAGES = [
   { key: "general", file: "genel.png" },
@@ -83,7 +84,7 @@ export default function MarketingHome() {
               <a href="?lng=tr" className={lang === "tr" ? "is-active" : ""}>TR</a>
               <a href="?lng=en" className={lang === "en" ? "is-active" : ""}>EN</a>
             </div>
-            <a href={APP_URL} className="rk__btn rk__btn--primary rk__btn--sm">
+            <a href={APP_STORE_URL} className="rk__btn rk__btn--primary rk__btn--sm">
               {t("marketing.nav.cta")}
             </a>
           </div>
@@ -110,7 +111,7 @@ export default function MarketingHome() {
             </p>
             <p className="rk__hero-text">{t("marketing.hero.subtitle")}</p>
             <div className="rk__hero-actions">
-              <a href={APP_URL} className="rk__btn rk__btn--primary">
+              <a href={APP_STORE_URL} className="rk__btn rk__btn--primary">
                 {t("marketing.hero.ctaPrimary")}
                 <IconArrow />
               </a>
@@ -279,7 +280,7 @@ export default function MarketingHome() {
                   ))}
                 </ul>
                 <a
-                  href={APP_URL}
+                  href={APP_STORE_URL}
                   className={`rk__btn rk__btn--block ${plan.highlight ? "rk__btn--primary" : "rk__btn--ghost"}`}
                 >
                   {plan.cta}
@@ -313,7 +314,7 @@ export default function MarketingHome() {
             <h2>{t("marketing.finalCta.heading")}</h2>
             <p>{t("marketing.finalCta.subheading")}</p>
             <div className="rk__hero-actions">
-              <a href={APP_URL} className="rk__btn rk__btn--primary">
+              <a href={APP_STORE_URL} className="rk__btn rk__btn--primary">
                 {t("marketing.finalCta.ctaPrimary")}
                 <IconArrow />
               </a>
