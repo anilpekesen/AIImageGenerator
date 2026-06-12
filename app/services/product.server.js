@@ -5,6 +5,7 @@ const PRODUCT_LIST_QUERY = `
       nodes {
         id
         title
+        updatedAt
         handle
         status
         productType

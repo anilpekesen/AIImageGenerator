@@ -19,6 +19,7 @@ import {
   ProgressBar,
   Icon,
   Tag,
+  Modal,
 } from "@shopify/polaris";
 import { AlertTriangleIcon, CheckCircleIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -28,6 +29,7 @@ import {
   CREDIT_COSTS,
   consumeCredits,
   refundCredits,
+  getOrCreateSubscription,
 } from "../models/subscription.server";
 import {
   fetchProductSeoData,
@@ -42,20 +44,43 @@ import {
   getAuditHistory,
   getAuditById,
 } from "../models/seo-audit.server";
-import { fetchProductBasicInfo } from "../services/product.server";
+import { fetchProductBasicInfo, fetchProductsForList } from "../services/product.server";
 import i18next from "../i18next.server";
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+  const locale = await i18next.getLocale(request);
+  const t = await i18next.getFixedT(locale);
 
   const url = new URL(request.url);
   const productId = url.searchParams.get("productId");
 
-  const preselectedProduct = productId
-    ? await fetchProductBasicInfo(admin, productId)
-    : null;
+  const [preselectedProduct, products, subscription] = await Promise.all([
+    productId ? fetchProductBasicInfo(admin, productId) : Promise.resolve(null),
+    fetchProductsForList(admin, { first: 50 }).catch(() => ({ nodes: [] })),
+    getOrCreateSubscription(session.shop),
+  ]);
 
-  return json({ preselectedProduct });
+  const productSummaries = (products?.nodes || []).map((product) => {
+    const audit = auditProduct(product, t);
+    const mediaImages = (product.media?.nodes || []).filter((item) => item?.image);
+    const missingAltCount = mediaImages.filter((item) => !item.alt?.trim()).length;
+
+    return {
+      id: product.id.replace("gid://shopify/Product/", ""),
+      title: product.title,
+      handle: product.handle,
+      status: product.status,
+      image: product.featuredImage?.url || mediaImages[0]?.image?.url || null,
+      imageCount: mediaImages.length,
+      missingAltCount,
+      updatedAt: product.updatedAt,
+      score: audit.score,
+      issueCount: audit.issues.length,
+    };
+  });
+
+  return json({ preselectedProduct, productSummaries, subscription });
 };
 
 const PRODUCT_UPDATE_MUTATION = `
@@ -297,7 +322,7 @@ function ScoreRing({ score }) {
 }
 
 export default function Seo() {
-  const { preselectedProduct } = useLoaderData();
+  const { preselectedProduct, productSummaries = [], subscription } = useLoaderData();
   const fetcher = useFetcher();
   const historyFetcher = useFetcher();
   const navigate = useNavigate();
@@ -305,11 +330,12 @@ export default function Seo() {
   const { t, i18n } = useTranslation();
   const dateLocale = dateLocales[i18n.language] || "en-US";
 
-  const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
+  const [selectedProduct, setSelectedProduct] = useState(preselectedProduct || productSummaries[0] || null);
   const [editedSuggestions, setEditedSuggestions] = useState({});
   const [displayResult, setDisplayResult] = useState(null);
   const [historyItems, setHistoryItems] = useState([]);
   const [pendingField, setPendingField] = useState(null);
+  const [auditConfirmOpen, setAuditConfirmOpen] = useState(false);
 
   const isWorking = fetcher.state !== "idle";
   const formIntent = fetcher.formData?.get("intent");
@@ -378,15 +404,28 @@ export default function Seo() {
     }
   }, [shopify, selectedProduct]);
 
-  const handleAudit = useCallback(() => {
+  const submitAudit = useCallback(() => {
     if (!selectedProduct) return;
     setDisplayResult(null);
+    setAuditConfirmOpen(false);
     const formData = new FormData();
     formData.append("intent", "audit");
     formData.append("productId", selectedProduct.id);
     formData.append("productTitle", selectedProduct.title);
     fetcher.submit(formData, { method: "post" });
   }, [selectedProduct, fetcher]);
+
+  const handleAudit = useCallback(() => {
+    if (!selectedProduct) return;
+    setAuditConfirmOpen(true);
+  }, [selectedProduct]);
+
+  const handleProductSelect = useCallback((product) => {
+    setSelectedProduct(product);
+    setEditedSuggestions({});
+    setDisplayResult(null);
+    setAuditConfirmOpen(true);
+  }, []);
 
   const handleApplySection = useCallback((fieldKey) => {
     if (!displayResult?.auditId) return;
@@ -470,6 +509,17 @@ export default function Seo() {
   const selectedImage = selectedProduct?.image;
   const scoreValue = displayResult?.score ?? 0;
   const scoreStateClass = scoreValue >= 80 ? "seo-score-good" : scoreValue >= 50 ? "seo-score-fair" : "seo-score-poor";
+  const creditLimit = subscription?.limitCount ?? 0;
+  const creditUsed = subscription?.usedCount ?? 0;
+  const creditRemaining = Math.max(0, creditLimit - creditUsed);
+  const planLabel = subscription?.plan ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) : "Free";
+  const formatUpdatedAt = (value) => {
+    if (!value) return "—";
+    const now = Date.now();
+    const diffDays = Math.max(0, Math.round((now - new Date(value).getTime()) / 86400000));
+    if (diffDays === 0) return i18n.language?.startsWith("tr") ? "Bugün güncellendi" : "Updated today";
+    return i18n.language?.startsWith("tr") ? `${diffDays} gün önce güncellendi` : `Updated ${diffDays} days ago`;
+  };
 
   return (
     <Page
@@ -478,36 +528,104 @@ export default function Seo() {
       backAction={{ url: "/app" }}
     >
       <style>{`
-        .seo-control-shell{background:#111827;border:1px solid rgba(148,163,184,.24);border-radius:24px;padding:18px;box-shadow:0 24px 70px rgba(15,23,42,.16);min-height:720px}
-        .seo-control-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
-        .seo-control-title{display:flex;align-items:center;gap:12px;color:#f8fafc}
-        .seo-control-mark{width:36px;height:36px;border-radius:12px;background:rgba(20,184,166,.16);border:1px solid rgba(20,184,166,.35);display:flex;align-items:center;justify-content:center;color:#2dd4bf}
-        .seo-control-title h2{font-size:15px;line-height:1.2;font-weight:800;margin:0;color:#f8fafc}
-        .seo-control-title p{font-size:12px;line-height:1.45;margin:3px 0 0;color:#94a3b8}
-        .seo-control-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
-        .seo-metric{background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:13px;padding:13px 14px;min-height:72px}
-        .seo-metric span{display:block;font-size:10px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:750}
-        .seo-metric strong{display:block;margin-top:7px;font-size:24px;line-height:1;color:#f8fafc}
-        .seo-score-good strong{color:#34d399}.seo-score-fair strong{color:#fbbf24}.seo-score-poor strong{color:#fb7185}
-        .seo-control-workspace{display:grid;grid-template-columns:minmax(280px,330px) minmax(0,1fr);gap:12px;align-items:start}
-        .seo-panel{background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:14px;padding:14px;color:#f8fafc}
-        .seo-panel-title{font-size:12px;font-weight:800;color:#f8fafc;margin:0 0 10px}
-        .seo-product-card{display:flex;gap:12px;align-items:center;background:#1d2639;border:1px solid rgba(148,163,184,.24);border-radius:12px;padding:10px}
-        .seo-product-fallback{width:48px;height:48px;border-radius:10px;background:#334155;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
-        .seo-product-title{font-size:13px;font-weight:750;color:#f8fafc;margin:0;line-height:1.25}
-        .seo-muted{font-size:12px;color:#94a3b8;line-height:1.45;margin:0}
+        .seo-control-shell{background:linear-gradient(180deg,#f6f8ff 0%,#ffffff 56%);border:1px solid #dbe3f1;border-radius:18px;padding:20px;box-shadow:0 18px 50px rgba(15,23,42,.08);min-height:720px;max-width:1480px;margin:0 auto}
+        .seo-control-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:16px}
+        .seo-control-title{display:flex;align-items:center;gap:12px;color:#111827}
+        .seo-control-mark{width:40px;height:40px;border-radius:12px;background:#eef2ff;border:1px solid #c7d2fe;display:flex;align-items:center;justify-content:center;color:#4f46e5;font-weight:800}
+        .seo-control-title h2{font-size:18px;line-height:1.2;font-weight:800;margin:0;color:#111827}
+        .seo-control-title p{font-size:13px;line-height:1.45;margin:4px 0 0;color:#5b6475}
+        .seo-control-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+        .seo-metric{background:#ffffff;border:1px solid #dbe3f1;border-radius:12px;padding:14px 16px;min-height:78px;box-shadow:0 8px 20px rgba(15,23,42,.04)}
+        .seo-metric span{display:block;font-size:11px;line-height:1.2;color:#64748b;font-weight:700}
+        .seo-metric strong{display:block;margin-top:8px;font-size:25px;line-height:1;color:#111827}
+        .seo-score-good strong{color:#059669}.seo-score-fair strong{color:#b7791f}.seo-score-poor strong{color:#dc2626}
+        .seo-control-workspace{display:grid;grid-template-columns:minmax(380px,430px) minmax(0,1fr);gap:16px;align-items:start}
+        .seo-panel{background:#ffffff;border:1px solid #dbe3f1;border-radius:14px;padding:14px;color:#111827;box-shadow:0 8px 22px rgba(15,23,42,.05)}
+        .seo-panel-title{font-size:13px;font-weight:800;color:#111827;margin:0 0 10px}
+        .seo-product-card{display:flex;gap:12px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px}
+        .seo-product-fallback{width:52px;height:52px;border-radius:10px;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none}
+        .seo-product-title{font-size:14px;font-weight:750;color:#111827;margin:0;line-height:1.28}
+        .seo-muted{font-size:12px;color:#64748b;line-height:1.45;margin:0}
         .seo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-        .seo-history-list{display:grid;gap:8px;margin-top:10px;max-height:350px;overflow:auto;padding-right:2px}
-        .seo-history-item{width:100%;text-align:left;border:1px solid rgba(148,163,184,.26);background:#1d2639;border-radius:11px;padding:10px;cursor:pointer;color:#cbd5e1}
-        .seo-history-item:hover{border-color:rgba(20,184,166,.45);background:#223047}
-        .seo-main-empty{min-height:310px;display:flex;align-items:center;justify-content:center;text-align:center;background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:14px;color:#94a3b8}
-        .seo-main-empty-icon{width:48px;height:48px;border-radius:18px;margin:0 auto 14px;background:rgba(20,184,166,.13);border:1px solid rgba(20,184,166,.35);display:flex;align-items:center;justify-content:center;color:#2dd4bf}
-        .seo-result-head{display:flex;align-items:center;gap:18px;background:#263149;border:1px solid rgba(148,163,184,.32);border-radius:14px;padding:16px;margin-bottom:12px;color:#f8fafc}
+        .seo-product-list{display:grid;gap:9px;max-height:580px;overflow:auto;padding-right:3px}
+        .seo-product-row{width:100%;text-align:left;border:1px solid #e2e8f0;background:#ffffff;border-radius:12px;padding:11px;cursor:pointer;color:#111827;transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}
+        .seo-product-row:hover,.seo-product-row.is-active{border-color:#818cf8;box-shadow:0 8px 20px rgba(79,70,229,.11);background:#fbfcff}
+        .seo-product-row-main{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:center}
+        .seo-product-row img{width:48px;height:48px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc}
+        .seo-product-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px;font-size:12px;color:#64748b}
+        .seo-product-chip{display:inline-flex;align-items:center;gap:3px;border:1px solid #e2e8f0;border-radius:999px;padding:2px 7px;background:#f8fafc;color:#475569}
+        .seo-history-list{display:grid;gap:8px;margin-top:10px;max-height:260px;overflow:auto;padding-right:2px}
+        .seo-history-item{width:100%;text-align:left;border:1px solid #e2e8f0;background:#ffffff;border-radius:11px;padding:10px;cursor:pointer;color:#334155}
+        .seo-history-item:hover{border-color:#818cf8;background:#fbfcff}
+        .seo-main-empty{min-height:390px;display:flex;align-items:center;justify-content:center;text-align:center;background:#ffffff;border:1px solid #dbe3f1;border-radius:14px;color:#64748b;box-shadow:0 8px 22px rgba(15,23,42,.04)}
+        .seo-main-empty-icon{width:52px;height:52px;border-radius:16px;margin:0 auto 14px;background:#eef2ff;border:1px solid #c7d2fe;display:flex;align-items:center;justify-content:center;color:#4f46e5;font-weight:800}
+        .seo-result-head{display:flex;align-items:center;gap:18px;background:#ffffff;border:1px solid #dbe3f1;border-radius:14px;padding:18px;margin-bottom:14px;color:#111827;box-shadow:0 8px 22px rgba(15,23,42,.04)}
         .seo-result-sections{display:grid;gap:12px}
-        .seo-control-shell .Polaris-Card{background:#263149;border-color:rgba(148,163,184,.32);box-shadow:none}
-        .seo-control-shell .Polaris-Text--root{color:inherit}
-        @media (max-width:900px){.seo-control-workspace{grid-template-columns:1fr}.seo-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-control-head{align-items:flex-start;flex-direction:column}}
+        .seo-control-shell .Polaris-Card{box-shadow:0 8px 22px rgba(15,23,42,.04)}
+        @media (max-width:1100px){.seo-control-workspace{grid-template-columns:1fr}.seo-product-list{max-height:420px}}
+        @media (max-width:760px){.seo-control-shell{padding:14px;border-radius:14px}.seo-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-control-head{align-items:flex-start;flex-direction:column}.seo-product-row-main{grid-template-columns:44px minmax(0,1fr)}.seo-product-row-main>.Polaris-Badge{grid-column:2}}
       `}</style>
+      <Modal
+        open={auditConfirmOpen}
+        onClose={() => setAuditConfirmOpen(false)}
+        title={i18n.language?.startsWith("tr") ? "Yapay Zeka ile Analiz Et?" : "Analyze with AI?"}
+        primaryAction={{
+          content: i18n.language?.startsWith("tr") ? "Analiz Et" : "Analyze",
+          onAction: submitAudit,
+          loading: isWorking && formIntent === "audit",
+        }}
+        secondaryActions={[
+          {
+            content: i18n.language?.startsWith("tr") ? "İptal" : "Cancel",
+            onAction: () => setAuditConfirmOpen(false),
+          },
+        ]}
+      >
+        <Modal.Section>
+          <BlockStack gap="400">
+            <Text as="p" tone="subdued">
+              {i18n.language?.startsWith("tr")
+                ? "Bu işlem aylık kotanızdan 1 AI analizi kullanacak."
+                : "This will use 1 AI analysis from your monthly quota."}
+            </Text>
+            {selectedProduct && (
+              <div className="seo-product-card">
+                {selectedProduct.image ? (
+                  <Thumbnail source={selectedProduct.image} alt={selectedProduct.title} size="medium" />
+                ) : (
+                  <div className="seo-product-fallback">IMG</div>
+                )}
+                <BlockStack gap="050">
+                  <Text as="p" fontWeight="semibold">{selectedProduct.title}</Text>
+                  {selectedProduct.handle && <Text as="p" tone="subdued" variant="bodySm">/{selectedProduct.handle}</Text>}
+                  {typeof selectedProduct.score === "number" && (
+                    <Badge tone={selectedProduct.score >= 80 ? "success" : selectedProduct.score >= 50 ? "warning" : "critical"}>
+                      {selectedProduct.score}
+                    </Badge>
+                  )}
+                </BlockStack>
+              </div>
+            )}
+            <Box background="bg-fill-tertiary" padding="300" borderRadius="200">
+              <InlineStack align="space-between" blockAlign="center">
+                <BlockStack gap="050">
+                  <Text as="p" fontWeight="semibold">
+                    {i18n.language?.startsWith("tr") ? "Aylık AI Analiz" : "Monthly AI analysis"}
+                  </Text>
+                  <Text as="p" tone="subdued" variant="bodySm">
+                    {planLabel} · {creditRemaining}/{creditLimit}
+                  </Text>
+                </BlockStack>
+                <Badge tone={creditRemaining > 0 ? "success" : "critical"}>
+                  {creditRemaining > 0
+                    ? i18n.language?.startsWith("tr") ? "Kota var" : "Available"
+                    : i18n.language?.startsWith("tr") ? "Kota dolu" : "Limit reached"}
+                </Badge>
+              </InlineStack>
+            </Box>
+          </BlockStack>
+        </Modal.Section>
+      </Modal>
       <div className="seo-control-shell">
         <div className="seo-control-head">
           <div className="seo-control-title">
@@ -554,7 +672,41 @@ export default function Seo() {
 
         <div className="seo-control-workspace">
           <aside className="seo-panel">
-            <p className="seo-panel-title">{t("seo.step1.heading")}</p>
+            <p className="seo-panel-title">{i18n.language?.startsWith("tr") ? "Ürünler" : "Products"}</p>
+            <div className="seo-product-list">
+              {productSummaries.map((product) => (
+                <button
+                  key={product.id}
+                  type="button"
+                  className={`seo-product-row ${selectedProduct?.id === product.id ? "is-active" : ""}`}
+                  onClick={() => handleProductSelect(product)}
+                >
+                  <div className="seo-product-row-main">
+                    {product.image ? (
+                      <img src={product.image} alt={product.title} loading="lazy" decoding="async" />
+                    ) : (
+                      <div className="seo-product-fallback">IMG</div>
+                    )}
+                    <div>
+                      <p className="seo-product-title">{product.title}</p>
+                      {product.handle && <p className="seo-muted">/{product.handle}</p>}
+                    </div>
+                    <Badge tone={product.score >= 80 ? "success" : product.score >= 50 ? "warning" : "critical"}>
+                      {product.score}
+                    </Badge>
+                  </div>
+                  <div className="seo-product-meta">
+                    <span className="seo-product-chip">{product.imageCount} img</span>
+                    <span className="seo-product-chip">{Math.max(0, product.imageCount - product.missingAltCount)}/{product.imageCount} alt</span>
+                    <span>· {formatUpdatedAt(product.updatedAt)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div style={{ marginTop: 14 }}>
+              <p className="seo-panel-title">{t("seo.step1.heading")}</p>
+            </div>
             {selectedProduct ? (
               <div className="seo-product-card">
                 {selectedImage ? (
