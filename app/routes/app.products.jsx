@@ -13,12 +13,11 @@ import {
   InlineGrid,
   Badge,
   Thumbnail,
-  Divider,
   Box,
-  Tabs,
+  DataTable,
   TextField,
 } from "@shopify/polaris";
-import { ImageIcon } from "@shopify/polaris-icons";
+import { ImageIcon, ExportIcon } from "@shopify/polaris-icons";
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { fetchProductsForList, addImagesToProduct } from "../services/product.server";
@@ -124,16 +123,40 @@ const SECTION_BADGE_GROUPS = [
   { key: "altText", labelKey: "products.sectionLabels.altText", fields: ["altText"] },
 ];
 
+function appliedFieldLabels(appliedFields, t) {
+  return SECTION_BADGE_GROUPS.filter((group) =>
+    group.fields.some((field) => appliedFields.includes(field))
+  )
+    .map((group) => t(group.labelKey))
+    .join(", ");
+}
+
+function downloadCsv(filename, headers, rows) {
+  const escapeCell = (value) => {
+    const str = String(value ?? "");
+    return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  };
+  const csv = [headers, ...rows].map((row) => row.map(escapeCell).join(",")).join("\r\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export default function Products() {
   const { products, hasNextPage, productAccessError, stats } = useLoaderData();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const dateLocale = dateLocales[i18n.language] || "en-US";
 
-  const [selectedTab, setSelectedTab] = useState(0);
-  const handleTabChange = useCallback((index) => setSelectedTab(index), []);
   const [shootsProduct, setShootsProduct] = useState(null);
   const [search, setSearch] = useState("");
+  const [sortState, setSortState] = useState({ index: 2, direction: "ascending" });
 
   const filteredProducts = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -141,23 +164,120 @@ export default function Products() {
     return products.filter((p) => p.title.toLowerCase().includes(term));
   }, [products, search]);
 
-  const activeProducts = useMemo(
-    () => filteredProducts.filter((p) => p.isActive).sort((a, b) => a.score - b.score),
-    [filteredProducts]
-  );
-  const passiveProducts = useMemo(
-    () => filteredProducts.filter((p) => !p.isActive).sort((a, b) => a.score - b.score),
-    [filteredProducts]
+  const sortedProducts = useMemo(() => {
+    const { index, direction } = sortState;
+    const key = index === 2 ? "score" : index === 3 ? "issueCount" : null;
+    if (!key) return filteredProducts;
+    const dir = direction === "ascending" ? 1 : -1;
+    return [...filteredProducts].sort((a, b) => (a[key] - b[key]) * dir);
+  }, [filteredProducts, sortState]);
+
+  const handleSort = useCallback((index, direction) => {
+    setSortState({ index, direction });
+  }, []);
+
+  const totalIssues = useMemo(
+    () => sortedProducts.reduce((sum, p) => sum + p.issueCount, 0),
+    [sortedProducts]
   );
 
-  const tabs = [
-    { id: "active", content: t("products.tabs.active", { count: activeProducts.length }) },
-    { id: "passive", content: t("products.tabs.passive", { count: passiveProducts.length }) },
-  ];
-  const visibleProducts = selectedTab === 0 ? activeProducts : passiveProducts;
+  const handleExportCsv = useCallback(() => {
+    const headers = [
+      t("products.table.product"),
+      t("products.table.status"),
+      t("products.table.score"),
+      t("products.table.issues"),
+      t("products.table.lastOptimized"),
+    ];
+    const rows = sortedProducts.map((product) => [
+      product.title,
+      product.isActive ? t("products.status.active") : t("products.status.draft"),
+      String(product.score),
+      String(product.issueCount),
+      product.lastOptimized
+        ? [new Date(product.lastOptimized).toISOString().slice(0, 10), appliedFieldLabels(product.appliedFields, t)]
+            .filter(Boolean)
+            .join(" - ")
+        : "",
+    ]);
+    downloadCsv("seo-genel-bakis.csv", headers, rows);
+  }, [sortedProducts, t]);
+
+  const tableRows = useMemo(
+    () =>
+      sortedProducts.map((product) => [
+        <InlineStack key={`product-${product.id}`} gap="200" blockAlign="center" wrap={false}>
+          <Thumbnail source={product.image || ImageIcon} alt={product.title} size="small" />
+          <Text as="span" fontWeight="semibold">
+            {product.title}
+          </Text>
+        </InlineStack>,
+        <Badge key={`status-${product.id}`} tone={product.isActive ? "success" : undefined}>
+          {product.isActive ? t("products.status.active") : t("products.status.draft")}
+        </Badge>,
+        <Badge key={`score-${product.id}`} tone={scoreTone(product.score)}>
+          {t("products.seoScore", { score: product.score })}
+        </Badge>,
+        product.issueCount,
+        product.lastOptimized ? (
+          <BlockStack key={`optimized-${product.id}`} gap="100">
+            <Text as="span" tone="subdued" variant="bodySm">
+              {t("products.lastOptimized", {
+                date: new Date(product.lastOptimized).toLocaleDateString(dateLocale, {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                }),
+              })}
+            </Text>
+            <InlineStack gap="100" wrap>
+              {SECTION_BADGE_GROUPS.filter((group) =>
+                group.fields.some((field) => product.appliedFields.includes(field))
+              ).map((group) => (
+                <Badge key={group.key} size="small" tone="success">
+                  {t(group.labelKey)}
+                </Badge>
+              ))}
+            </InlineStack>
+          </BlockStack>
+        ) : (
+          <Text as="span" tone="subdued">
+            —
+          </Text>
+        ),
+        <InlineStack key={`actions-${product.id}`} gap="150" wrap>
+          <Button size="slim" onClick={() => navigate(`/app/seo?productId=${product.id}`)}>
+            {t("products.actions.seo")}
+          </Button>
+          <Button size="slim" onClick={() => navigate(`/app/competition?productId=${product.id}`)}>
+            {t("products.actions.competitorAnalysis")}
+          </Button>
+          {product.hasGenerations && (
+            <Button size="slim" onClick={() => setShootsProduct(product)}>
+              {t("products.actions.viewShoots")}
+            </Button>
+          )}
+          <Button size="slim" variant="primary" onClick={() => navigate(`/app/generate?productId=${product.id}`)}>
+            {t("products.actions.generateImage")}
+          </Button>
+        </InlineStack>,
+      ]),
+    [sortedProducts, t, dateLocale, navigate]
+  );
 
   return (
-    <Page title={t("products.pageTitle")} subtitle={t("products.pageSubtitle")}>
+    <Page
+      title={t("products.pageTitle")}
+      subtitle={t("products.pageSubtitle")}
+      secondaryActions={[
+        {
+          content: t("products.exportCsv"),
+          icon: ExportIcon,
+          onAction: handleExportCsv,
+          disabled: sortedProducts.length === 0,
+        },
+      ]}
+    >
       <Layout>
         {productAccessError && (
           <Layout.Section>
@@ -226,101 +346,51 @@ export default function Products() {
               </Card>
             </Layout.Section>
 
-          <Layout.Section>
-            <Card padding="0">
-              <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
+            <Layout.Section>
+              {sortedProducts.length === 0 ? (
+                <Card>
+                  <Box padding="400">
+                    <Text as="p" tone="subdued" alignment="center">
+                      {t("products.emptyFiltered")}
+                    </Text>
+                  </Box>
+                </Card>
+              ) : (
+                <Card padding="0">
+                  <DataTable
+                    columnContentTypes={["text", "text", "numeric", "numeric", "text", "text"]}
+                    headings={[
+                      t("products.table.product"),
+                      t("products.table.status"),
+                      t("products.table.score"),
+                      t("products.table.issues"),
+                      t("products.table.lastOptimized"),
+                      t("products.table.actions"),
+                    ]}
+                    rows={tableRows}
+                    totals={["", "", String(stats.avgScore), String(totalIssues), "", ""]}
+                    totalsName={{
+                      singular: t("products.totalsLabel", { count: sortedProducts.length }),
+                      plural: t("products.totalsLabel", { count: sortedProducts.length }),
+                    }}
+                    sortable={[false, false, true, true, false, false]}
+                    defaultSortDirection="ascending"
+                    initialSortColumnIndex={2}
+                    onSort={handleSort}
+                    fixedFirstColumns={1}
+                    increasedTableDensity
+                  />
+                </Card>
+              )}
 
-              {visibleProducts.length === 0 ? (
-                <Box padding="400">
-                  <Text as="p" tone="subdued" alignment="center">
-                    {t("products.emptyFiltered")}
+              {hasNextPage && (
+                <Box paddingBlockStart="400">
+                  <Text as="p" tone="subdued" variant="bodySm" alignment="center">
+                    {t("products.firstFiftyNotice")}
                   </Text>
                 </Box>
-              ) : (
-              <BlockStack>
-                {visibleProducts.map((product, index) => (
-                  <div key={product.id}>
-                    <Box padding="400">
-                      <InlineStack align="space-between" blockAlign="center" wrap={false} gap="400">
-                        <InlineStack gap="300" blockAlign="center" wrap={false}>
-                          <Thumbnail
-                            source={product.image || ImageIcon}
-                            alt={product.title}
-                            size="small"
-                          />
-                          <BlockStack gap="100">
-                            <Text as="p" fontWeight="semibold">
-                              {product.title}
-                            </Text>
-                            <InlineStack gap="150" blockAlign="center">
-                              <Badge tone={scoreTone(product.score)}>
-                                {t("products.seoScore", { score: product.score })}
-                              </Badge>
-                              {product.issueCount > 0 && (
-                                <Text as="span" tone="subdued" variant="bodySm">
-                                  {t("products.issueCount", { count: product.issueCount })}
-                                </Text>
-                              )}
-                            </InlineStack>
-                            {product.lastOptimized && (
-                              <InlineStack gap="150" blockAlign="center" wrap>
-                                <Text as="span" tone="subdued" variant="bodySm">
-                                  {t("products.lastOptimized", {
-                                    date: new Date(product.lastOptimized).toLocaleDateString(dateLocale, {
-                                      day: "numeric",
-                                      month: "long",
-                                      year: "numeric",
-                                    }),
-                                  })}
-                                </Text>
-                                {SECTION_BADGE_GROUPS.filter((group) =>
-                                  group.fields.some((f) => product.appliedFields.includes(f))
-                                ).map((group) => (
-                                  <Badge key={group.key} size="small" tone="success">
-                                    {t(group.labelKey)}
-                                  </Badge>
-                                ))}
-                              </InlineStack>
-                            )}
-                          </BlockStack>
-                        </InlineStack>
-
-                        <InlineStack gap="200" wrap={false}>
-                          <Button onClick={() => navigate(`/app/seo?productId=${product.id}`)}>
-                            {t("products.actions.seo")}
-                          </Button>
-                          <Button onClick={() => navigate(`/app/competition?productId=${product.id}`)}>
-                            {t("products.actions.competitorAnalysis")}
-                          </Button>
-                          {product.hasGenerations && (
-                            <Button onClick={() => setShootsProduct(product)}>
-                              {t("products.actions.viewShoots")}
-                            </Button>
-                          )}
-                          <Button
-                            variant="primary"
-                            onClick={() => navigate(`/app/generate?productId=${product.id}`)}
-                          >
-                            {t("products.actions.generateImage")}
-                          </Button>
-                        </InlineStack>
-                      </InlineStack>
-                    </Box>
-                    {index < visibleProducts.length - 1 && <Divider />}
-                  </div>
-                ))}
-              </BlockStack>
               )}
-            </Card>
-
-            {hasNextPage && (
-              <Box paddingBlockStart="400">
-                <Text as="p" tone="subdued" variant="bodySm" alignment="center">
-                  {t("products.firstFiftyNotice")}
-                </Text>
-              </Box>
-            )}
-          </Layout.Section>
+            </Layout.Section>
           </>
         )}
       </Layout>

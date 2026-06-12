@@ -114,7 +114,6 @@
       "body": "Shopify ürün izinleri yenilenene kadar ürün listeniz geçici olarak gösterilemiyor."
     },
     "seoScore": "SEO Puanı: {{score}}",
-    "issueCount": "{{count}} iyileştirme önerisi",
     "actions": {
       "seo": "SEO",
       "competitorAnalysis": "Rakip Analizi",
@@ -122,11 +121,21 @@
       "viewShoots": "Çekimleri Gör"
     },
     "firstFiftyNotice": "İlk 50 ürün gösteriliyor.",
-    "tabs": {
-      "active": "Aktif ({{count}})",
-      "passive": "Pasif ({{count}})"
+    "exportCsv": "CSV İndir",
+    "status": {
+      "active": "Aktif",
+      "draft": "Pasif"
     },
-    "emptyFiltered": "Bu durumda ürün bulunamadı.",
+    "table": {
+      "product": "Ürün",
+      "status": "Durum",
+      "score": "SEO Puanı",
+      "issues": "Sorunlar",
+      "lastOptimized": "Son Optimize",
+      "actions": "İşlemler"
+    },
+    "totalsLabel": "{{count}} ürün",
+    "emptyFiltered": "Aramanızla eşleşen ürün bulunamadı.",
     "stats": {
       "avgScore": "Ortalama SEO Puanı",
       "needsWork": "İyileştirme Gerekiyor",

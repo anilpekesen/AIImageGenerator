@@ -114,7 +114,6 @@
       "body": "Your product list is temporarily hidden until Shopify product permissions refresh."
     },
     "seoScore": "SEO Score: {{score}}",
-    "issueCount": "{{count}} improvement suggestions",
     "actions": {
       "seo": "SEO",
       "competitorAnalysis": "Competitor Analysis",
@@ -122,11 +121,21 @@
       "viewShoots": "View Shoots"
     },
     "firstFiftyNotice": "Showing the first 50 products.",
-    "tabs": {
-      "active": "Active ({{count}})",
-      "passive": "Inactive ({{count}})"
+    "exportCsv": "Export CSV",
+    "status": {
+      "active": "Active",
+      "draft": "Inactive"
     },
-    "emptyFiltered": "No products found with this status.",
+    "table": {
+      "product": "Product",
+      "status": "Status",
+      "score": "SEO Score",
+      "issues": "Issues",
+      "lastOptimized": "Last Optimized",
+      "actions": "Actions"
+    },
+    "totalsLabel": "{{count}} products",
+    "emptyFiltered": "No products match your search.",
     "stats": {
       "avgScore": "Average SEO Score",
       "needsWork": "Needs Work",
