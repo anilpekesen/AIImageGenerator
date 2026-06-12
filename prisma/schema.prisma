@@ -81,6 +81,7 @@ model SeoAudit {
   issues       String    @default("[]")
   suggestions  String    @default("{}")
   appliedAt    DateTime?
+  appliedFields String   @default("[]")
   createdAt    DateTime  @default(now())
 
   @@index([shop])

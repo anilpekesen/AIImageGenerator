@@ -9,6 +9,7 @@ const PRODUCT_QUERY = `
       descriptionHtml
       status
       onlineStoreUrl
+      tags
       seo { title description }
       media(first: 20) {
         nodes {
@@ -43,6 +44,7 @@ export function auditProduct(product, t) {
   const descriptionText = plainText(product.descriptionHtml);
   const seoDescription = product.seo?.description || descriptionText;
   const handle = product.handle;
+  const tags = product.tags || [];
   const mediaImages = (product.media?.nodes || []).filter((n) => n.image);
   const imagesWithAlt = mediaImages.filter((n) => n.alt && n.alt.trim().length > 0);
 
@@ -143,6 +145,17 @@ export function auditProduct(product, t) {
     score -= 15;
   }
 
+  // Tags
+  if (tags.length < 3) {
+    issues.push({
+      field: "tags",
+      label: t("seoAudit.issues.tooFewTags.label"),
+      detail: t("seoAudit.issues.tooFewTags.detail", { count: tags.length }),
+      severity: "info",
+    });
+    score -= 5;
+  }
+
   // Product status
   if (product.status !== "ACTIVE") {
     issues.push({
@@ -163,6 +176,7 @@ export function auditProduct(product, t) {
       title: seoTitle,
       description: seoDescription,
       handle,
+      tags,
     },
     imagesWithoutAlt: mediaImages.filter((n) => !n.alt || n.alt.trim().length === 0),
     productDescription: descriptionText,

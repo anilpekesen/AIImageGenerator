@@ -18,6 +18,7 @@ import {
   TextField,
   ProgressBar,
   Icon,
+  Tag,
 } from "@shopify/polaris";
 import { AlertTriangleIcon, CheckCircleIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -137,6 +138,7 @@ export const action = async ({ request }) => {
         productTitle,
         productId,
         appliedAt: null,
+        appliedFields: [],
       });
     } catch (error) {
       await refundCredits(session.shop, CREDIT_COSTS.SEO_AUDIT);
@@ -152,6 +154,8 @@ export const action = async ({ request }) => {
     const handle = formData.get("handle");
     const altText = formData.get("altText");
     const bodyDescription = formData.get("bodyDescription");
+    const tagsRaw = formData.get("tags");
+    const tags = tagsRaw ? JSON.parse(tagsRaw) : null;
     const imageIds = JSON.parse(formData.get("imageIds") || "[]");
 
     try {
@@ -163,6 +167,7 @@ export const action = async ({ request }) => {
       if (Object.keys(seoInput).length > 0) productInput.seo = seoInput;
       if (handle) productInput.handle = handle;
       if (bodyDescription) productInput.descriptionHtml = bodyDescription;
+      if (tags && tags.length > 0) productInput.tags = tags;
 
       if (Object.keys(productInput).length > 1) {
         await admin.graphql(PRODUCT_UPDATE_MUTATION, { variables: { input: productInput } });
@@ -177,9 +182,21 @@ export const action = async ({ request }) => {
         });
       }
 
-      await markAudited(auditId, { title, metaDescription, handle, altText, bodyDescription });
+      const appliedFieldNames = [];
+      if (title) appliedFieldNames.push("title");
+      if (metaDescription) appliedFieldNames.push("metaDescription");
+      if (handle) appliedFieldNames.push("handle");
+      if (altText) appliedFieldNames.push("altText");
+      if (bodyDescription) appliedFieldNames.push("bodyDescription");
+      if (tags && tags.length > 0) appliedFieldNames.push("tags");
 
-      return json({ applied: true, auditId });
+      const updated = await markAudited(auditId, appliedFieldNames);
+
+      return json({
+        applied: true,
+        auditId,
+        appliedFields: JSON.parse(updated.appliedFields || "[]"),
+      });
     } catch (error) {
       return json({ error: t("seo.errors.applyFailed", { message: error.message }) }, { status: 500 });
     }
@@ -217,6 +234,7 @@ export const action = async ({ request }) => {
       productTitle: audit.productTitle,
       productId: audit.productId,
       appliedAt: audit.appliedAt,
+      appliedFields: JSON.parse(audit.appliedFields || "[]"),
     });
   }
 
@@ -225,6 +243,58 @@ export const action = async ({ request }) => {
 
 const severityTone = { warning: "critical", info: "warning", theme: "info" };
 const dateLocales = { tr: "tr-TR", en: "en-US" };
+
+function scoreColor(score) {
+  if (score >= 80) return "var(--p-color-icon-success)";
+  if (score >= 50) return "var(--p-color-icon-warning)";
+  return "var(--p-color-icon-critical)";
+}
+
+function ScoreRing({ score }) {
+  const size = 72;
+  const stroke = 7;
+  const radius = (size - stroke) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const progress = Math.max(0, Math.min(100, score));
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="transparent"
+        stroke="var(--p-color-border-secondary)"
+        strokeWidth={stroke}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="transparent"
+        stroke={scoreColor(progress)}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={`${circumference} ${circumference}`}
+        strokeDashoffset={offset}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ transition: "stroke-dashoffset 0.4s ease" }}
+      />
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="20"
+        fontWeight="700"
+        fill="var(--p-color-text)"
+      >
+        {progress}
+      </text>
+    </svg>
+  );
+}
 
 export default function Seo() {
   const { preselectedProduct } = useLoaderData();
@@ -239,6 +309,7 @@ export default function Seo() {
   const [editedSuggestions, setEditedSuggestions] = useState({});
   const [displayResult, setDisplayResult] = useState(null);
   const [historyItems, setHistoryItems] = useState([]);
+  const [pendingField, setPendingField] = useState(null);
 
   const isWorking = fetcher.state !== "idle";
   const formIntent = fetcher.formData?.get("intent");
@@ -252,7 +323,16 @@ export default function Seo() {
         historyFetcher.submit({ intent: "history", productId: selectedProduct.id }, { method: "post" });
       }
     } else if (fetcher.data.applied) {
-      setDisplayResult((prev) => (prev ? { ...prev, appliedAt: new Date().toISOString() } : prev));
+      setDisplayResult((prev) =>
+        prev
+          ? {
+              ...prev,
+              appliedAt: new Date().toISOString(),
+              appliedFields: fetcher.data.appliedFields || prev.appliedFields,
+            }
+          : prev
+      );
+      setPendingField(null);
       shopify.toast.show(t("seo.toast.applied"));
       if (selectedProduct?.id) {
         historyFetcher.submit({ intent: "history", productId: selectedProduct.id }, { method: "post" });
@@ -308,22 +388,53 @@ export default function Seo() {
     fetcher.submit(formData, { method: "post" });
   }, [selectedProduct, fetcher]);
 
-  const handleApply = useCallback(() => {
+  const handleApplySection = useCallback((fieldKey) => {
     if (!displayResult?.auditId) return;
     const s = { ...displayResult.suggestions, ...editedSuggestions };
     const formData = new FormData();
     formData.append("intent", "apply");
     formData.append("auditId", displayResult.auditId);
     formData.append("productId", displayResult.productId);
-    if (s.title) formData.append("title", s.title);
-    if (s.metaDescription) formData.append("metaDescription", s.metaDescription);
-    if (s.handle) formData.append("handle", s.handle);
-    if (s.altText) formData.append("altText", s.altText);
-    if (s.bodyDescription) formData.append("bodyDescription", s.bodyDescription);
-    formData.append(
-      "imageIds",
-      JSON.stringify((displayResult.imagesWithoutAlt || []).map((img) => img.id))
-    );
+
+    if (fieldKey === "title" && s.title) formData.append("title", s.title);
+    if (fieldKey === "metaDescription" && s.metaDescription) formData.append("metaDescription", s.metaDescription);
+    if (fieldKey === "handle" && s.handle) formData.append("handle", s.handle);
+    if (fieldKey === "altText" && s.altText) {
+      formData.append("altText", s.altText);
+      formData.append(
+        "imageIds",
+        JSON.stringify((displayResult.imagesWithoutAlt || []).map((img) => img.id))
+      );
+    }
+    if (fieldKey === "bodyDescription" && s.bodyDescription) formData.append("bodyDescription", s.bodyDescription);
+    if (fieldKey === "tags" && s.tags?.length > 0) formData.append("tags", JSON.stringify(s.tags));
+
+    setPendingField(fieldKey);
+    fetcher.submit(formData, { method: "post" });
+  }, [displayResult, editedSuggestions, fetcher]);
+
+  const handleApplyAll = useCallback(() => {
+    if (!displayResult?.auditId) return;
+    const s = { ...displayResult.suggestions, ...editedSuggestions };
+    const appliedFields = displayResult.appliedFields || [];
+    const formData = new FormData();
+    formData.append("intent", "apply");
+    formData.append("auditId", displayResult.auditId);
+    formData.append("productId", displayResult.productId);
+    if (s.title && !appliedFields.includes("title")) formData.append("title", s.title);
+    if (s.metaDescription && !appliedFields.includes("metaDescription")) formData.append("metaDescription", s.metaDescription);
+    if (s.handle && !appliedFields.includes("handle")) formData.append("handle", s.handle);
+    if (s.altText && !appliedFields.includes("altText")) {
+      formData.append("altText", s.altText);
+      formData.append(
+        "imageIds",
+        JSON.stringify((displayResult.imagesWithoutAlt || []).map((img) => img.id))
+      );
+    }
+    if (s.bodyDescription && !appliedFields.includes("bodyDescription")) formData.append("bodyDescription", s.bodyDescription);
+    if (s.tags?.length > 0 && !appliedFields.includes("tags")) formData.append("tags", JSON.stringify(s.tags));
+
+    setPendingField("all");
     fetcher.submit(formData, { method: "post" });
   }, [displayResult, editedSuggestions, fetcher]);
 
@@ -338,7 +449,8 @@ export default function Seo() {
   const getValue = (field) => editedSuggestions[field] ?? displayResult?.suggestions?.[field] ?? "";
 
   const error = fetcher.data?.error || historyFetcher.data?.error;
-  const alreadyApplied = !!displayResult?.appliedAt;
+  const appliedFields = displayResult?.appliedFields || [];
+  const isApplying = isWorking && formIntent === "apply";
   const isLoadingHistoryItem = historyFetcher.state !== "idle" && historyFetcher.formData?.get("intent") === "loadHistory";
   const loadingAuditId = historyFetcher.formData?.get("auditId");
 
@@ -346,6 +458,13 @@ export default function Seo() {
   const showThemeSection =
     displayResult?.success &&
     (themeIssues.length > 0 || displayResult.liveAccessible === false || displayResult.liveAccessible === true);
+
+  const suggestionFieldKeys = ["title", "metaDescription", "handle", "altText", "bodyDescription", "tags"].filter((k) => {
+    const v = displayResult?.suggestions?.[k];
+    return Array.isArray(v) ? v.length > 0 : !!v;
+  });
+  const allSuggestionsApplied =
+    suggestionFieldKeys.length > 0 && suggestionFieldKeys.every((k) => appliedFields.includes(k));
 
   return (
     <Page
@@ -471,7 +590,16 @@ export default function Seo() {
               <Card>
                 <BlockStack gap="300">
                   <InlineStack align="space-between" blockAlign="center">
-                    <Text as="h2" variant="headingMd">{t("seo.score.heading")}</Text>
+                    <InlineStack gap="300" blockAlign="center">
+                      <ScoreRing score={displayResult.score} />
+                      <BlockStack gap="100">
+                        <Text as="h2" variant="headingMd">{t("seo.score.heading")}</Text>
+                        <ProgressBar
+                          progress={displayResult.score}
+                          tone={displayResult.score >= 80 ? "success" : displayResult.score >= 50 ? "warning" : "critical"}
+                        />
+                      </BlockStack>
+                    </InlineStack>
                     <InlineStack gap="200" blockAlign="center">
                       {displayResult.fromHistory && (
                         <Badge tone="info">{t("seo.history.fromHistoryBadge")}</Badge>
@@ -481,10 +609,6 @@ export default function Seo() {
                       </Badge>
                     </InlineStack>
                   </InlineStack>
-                  <ProgressBar
-                    progress={displayResult.score}
-                    tone={displayResult.score >= 80 ? "success" : displayResult.score >= 50 ? "warning" : "critical"}
-                  />
 
                   {(displayResult.productIssues || []).length === 0 ? (
                     <InlineStack gap="200" blockAlign="center">
@@ -554,7 +678,7 @@ export default function Seo() {
               </Layout.Section>
             )}
 
-            {Object.keys(displayResult.suggestions || {}).some((k) => displayResult.suggestions[k]) && (
+            {suggestionFieldKeys.length > 0 && (
               <Layout.Section>
                 <Card>
                   <BlockStack gap="400">
@@ -565,11 +689,11 @@ export default function Seo() {
                           {t("seo.suggestions.description")}
                         </Text>
                       </BlockStack>
-                      {alreadyApplied ? (
+                      {allSuggestionsApplied ? (
                         <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
                       ) : (
-                        <Button variant="primary" onClick={handleApply} loading={isWorking && formIntent === "apply"}>
-                          {isWorking && formIntent === "apply" ? t("seo.suggestions.applying") : t("seo.suggestions.apply")}
+                        <Button variant="primary" onClick={handleApplyAll} loading={isApplying && pendingField === "all"}>
+                          {isApplying && pendingField === "all" ? t("seo.suggestions.applying") : t("seo.suggestions.apply")}
                         </Button>
                       )}
                     </InlineStack>
@@ -577,59 +701,135 @@ export default function Seo() {
                     <Divider />
 
                     {displayResult.suggestions.title && (
-                      <TextField
-                        label={t("seo.suggestions.seoTitle.label")}
-                        value={getValue("title")}
-                        onChange={(v) => updateSuggestion("title", v)}
-                        helpText={t("seo.suggestions.seoTitle.helpText", { count: getValue("title").length })}
-                        autoComplete="off"
-                        disabled={alreadyApplied}
-                      />
+                      <BlockStack gap="100">
+                        <TextField
+                          label={t("seo.suggestions.seoTitle.label")}
+                          value={getValue("title")}
+                          onChange={(v) => updateSuggestion("title", v)}
+                          helpText={t("seo.suggestions.seoTitle.helpText", { count: getValue("title").length })}
+                          autoComplete="off"
+                          disabled={appliedFields.includes("title")}
+                        />
+                        <InlineStack align="end">
+                          {appliedFields.includes("title") ? (
+                            <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
+                          ) : (
+                            <Button size="slim" onClick={() => handleApplySection("title")} loading={isApplying && pendingField === "title"}>
+                              {t("seo.suggestions.applySection")}
+                            </Button>
+                          )}
+                        </InlineStack>
+                      </BlockStack>
                     )}
 
                     {displayResult.suggestions.metaDescription && (
-                      <TextField
-                        label={t("seo.suggestions.metaDescription.label")}
-                        value={getValue("metaDescription")}
-                        onChange={(v) => updateSuggestion("metaDescription", v)}
-                        multiline={3}
-                        helpText={t("seo.suggestions.metaDescription.helpText", { count: getValue("metaDescription").length })}
-                        autoComplete="off"
-                        disabled={alreadyApplied}
-                      />
+                      <BlockStack gap="100">
+                        <TextField
+                          label={t("seo.suggestions.metaDescription.label")}
+                          value={getValue("metaDescription")}
+                          onChange={(v) => updateSuggestion("metaDescription", v)}
+                          multiline={3}
+                          helpText={t("seo.suggestions.metaDescription.helpText", { count: getValue("metaDescription").length })}
+                          autoComplete="off"
+                          disabled={appliedFields.includes("metaDescription")}
+                        />
+                        <InlineStack align="end">
+                          {appliedFields.includes("metaDescription") ? (
+                            <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
+                          ) : (
+                            <Button size="slim" onClick={() => handleApplySection("metaDescription")} loading={isApplying && pendingField === "metaDescription"}>
+                              {t("seo.suggestions.applySection")}
+                            </Button>
+                          )}
+                        </InlineStack>
+                      </BlockStack>
                     )}
 
                     {displayResult.suggestions.handle && (
-                      <TextField
-                        label={t("seo.suggestions.handle.label")}
-                        value={getValue("handle")}
-                        onChange={(v) => updateSuggestion("handle", v)}
-                        prefix="/products/"
-                        autoComplete="off"
-                        disabled={alreadyApplied}
-                      />
+                      <BlockStack gap="100">
+                        <TextField
+                          label={t("seo.suggestions.handle.label")}
+                          value={getValue("handle")}
+                          onChange={(v) => updateSuggestion("handle", v)}
+                          prefix="/products/"
+                          autoComplete="off"
+                          disabled={appliedFields.includes("handle")}
+                        />
+                        <InlineStack align="end">
+                          {appliedFields.includes("handle") ? (
+                            <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
+                          ) : (
+                            <Button size="slim" onClick={() => handleApplySection("handle")} loading={isApplying && pendingField === "handle"}>
+                              {t("seo.suggestions.applySection")}
+                            </Button>
+                          )}
+                        </InlineStack>
+                      </BlockStack>
                     )}
 
                     {displayResult.suggestions.altText && (
-                      <TextField
-                        label={t("seo.suggestions.altText.label", { count: displayResult.imagesWithoutAlt?.length || 0 })}
-                        value={getValue("altText")}
-                        onChange={(v) => updateSuggestion("altText", v)}
-                        autoComplete="off"
-                        disabled={alreadyApplied}
-                      />
+                      <BlockStack gap="100">
+                        <TextField
+                          label={t("seo.suggestions.altText.label", { count: displayResult.imagesWithoutAlt?.length || 0 })}
+                          value={getValue("altText")}
+                          onChange={(v) => updateSuggestion("altText", v)}
+                          autoComplete="off"
+                          disabled={appliedFields.includes("altText")}
+                        />
+                        <InlineStack align="end">
+                          {appliedFields.includes("altText") ? (
+                            <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
+                          ) : (
+                            <Button size="slim" onClick={() => handleApplySection("altText")} loading={isApplying && pendingField === "altText"}>
+                              {t("seo.suggestions.applySection")}
+                            </Button>
+                          )}
+                        </InlineStack>
+                      </BlockStack>
                     )}
 
                     {displayResult.suggestions.bodyDescription && (
-                      <TextField
-                        label={t("seo.suggestions.bodyDescription.label")}
-                        value={getValue("bodyDescription")}
-                        onChange={(v) => updateSuggestion("bodyDescription", v)}
-                        multiline={6}
-                        helpText={t("seo.suggestions.bodyDescription.helpText")}
-                        autoComplete="off"
-                        disabled={alreadyApplied}
-                      />
+                      <BlockStack gap="100">
+                        <TextField
+                          label={t("seo.suggestions.bodyDescription.label")}
+                          value={getValue("bodyDescription")}
+                          onChange={(v) => updateSuggestion("bodyDescription", v)}
+                          multiline={6}
+                          helpText={t("seo.suggestions.bodyDescription.helpText")}
+                          autoComplete="off"
+                          disabled={appliedFields.includes("bodyDescription")}
+                        />
+                        <InlineStack align="end">
+                          {appliedFields.includes("bodyDescription") ? (
+                            <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
+                          ) : (
+                            <Button size="slim" onClick={() => handleApplySection("bodyDescription")} loading={isApplying && pendingField === "bodyDescription"}>
+                              {t("seo.suggestions.applySection")}
+                            </Button>
+                          )}
+                        </InlineStack>
+                      </BlockStack>
+                    )}
+
+                    {displayResult.suggestions.tags?.length > 0 && (
+                      <BlockStack gap="100">
+                        <Text as="p" fontWeight="semibold">{t("seo.suggestions.tags.label")}</Text>
+                        <Text as="p" tone="subdued" variant="bodySm">{t("seo.suggestions.tags.helpText")}</Text>
+                        <InlineStack gap="100">
+                          {displayResult.suggestions.tags.map((tag, i) => (
+                            <Tag key={i}>{tag}</Tag>
+                          ))}
+                        </InlineStack>
+                        <InlineStack align="end">
+                          {appliedFields.includes("tags") ? (
+                            <Badge tone="success">{t("seo.history.appliedBadge")}</Badge>
+                          ) : (
+                            <Button size="slim" onClick={() => handleApplySection("tags")} loading={isApplying && pendingField === "tags"}>
+                              {t("seo.suggestions.applySection")}
+                            </Button>
+                          )}
+                        </InlineStack>
+                      </BlockStack>
                     )}
                   </BlockStack>
                 </Card>

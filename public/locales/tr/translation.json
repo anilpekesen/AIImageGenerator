@@ -126,7 +126,25 @@
       "active": "Aktif ({{count}})",
       "passive": "Pasif ({{count}})"
     },
-    "emptyFiltered": "Bu durumda ürün bulunamadı."
+    "emptyFiltered": "Bu durumda ürün bulunamadı.",
+    "stats": {
+      "avgScore": "Ortalama SEO Puanı",
+      "needsWork": "İyileştirme Gerekiyor",
+      "couldBeBetter": "Orta Düzey",
+      "wellOptimized": "İyi Optimize Edilmiş"
+    },
+    "search": {
+      "label": "Ürün ara",
+      "placeholder": "Ürün adına göre ara..."
+    },
+    "sectionLabels": {
+      "title": "Başlık",
+      "description": "Açıklama",
+      "handle": "URL",
+      "tags": "Etiketler",
+      "altText": "Alt Metin"
+    },
+    "lastOptimized": "Son optimize: {{date}}"
   },
   "generate": {
     "pageTitle": "6 Sahne Üret — Tek Tık",
@@ -217,8 +235,9 @@
     "suggestions": {
       "heading": "🤖 AI Önerileri",
       "description": "İstediğiniz alanı düzenleyebilir, ardından tek tıkla ürüne yazabilirsiniz",
-      "apply": "Önerileri Ürüne Uygula",
+      "apply": "Tümünü Uygula",
       "applying": "Uygulanıyor...",
+      "applySection": "Uygula",
       "seoTitle": {
         "label": "SEO Başlığı",
         "helpText": "{{count}} karakter (ideal: 50-60)"
@@ -236,6 +255,10 @@
       "bodyDescription": {
         "label": "Ürün Açıklaması (Yeniden Yazıldı)",
         "helpText": "Bu metin ürünün açıklama alanının tamamının yerine geçecek (HTML destekli)."
+      },
+      "tags": {
+        "label": "Etiketler",
+        "helpText": "Mağaza arama ve filtreleme için önerilen etiketler. Uygula'ya bastığınızda mevcut etiketlerin yerine geçer."
       }
     },
     "toast": {
@@ -466,6 +489,10 @@
       "notActive": {
         "label": "Ürün aktif değil",
         "detail": "Ürün durumu: {{status}}. Pasif/taslak ürünler online mağazada görünmez ve arama motorları tarafından indekslenmez."
+      },
+      "tooFewTags": {
+        "label": "Etiket sayısı yetersiz",
+        "detail": "Şu anda {{count}} etiket var. En az 3 etiket önerilir (arama ve filtreleme için)."
       }
     },
     "themeIssues": {

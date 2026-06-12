@@ -126,7 +126,25 @@
       "active": "Active ({{count}})",
       "passive": "Inactive ({{count}})"
     },
-    "emptyFiltered": "No products found with this status."
+    "emptyFiltered": "No products found with this status.",
+    "stats": {
+      "avgScore": "Average SEO Score",
+      "needsWork": "Needs Work",
+      "couldBeBetter": "Could Be Better",
+      "wellOptimized": "Well Optimized"
+    },
+    "search": {
+      "label": "Search products",
+      "placeholder": "Search by product title..."
+    },
+    "sectionLabels": {
+      "title": "Title",
+      "description": "Description",
+      "handle": "URL",
+      "tags": "Tags",
+      "altText": "Alt Text"
+    },
+    "lastOptimized": "Last optimized: {{date}}"
   },
   "generate": {
     "pageTitle": "Generate 6 Scenes — One Click",
@@ -217,8 +235,9 @@
     "suggestions": {
       "heading": "🤖 AI Suggestions",
       "description": "You can edit any field, then write it to the product in one click",
-      "apply": "Apply Suggestions to Product",
+      "apply": "Apply All",
       "applying": "Applying...",
+      "applySection": "Apply",
       "seoTitle": {
         "label": "SEO Title",
         "helpText": "{{count}} characters (ideal: 50-60)"
@@ -236,6 +255,10 @@
       "bodyDescription": {
         "label": "Product Description (Rewritten)",
         "helpText": "This text will replace the entire description field (HTML supported)."
+      },
+      "tags": {
+        "label": "Tags",
+        "helpText": "Suggested tags for store search and filtering. Applying will replace the current tags."
       }
     },
     "toast": {
@@ -466,6 +489,10 @@
       "notActive": {
         "label": "Product is not active",
         "detail": "Product status: {{status}}. Inactive/draft products are not visible in the online store and are not indexed by search engines."
+      },
+      "tooFewTags": {
+        "label": "Not enough tags",
+        "detail": "Currently {{count}} tags. At least 3 tags are recommended (for search and filtering)."
       }
     },
     "themeIssues": {

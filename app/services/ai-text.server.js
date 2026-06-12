@@ -43,6 +43,7 @@ Sayısal verileri (fiyat, puan) yorumlarken doğrudan referans ver.`;
 
 export async function generateSeoSuggestions(productTitle, productDescription, currentSeo, issues) {
   const needsBodyDescription = issues.some((i) => i.field === "description");
+  const needsTags = issues.some((i) => i.field === "tags");
 
   const system = `Sen bir Shopify SEO uzmanısın. Sana bir ürünün mevcut SEO bilgileri ve
 tespit edilen sorunlar verilecek. Görevin, sorunlu alanlar için iyileştirilmiş içerik önermek.
@@ -55,9 +56,11 @@ Kurallar:
 - Ürün açıklaması (bodyDescription): 200-400 kelime, <p> ve <ul><li> etiketleri içeren
   temiz HTML, ürünün faydalarını ve özelliklerini SEO anahtar kelimeleriyle anlatan,
   satışa yönlendiren bir metin
+- Etiketler (tags): ürünün kategorisini, malzemesini, kullanım alanını ve hedef kitlesini
+  yansıtan, arama/SEO odaklı 5-8 adet kısa etiket; her biri 1-3 kelime
 
 Yanıtını SADECE şu JSON formatında ver, başka hiçbir metin ekleme:
-{"title": "...", "metaDescription": "...", "handle": "...", "altText": "..."${needsBodyDescription ? `, "bodyDescription": "..."` : ""}}
+{"title": "...", "metaDescription": "...", "handle": "...", "altText": "..."${needsBodyDescription ? `, "bodyDescription": "..."` : ""}${needsTags ? `, "tags": ["...", "..."]` : ""}}
 
 Sadece tespit edilen sorunlu alanlar için değer üret, sorunsuz alanlar için null koy.`;
 
@@ -66,6 +69,7 @@ Sadece tespit edilen sorunlu alanlar için değer üret, sorunsuz alanlar için 
 Mevcut SEO başlığı: "${currentSeo.title || "(yok)"}"
 Mevcut meta açıklama: "${currentSeo.description || "(yok)"}"
 Mevcut URL handle: "${currentSeo.handle || "(yok)"}"
+Mevcut etiketler: "${(currentSeo.tags || []).join(", ") || "(yok)"}"
 
 Tespit edilen sorunlar:
 ${issues.map((i) => `- ${i.label}: ${i.detail}`).join("\n")}

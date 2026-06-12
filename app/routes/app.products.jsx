@@ -10,11 +10,13 @@ import {
   Banner,
   BlockStack,
   InlineStack,
+  InlineGrid,
   Badge,
   Thumbnail,
   Divider,
   Box,
   Tabs,
+  TextField,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 import { useTranslation } from "react-i18next";
@@ -22,6 +24,7 @@ import { authenticate } from "../shopify.server";
 import { fetchProductsForList, addImagesToProduct } from "../services/product.server";
 import { auditProduct } from "../services/seo-audit.server";
 import { getProductIdsWithGenerations } from "../models/generation.server";
+import { getLatestAppliedMap } from "../models/seo-audit.server";
 import i18next from "../i18next.server";
 import ProductShootsModal from "../components/ProductShootsModal";
 
@@ -40,15 +43,22 @@ export const loader = async ({ request }) => {
       name: error?.name,
       message: error?.message,
     });
-    return json({ products: [], hasNextPage: false, productAccessError: true });
+    return json({
+      products: [],
+      hasNextPage: false,
+      productAccessError: true,
+      stats: { avgScore: 0, needsWork: 0, couldBeBetter: 0, wellOptimized: 0 },
+    });
   }
 
   const { nodes, pageInfo } = productList;
   const productIdsWithGenerations = await getProductIdsWithGenerations(session.shop);
+  const appliedMap = await getLatestAppliedMap(session.shop);
 
   const products = nodes.map((product) => {
     const audit = auditProduct(product, t);
     const id = product.id.replace("gid://shopify/Product/", "");
+    const applied = appliedMap[id];
     return {
       id,
       title: product.title,
@@ -57,10 +67,19 @@ export const loader = async ({ request }) => {
       score: audit.score,
       issueCount: audit.issues.length,
       hasGenerations: productIdsWithGenerations.has(id),
+      lastOptimized: applied?.appliedAt || null,
+      appliedFields: applied?.appliedFields || [],
     };
   });
 
-  return json({ products, hasNextPage: pageInfo.hasNextPage, productAccessError: false });
+  const stats = {
+    avgScore: products.length > 0 ? Math.round(products.reduce((sum, p) => sum + p.score, 0) / products.length) : 0,
+    needsWork: products.filter((p) => p.score < 50).length,
+    couldBeBetter: products.filter((p) => p.score >= 50 && p.score < 75).length,
+    wellOptimized: products.filter((p) => p.score >= 75).length,
+  };
+
+  return json({ products, hasNextPage: pageInfo.hasNextPage, productAccessError: false, stats });
 };
 
 export const action = async ({ request }) => {
@@ -95,17 +114,41 @@ function scoreTone(score) {
   return "critical";
 }
 
+const dateLocales = { tr: "tr-TR", en: "en-US" };
+
+const SECTION_BADGE_GROUPS = [
+  { key: "title", labelKey: "products.sectionLabels.title", fields: ["title"] },
+  { key: "description", labelKey: "products.sectionLabels.description", fields: ["metaDescription", "bodyDescription"] },
+  { key: "handle", labelKey: "products.sectionLabels.handle", fields: ["handle"] },
+  { key: "tags", labelKey: "products.sectionLabels.tags", fields: ["tags"] },
+  { key: "altText", labelKey: "products.sectionLabels.altText", fields: ["altText"] },
+];
+
 export default function Products() {
-  const { products, hasNextPage, productAccessError } = useLoaderData();
+  const { products, hasNextPage, productAccessError, stats } = useLoaderData();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = dateLocales[i18n.language] || "en-US";
 
   const [selectedTab, setSelectedTab] = useState(0);
   const handleTabChange = useCallback((index) => setSelectedTab(index), []);
   const [shootsProduct, setShootsProduct] = useState(null);
+  const [search, setSearch] = useState("");
 
-  const activeProducts = useMemo(() => products.filter((p) => p.isActive), [products]);
-  const passiveProducts = useMemo(() => products.filter((p) => !p.isActive), [products]);
+  const filteredProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return products;
+    return products.filter((p) => p.title.toLowerCase().includes(term));
+  }, [products, search]);
+
+  const activeProducts = useMemo(
+    () => filteredProducts.filter((p) => p.isActive).sort((a, b) => a.score - b.score),
+    [filteredProducts]
+  );
+  const passiveProducts = useMemo(
+    () => filteredProducts.filter((p) => !p.isActive).sort((a, b) => a.score - b.score),
+    [filteredProducts]
+  );
 
   const tabs = [
     { id: "active", content: t("products.tabs.active", { count: activeProducts.length }) },
@@ -138,6 +181,51 @@ export default function Products() {
             </Card>
           </Layout.Section>
         ) : (
+          <>
+            <Layout.Section>
+              <InlineGrid columns={{ xs: 2, sm: 4 }} gap="400">
+                <Card>
+                  <BlockStack gap="100">
+                    <Text as="p" tone="subdued" variant="bodySm">{t("products.stats.avgScore")}</Text>
+                    <Text as="p" variant="headingLg">{stats.avgScore}</Text>
+                  </BlockStack>
+                </Card>
+                <Card>
+                  <BlockStack gap="100">
+                    <Text as="p" tone="subdued" variant="bodySm">{t("products.stats.needsWork")}</Text>
+                    <Text as="p" variant="headingLg" tone="critical">{stats.needsWork}</Text>
+                  </BlockStack>
+                </Card>
+                <Card>
+                  <BlockStack gap="100">
+                    <Text as="p" tone="subdued" variant="bodySm">{t("products.stats.couldBeBetter")}</Text>
+                    <Text as="p" variant="headingLg" tone="caution">{stats.couldBeBetter}</Text>
+                  </BlockStack>
+                </Card>
+                <Card>
+                  <BlockStack gap="100">
+                    <Text as="p" tone="subdued" variant="bodySm">{t("products.stats.wellOptimized")}</Text>
+                    <Text as="p" variant="headingLg" tone="success">{stats.wellOptimized}</Text>
+                  </BlockStack>
+                </Card>
+              </InlineGrid>
+            </Layout.Section>
+
+            <Layout.Section>
+              <Card>
+                <TextField
+                  label={t("products.search.label")}
+                  labelHidden
+                  placeholder={t("products.search.placeholder")}
+                  value={search}
+                  onChange={setSearch}
+                  autoComplete="off"
+                  clearButton
+                  onClearButtonClick={() => setSearch("")}
+                />
+              </Card>
+            </Layout.Section>
+
           <Layout.Section>
             <Card padding="0">
               <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange} />
@@ -174,6 +262,26 @@ export default function Products() {
                                 </Text>
                               )}
                             </InlineStack>
+                            {product.lastOptimized && (
+                              <InlineStack gap="150" blockAlign="center" wrap>
+                                <Text as="span" tone="subdued" variant="bodySm">
+                                  {t("products.lastOptimized", {
+                                    date: new Date(product.lastOptimized).toLocaleDateString(dateLocale, {
+                                      day: "numeric",
+                                      month: "long",
+                                      year: "numeric",
+                                    }),
+                                  })}
+                                </Text>
+                                {SECTION_BADGE_GROUPS.filter((group) =>
+                                  group.fields.some((f) => product.appliedFields.includes(f))
+                                ).map((group) => (
+                                  <Badge key={group.key} size="small" tone="success">
+                                    {t(group.labelKey)}
+                                  </Badge>
+                                ))}
+                              </InlineStack>
+                            )}
                           </BlockStack>
                         </InlineStack>
 
@@ -213,6 +321,7 @@ export default function Products() {
               </Box>
             )}
           </Layout.Section>
+          </>
         )}
       </Layout>
 

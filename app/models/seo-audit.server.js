@@ -13,11 +13,37 @@ export async function createSeoAudit({ shop, productId, productTitle, score, iss
   });
 }
 
-export async function markAudited(id, appliedFields) {
+export async function markAudited(id, appliedFieldNames = []) {
+  const existing = await prisma.seoAudit.findUnique({ where: { id } });
+  const previousFields = existing ? JSON.parse(existing.appliedFields || "[]") : [];
+  const mergedFields = Array.from(new Set([...previousFields, ...appliedFieldNames]));
+
   return prisma.seoAudit.update({
     where: { id },
-    data: { appliedAt: new Date() },
+    data: {
+      appliedAt: new Date(),
+      appliedFields: JSON.stringify(mergedFields),
+    },
   });
+}
+
+export async function getLatestAppliedMap(shop) {
+  const audits = await prisma.seoAudit.findMany({
+    where: { shop, appliedAt: { not: null } },
+    orderBy: { appliedAt: "desc" },
+  });
+
+  const map = {};
+  for (const audit of audits) {
+    if (!map[audit.productId]) {
+      map[audit.productId] = {
+        appliedAt: audit.appliedAt,
+        appliedFields: JSON.parse(audit.appliedFields || "[]"),
+        score: audit.score,
+      };
+    }
+  }
+  return map;
 }
 
 export async function getLatestAudit(shop, productId) {
