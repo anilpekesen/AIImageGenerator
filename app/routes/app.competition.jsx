@@ -53,7 +53,7 @@ export const loader = async ({ request }) => {
   const { nodes, pageInfo } = productList;
   const analysisMap = await getLatestAnalysesMap(session.shop);
 
-  const products = nodes.map((product) => {
+  const products = nodes.filter((product) => product.status === "ACTIVE").map((product) => {
     const id = product.id.replace("gid://shopify/Product/", "");
     const analysis = analysisMap[id];
     return {

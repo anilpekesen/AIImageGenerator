@@ -61,7 +61,9 @@ export const loader = async ({ request }) => {
     getOrCreateSubscription(session.shop),
   ]);
 
-  const productSummaries = (products?.nodes || []).map((product) => {
+  const activeProducts = (products?.nodes || []).filter((product) => product.status === "ACTIVE");
+
+  const productSummaries = activeProducts.map((product) => {
     const audit = auditProduct(product, t);
     const mediaImages = (product.media?.nodes || []).filter((item) => item?.image);
     const missingAltCount = mediaImages.filter((item) => !item.alt?.trim()).length;
