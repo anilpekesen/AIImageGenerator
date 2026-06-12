@@ -27,6 +27,18 @@ export async function getLatestAudit(shop, productId) {
   });
 }
 
+export async function getAuditHistory(shop, productId, limit = 10) {
+  return prisma.seoAudit.findMany({
+    where: { shop, productId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
+export async function getAuditById(id, shop) {
+  return prisma.seoAudit.findFirst({ where: { id, shop } });
+}
+
 export async function countAudits(shop) {
   return prisma.seoAudit.count({ where: { shop } });
 }

@@ -1,3 +1,5 @@
+import * as cheerio from "cheerio";
+
 const PRODUCT_QUERY = `
   query getProductSeo($id: ID!) {
     product(id: $id) {
@@ -5,6 +7,8 @@ const PRODUCT_QUERY = `
       title
       handle
       descriptionHtml
+      status
+      onlineStoreUrl
       seo { title description }
       media(first: 20) {
         nodes {
@@ -36,7 +40,8 @@ export function auditProduct(product, t) {
   let score = 100;
 
   const seoTitle = product.seo?.title || product.title;
-  const seoDescription = product.seo?.description || plainText(product.descriptionHtml);
+  const descriptionText = plainText(product.descriptionHtml);
+  const seoDescription = product.seo?.description || descriptionText;
   const handle = product.handle;
   const mediaImages = (product.media?.nodes || []).filter((n) => n.image);
   const imagesWithAlt = mediaImages.filter((n) => n.alt && n.alt.trim().length > 0);
@@ -108,6 +113,47 @@ export function auditProduct(product, t) {
     }
   }
 
+  // Product images
+  if (mediaImages.length === 0) {
+    issues.push({
+      field: "images",
+      label: t("seoAudit.issues.noImages.label"),
+      detail: t("seoAudit.issues.noImages.detail"),
+      severity: "warning",
+    });
+    score -= 20;
+  } else if (mediaImages.length < 3) {
+    issues.push({
+      field: "images",
+      label: t("seoAudit.issues.tooFewImages.label"),
+      detail: t("seoAudit.issues.tooFewImages.detail", { count: mediaImages.length }),
+      severity: "info",
+    });
+    score -= 8;
+  }
+
+  // Body description
+  if (descriptionText.length < 100) {
+    issues.push({
+      field: "description",
+      label: t("seoAudit.issues.descriptionTooShort.label"),
+      detail: t("seoAudit.issues.descriptionTooShort.detail", { length: descriptionText.length }),
+      severity: "warning",
+    });
+    score -= 15;
+  }
+
+  // Product status
+  if (product.status !== "ACTIVE") {
+    issues.push({
+      field: "status",
+      label: t("seoAudit.issues.notActive.label"),
+      detail: t("seoAudit.issues.notActive.detail", { status: product.status }),
+      severity: "warning",
+    });
+    score -= 10;
+  }
+
   score = Math.max(0, Math.min(100, score));
 
   return {
@@ -119,6 +165,111 @@ export function auditProduct(product, t) {
       handle,
     },
     imagesWithoutAlt: mediaImages.filter((n) => !n.alt || n.alt.trim().length === 0),
-    productDescription: plainText(product.descriptionHtml),
+    productDescription: descriptionText,
+    productDescriptionHtml: product.descriptionHtml || "",
   };
+}
+
+const PASSWORD_PAGE_PATTERN = /name=["']password["']|action=["'][^"']*\/password["']/i;
+
+export async function fetchLivePageHtml(url) {
+  if (!url) return { accessible: false, html: null };
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; RankavioBot/1.0; +https://rankavio.com)",
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) return { accessible: false, html: null };
+    const html = await response.text();
+    if (PASSWORD_PAGE_PATTERN.test(html)) {
+      return { accessible: false, html: null };
+    }
+    return { accessible: true, html };
+  } catch {
+    return { accessible: false, html: null };
+  }
+}
+
+export function auditLivePage(html, t) {
+  const issues = [];
+  const $ = cheerio.load(html);
+
+  const title = $("title").first().text().trim();
+  if (!title) {
+    issues.push({
+      field: "theme.title",
+      label: t("seoAudit.themeIssues.titleTag.label"),
+      detail: t("seoAudit.themeIssues.titleTag.detail"),
+      severity: "theme",
+    });
+  }
+
+  const metaDescription = ($('meta[name="description"]').attr("content") || "").trim();
+  if (!metaDescription) {
+    issues.push({
+      field: "theme.metaDescription",
+      label: t("seoAudit.themeIssues.metaDescriptionTag.label"),
+      detail: t("seoAudit.themeIssues.metaDescriptionTag.detail"),
+      severity: "theme",
+    });
+  }
+
+  const canonical = $('link[rel="canonical"]').attr("href");
+  if (!canonical) {
+    issues.push({
+      field: "theme.canonical",
+      label: t("seoAudit.themeIssues.canonical.label"),
+      detail: t("seoAudit.themeIssues.canonical.detail"),
+      severity: "theme",
+    });
+  }
+
+  const ogTitle = $('meta[property="og:title"]').attr("content");
+  const ogDescription = $('meta[property="og:description"]').attr("content");
+  const ogImage = $('meta[property="og:image"]').attr("content");
+  if (!ogTitle || !ogDescription || !ogImage) {
+    issues.push({
+      field: "theme.og",
+      label: t("seoAudit.themeIssues.ogTags.label"),
+      detail: t("seoAudit.themeIssues.ogTags.detail"),
+      severity: "theme",
+    });
+  }
+
+  let hasProductSchema = false;
+  $('script[type="application/ld+json"]').each((_, el) => {
+    const content = $(el).html() || "";
+    if (content.includes('"Product"')) {
+      hasProductSchema = true;
+    }
+  });
+  if (!hasProductSchema) {
+    issues.push({
+      field: "theme.structuredData",
+      label: t("seoAudit.themeIssues.structuredData.label"),
+      detail: t("seoAudit.themeIssues.structuredData.detail"),
+      severity: "theme",
+    });
+  }
+
+  const h1Count = $("h1").length;
+  if (h1Count === 0) {
+    issues.push({
+      field: "theme.h1",
+      label: t("seoAudit.themeIssues.h1Missing.label"),
+      detail: t("seoAudit.themeIssues.h1Missing.detail"),
+      severity: "theme",
+    });
+  } else if (h1Count > 1) {
+    issues.push({
+      field: "theme.h1",
+      label: t("seoAudit.themeIssues.h1Multiple.label"),
+      detail: t("seoAudit.themeIssues.h1Multiple.detail", { count: h1Count }),
+      severity: "theme",
+    });
+  }
+
+  return { issues };
 }

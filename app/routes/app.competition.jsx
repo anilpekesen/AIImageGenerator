@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { useSubmit, useNavigation, useActionData, useLoaderData } from "@remix-run/react";
+import { useState, useCallback, useEffect } from "react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import {
   Page,
@@ -27,7 +27,11 @@ import {
 } from "../models/subscription.server";
 import { searchCompetitorPrices } from "../services/serp-search.server";
 import { summarizeCompetitors } from "../services/ai-text.server";
-import { createCompetitorAnalysis } from "../models/competitor-analysis.server";
+import {
+  createCompetitorAnalysis,
+  getAnalysisHistoryForProduct,
+  getAnalysisById,
+} from "../models/competitor-analysis.server";
 import { fetchProductBasicInfo } from "../services/product.server";
 import i18next from "../i18next.server";
 
@@ -49,6 +53,31 @@ export const action = async ({ request }) => {
   const locale = await i18next.getLocale(request);
   const t = await i18next.getFixedT(locale);
   const formData = await request.formData();
+  const intent = formData.get("intent") || "analyze";
+
+  if (intent === "history") {
+    const productId = formData.get("productId");
+    const items = await getAnalysisHistoryForProduct(session.shop, productId);
+    return json({ type: "history", items });
+  }
+
+  if (intent === "loadHistory") {
+    const analysisId = formData.get("analysisId");
+    const analysis = await getAnalysisById(analysisId, session.shop);
+    if (!analysis) {
+      return json({ error: t("competition.errors.historyNotFound") }, { status: 404 });
+    }
+
+    return json({
+      type: "loadHistory",
+      success: true,
+      fromHistory: true,
+      analysisId: analysis.id,
+      results: JSON.parse(analysis.results || "[]"),
+      aiSummary: analysis.aiSummary,
+      productTitle: analysis.productTitle,
+    });
+  }
 
   const productId = formData.get("productId");
   const productTitle = formData.get("productTitle");
@@ -73,7 +102,7 @@ export const action = async ({ request }) => {
 
     const aiSummary = await summarizeCompetitors(productTitle, results);
 
-    await createCompetitorAnalysis({
+    const saved = await createCompetitorAnalysis({
       shop: session.shop,
       productId,
       productTitle,
@@ -82,23 +111,54 @@ export const action = async ({ request }) => {
       aiSummary,
     });
 
-    return json({ success: true, results, aiSummary, productTitle });
+    return json({ success: true, analysisId: saved.id, results, aiSummary, productTitle });
   } catch (error) {
     await refundCredits(session.shop, CREDIT_COSTS.COMPETITOR_ANALYSIS);
     return json({ error: t("competition.errors.analysisFailed", { message: error.message }) }, { status: 500 });
   }
 };
 
+const dateLocales = { tr: "tr-TR", en: "en-US" };
+
 export default function Competition() {
   const { preselectedProduct } = useLoaderData();
-  const submit = useSubmit();
-  const navigation = useNavigation();
-  const actionData = useActionData();
+  const fetcher = useFetcher();
+  const historyFetcher = useFetcher();
   const shopify = useAppBridge();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = dateLocales[i18n.language] || "en-US";
 
   const [selectedProduct, setSelectedProduct] = useState(preselectedProduct);
-  const isAnalyzing = navigation.state === "submitting";
+  const [displayResult, setDisplayResult] = useState(null);
+  const [historyItems, setHistoryItems] = useState([]);
+
+  const isAnalyzing = fetcher.state !== "idle" && fetcher.formData?.get("intent") !== "history";
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      setDisplayResult(fetcher.data);
+      if (selectedProduct?.id) {
+        historyFetcher.submit({ intent: "history", productId: selectedProduct.id }, { method: "post" });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data]);
+
+  useEffect(() => {
+    if (historyFetcher.data?.type === "history") {
+      setHistoryItems(historyFetcher.data.items || []);
+    } else if (historyFetcher.data?.type === "loadHistory" && historyFetcher.data.success) {
+      setDisplayResult(historyFetcher.data);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyFetcher.data]);
+
+  useEffect(() => {
+    if (selectedProduct?.id) {
+      historyFetcher.submit({ intent: "history", productId: selectedProduct.id }, { method: "post" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProduct?.id]);
 
   const handleProductPick = useCallback(async () => {
     const selected = await shopify.resourcePicker({
@@ -115,17 +175,28 @@ export default function Competition() {
         title: product.title,
         image: product.images[0]?.originalSrc,
       });
+      setDisplayResult(null);
     }
   }, [shopify, selectedProduct]);
 
   const handleAnalyze = useCallback(() => {
     if (!selectedProduct) return;
+    setDisplayResult(null);
 
     const formData = new FormData();
+    formData.append("intent", "analyze");
     formData.append("productId", selectedProduct.id);
     formData.append("productTitle", selectedProduct.title);
-    submit(formData, { method: "post" });
-  }, [selectedProduct, submit]);
+    fetcher.submit(formData, { method: "post" });
+  }, [selectedProduct, fetcher]);
+
+  const handleHistoryClick = useCallback((analysisId) => {
+    historyFetcher.submit({ intent: "loadHistory", analysisId }, { method: "post" });
+  }, [historyFetcher]);
+
+  const error = fetcher.data?.error || historyFetcher.data?.error;
+  const isLoadingHistoryItem = historyFetcher.state !== "idle" && historyFetcher.formData?.get("intent") === "loadHistory";
+  const loadingAnalysisId = historyFetcher.formData?.get("analysisId");
 
   return (
     <Page
@@ -134,10 +205,10 @@ export default function Competition() {
       backAction={{ url: "/app" }}
     >
       <Layout>
-        {actionData?.error && (
+        {error && (
           <Layout.Section>
             <Banner title={t("competition.resultBanner.title")} tone="warning">
-              <p>{actionData.error}</p>
+              <p>{error}</p>
             </Banner>
           </Layout.Section>
         )}
@@ -179,6 +250,63 @@ export default function Competition() {
           </Card>
         </Layout.Section>
 
+        {selectedProduct && (
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">{t("competition.history.heading")}</Text>
+                {historyItems.length === 0 ? (
+                  <Text as="p" tone="subdued">{t("competition.history.empty")}</Text>
+                ) : (
+                  <BlockStack gap="200">
+                    {historyItems.map((item) => (
+                      <Box
+                        key={item.id}
+                        as="button"
+                        type="button"
+                        onClick={() => handleHistoryClick(item.id)}
+                        padding="200"
+                        borderRadius="200"
+                        borderWidth="025"
+                        borderColor="border"
+                        background={displayResult?.analysisId === item.id ? "bg-surface-active" : "bg-surface"}
+                        width="100%"
+                      >
+                        <InlineStack align="space-between" blockAlign="center">
+                          <BlockStack gap="025">
+                            <Text as="span" variant="bodySm" tone="subdued">
+                              {new Date(item.createdAt).toLocaleDateString(dateLocale, {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </Text>
+                            {item.aiSummary && (
+                              <Text as="span" variant="bodySm" truncate>
+                                {item.aiSummary.slice(0, 100)}
+                              </Text>
+                            )}
+                          </BlockStack>
+                          <InlineStack gap="200" blockAlign="center">
+                            <Badge tone="info">
+                              {t("competition.results.heading", {
+                                count: JSON.parse(item.results || "[]").length,
+                              })}
+                            </Badge>
+                            {isLoadingHistoryItem && loadingAnalysisId === item.id && <Spinner size="small" />}
+                          </InlineStack>
+                        </InlineStack>
+                      </Box>
+                    ))}
+                  </BlockStack>
+                )}
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        )}
+
         {isAnalyzing && (
           <Layout.Section>
             <Card>
@@ -192,19 +320,24 @@ export default function Competition() {
           </Layout.Section>
         )}
 
-        {actionData?.success && (
+        {displayResult?.success && (
           <>
             <Layout.Section>
               <Card>
                 <BlockStack gap="300">
-                  <InlineStack gap="200" blockAlign="center">
-                    <Box background="bg-fill-info" padding="200" borderRadius="200">
-                      <Text as="span">🤖</Text>
-                    </Box>
-                    <Text as="h2" variant="headingMd">{t("competition.summary.heading")}</Text>
+                  <InlineStack align="space-between" blockAlign="center">
+                    <InlineStack gap="200" blockAlign="center">
+                      <Box background="bg-fill-info" padding="200" borderRadius="200">
+                        <Text as="span">🤖</Text>
+                      </Box>
+                      <Text as="h2" variant="headingMd">{t("competition.summary.heading")}</Text>
+                    </InlineStack>
+                    {displayResult.fromHistory && (
+                      <Badge tone="info">{t("competition.history.fromHistoryBadge")}</Badge>
+                    )}
                   </InlineStack>
                   <Text as="p" tone="subdued">
-                    {t("competition.summary.subheading", { title: actionData.productTitle })}
+                    {t("competition.summary.subheading", { title: displayResult.productTitle })}
                   </Text>
                   <Box
                     background="bg-fill-secondary"
@@ -212,7 +345,7 @@ export default function Competition() {
                     borderRadius="200"
                   >
                     <Text as="p" style={{ whiteSpace: "pre-wrap" }}>
-                      {actionData.aiSummary}
+                      {displayResult.aiSummary}
                     </Text>
                   </Box>
                 </BlockStack>
@@ -223,10 +356,10 @@ export default function Competition() {
               <Card>
                 <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
-                    {t("competition.results.heading", { count: actionData.results.length })}
+                    {t("competition.results.heading", { count: displayResult.results.length })}
                   </Text>
                   <BlockStack gap="300">
-                    {actionData.results.map((r, i) => (
+                    {displayResult.results.map((r, i) => (
                       <Box key={i}>
                         <BlockStack gap="150">
                           <Link url={r.link} external monochrome={false}>
@@ -254,7 +387,7 @@ export default function Competition() {
                             ) : null}
                           </InlineStack>
                         </BlockStack>
-                        {i < actionData.results.length - 1 && <Box paddingBlockStart="300"><Divider /></Box>}
+                        {i < displayResult.results.length - 1 && <Box paddingBlockStart="300"><Divider /></Box>}
                       </Box>
                     ))}
                   </BlockStack>

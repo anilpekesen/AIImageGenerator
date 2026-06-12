@@ -232,6 +232,10 @@
       },
       "altText": {
         "label": "Image Alt Text (will apply to {{count}} images)"
+      },
+      "bodyDescription": {
+        "label": "Product Description (Rewritten)",
+        "helpText": "This text will replace the entire description field (HTML supported)."
       }
     },
     "toast": {
@@ -240,7 +244,23 @@
     "errors": {
       "auditFailed": "Audit failed: {{message}}",
       "applyFailed": "Apply failed: {{message}}",
-      "invalidAction": "Invalid action"
+      "invalidAction": "Invalid action",
+      "historyNotFound": "History record not found."
+    },
+    "history": {
+      "heading": "Audit History",
+      "empty": "No SEO audit has been run for this product yet.",
+      "appliedBadge": "Applied",
+      "fromHistoryBadge": "From History"
+    },
+    "themeSection": {
+      "heading": "Technical SEO (Theme) Checks",
+      "banner": "These issues relate to your store's theme. To fix them, contact the person or agency responsible for managing your theme/pages.",
+      "notAccessible": "The live product page could not be accessed (the store may be password-protected, or the product is not published to the online store), so technical SEO checks could not run.",
+      "noIssues": "No issues were found in the live page's technical SEO checks (title, meta, canonical, OG, structured data, H1)."
+    },
+    "cta": {
+      "goToGenerate": "Go to AI Image Generator"
     }
   },
   "competition": {
@@ -271,7 +291,13 @@
     "errors": {
       "titleMissing": "Product title not found.",
       "noResults": "No competitor prices found for this product.",
-      "analysisFailed": "Analysis failed: {{message}}"
+      "analysisFailed": "Analysis failed: {{message}}",
+      "historyNotFound": "History record not found."
+    },
+    "history": {
+      "heading": "Analysis History",
+      "empty": "No competitor analysis has been run for this product yet.",
+      "fromHistoryBadge": "From History"
     }
   },
   "history": {
@@ -424,6 +450,52 @@
       "altText": {
         "label": "Images are missing alt text",
         "detail": "{{withAlt}} of {{total}} images have alt text ({{coverage}}% coverage)."
+      },
+      "noImages": {
+        "label": "Product has no images",
+        "detail": "This product has no images at all. Missing images hurt both SEO and conversion rate."
+      },
+      "tooFewImages": {
+        "label": "Product has too few images",
+        "detail": "There are currently {{count}} images. At least 3 images are recommended."
+      },
+      "descriptionTooShort": {
+        "label": "Product description is too short",
+        "detail": "The current description is {{length}} characters. A detailed description of at least 100 characters is recommended for search engines and customers."
+      },
+      "notActive": {
+        "label": "Product is not active",
+        "detail": "Product status: {{status}}. Inactive/draft products are not visible in the online store and are not indexed by search engines."
+      }
+    },
+    "themeIssues": {
+      "titleTag": {
+        "label": "Page title tag is missing",
+        "detail": "The <title> tag on the live product page is empty or missing."
+      },
+      "metaDescriptionTag": {
+        "label": "Meta description tag is missing",
+        "detail": "The <meta name=\"description\"> tag on the live product page is empty or missing."
+      },
+      "canonical": {
+        "label": "Canonical link is missing",
+        "detail": "No <link rel=\"canonical\"> tag was found on the live product page, which can cause duplicate content issues."
+      },
+      "ogTags": {
+        "label": "Open Graph tags are missing",
+        "detail": "One or more of the og:title, og:description, or og:image tags used for social sharing are missing."
+      },
+      "structuredData": {
+        "label": "Structured data (Schema.org) for the product is missing",
+        "detail": "No \"Product\" type JSON-LD structured data was found on the live page. This prevents rich results (price, stock, rating) from appearing in Google."
+      },
+      "h1Missing": {
+        "label": "H1 heading is missing",
+        "detail": "No <h1> tag was found on the live product page."
+      },
+      "h1Multiple": {
+        "label": "Multiple H1 headings found",
+        "detail": "{{count}} <h1> tags were found on the live product page. Using a single <h1> is ideal."
       }
     }
   },

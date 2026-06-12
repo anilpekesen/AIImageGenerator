@@ -28,6 +28,18 @@ export async function getAnalysisHistory(shop, limit = 20) {
   });
 }
 
+export async function getAnalysisHistoryForProduct(shop, productId, limit = 10) {
+  return prisma.competitorAnalysis.findMany({
+    where: { shop, productId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
+export async function getAnalysisById(id, shop) {
+  return prisma.competitorAnalysis.findFirst({ where: { id, shop } });
+}
+
 export async function countAnalyses(shop) {
   return prisma.competitorAnalysis.count({ where: { shop } });
 }

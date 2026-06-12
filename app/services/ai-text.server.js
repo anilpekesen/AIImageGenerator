@@ -42,6 +42,8 @@ Sayısal verileri (fiyat, puan) yorumlarken doğrudan referans ver.`;
 }
 
 export async function generateSeoSuggestions(productTitle, productDescription, currentSeo, issues) {
+  const needsBodyDescription = issues.some((i) => i.field === "description");
+
   const system = `Sen bir Shopify SEO uzmanısın. Sana bir ürünün mevcut SEO bilgileri ve
 tespit edilen sorunlar verilecek. Görevin, sorunlu alanlar için iyileştirilmiş içerik önermek.
 
@@ -50,9 +52,12 @@ Kurallar:
 - Meta açıklama: 150-160 karakter, harekete geçirici, anahtar kelime içersin
 - URL handle: kısa, küçük harf, tire ile ayrılmış, anahtar kelime odaklı, gereksiz kelime yok
 - Görsel alt-text: ürünü ve bağlamını açıklayan, anahtar kelime içeren kısa cümle
+- Ürün açıklaması (bodyDescription): 200-400 kelime, <p> ve <ul><li> etiketleri içeren
+  temiz HTML, ürünün faydalarını ve özelliklerini SEO anahtar kelimeleriyle anlatan,
+  satışa yönlendiren bir metin
 
 Yanıtını SADECE şu JSON formatında ver, başka hiçbir metin ekleme:
-{"title": "...", "metaDescription": "...", "handle": "...", "altText": "..."}
+{"title": "...", "metaDescription": "...", "handle": "...", "altText": "..."${needsBodyDescription ? `, "bodyDescription": "..."` : ""}}
 
 Sadece tespit edilen sorunlu alanlar için değer üret, sorunsuz alanlar için null koy.`;
 
@@ -67,7 +72,7 @@ ${issues.map((i) => `- ${i.label}: ${i.detail}`).join("\n")}
 
 Yukarıdaki JSON formatında öneri üret.`;
 
-  const raw = await askClaude(system, user, 600);
+  const raw = await askClaude(system, user, needsBodyDescription ? 2000 : 600);
 
   try {
     const jsonMatch = raw.match(/\{[\s\S]*\}/);

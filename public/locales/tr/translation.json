@@ -232,6 +232,10 @@
       },
       "altText": {
         "label": "Görsel Alt-Text ({{count}} görsele uygulanacak)"
+      },
+      "bodyDescription": {
+        "label": "Ürün Açıklaması (Yeniden Yazıldı)",
+        "helpText": "Bu metin ürünün açıklama alanının tamamının yerine geçecek (HTML destekli)."
       }
     },
     "toast": {
@@ -240,7 +244,23 @@
     "errors": {
       "auditFailed": "Denetim başarısız: {{message}}",
       "applyFailed": "Uygulama başarısız: {{message}}",
-      "invalidAction": "Geçersiz işlem"
+      "invalidAction": "Geçersiz işlem",
+      "historyNotFound": "Geçmiş kayıt bulunamadı."
+    },
+    "history": {
+      "heading": "Geçmiş Denetimler",
+      "empty": "Bu ürün için henüz bir SEO denetimi yapılmadı.",
+      "appliedBadge": "Uygulandı",
+      "fromHistoryBadge": "Geçmiş Kayıt"
+    },
+    "themeSection": {
+      "heading": "Teknik SEO (Tema) Kontrolleri",
+      "banner": "Bu sorunlar mağaza temanızla ilgilidir. Düzeltmek için tema/sayfa yönetiminizden sorumlu kişi veya ajansla iletişime geçin.",
+      "notAccessible": "Canlı ürün sayfasına erişilemedi (mağaza şifre korumalı olabilir veya ürün online mağazada yayında değil), bu nedenle teknik SEO kontrolü yapılamadı.",
+      "noIssues": "Canlı sayfanın teknik SEO kontrollerinde (title, meta, canonical, OG, yapısal veri, H1) sorun bulunmadı."
+    },
+    "cta": {
+      "goToGenerate": "AI Görsel Oluşturucu'ya Git"
     }
   },
   "competition": {
@@ -271,7 +291,13 @@
     "errors": {
       "titleMissing": "Ürün başlığı bulunamadı.",
       "noResults": "Bu ürün için rakip fiyatı bulunamadı.",
-      "analysisFailed": "Analiz başarısız: {{message}}"
+      "analysisFailed": "Analiz başarısız: {{message}}",
+      "historyNotFound": "Geçmiş kayıt bulunamadı."
+    },
+    "history": {
+      "heading": "Geçmiş Analizler",
+      "empty": "Bu ürün için henüz bir rakip analizi yapılmadı.",
+      "fromHistoryBadge": "Geçmiş Kayıt"
     }
   },
   "history": {
@@ -424,6 +450,52 @@
       "altText": {
         "label": "Görsellerde alt-text eksik",
         "detail": "{{total}} görselin {{withAlt}} tanesinde alt-text var (%{{coverage}} kapsama)."
+      },
+      "noImages": {
+        "label": "Ürün görseli yok",
+        "detail": "Bu ürünün hiç görseli bulunmuyor. Görsel eksikliği hem SEO hem de dönüşüm oranını olumsuz etkiler."
+      },
+      "tooFewImages": {
+        "label": "Ürün görsel sayısı az",
+        "detail": "Şu anda {{count}} görsel var. En az 3 görsel önerilir."
+      },
+      "descriptionTooShort": {
+        "label": "Ürün açıklaması çok kısa",
+        "detail": "Mevcut açıklama {{length}} karakter. Arama motorları ve müşteriler için en az 100 karakterlik, detaylı bir açıklama önerilir."
+      },
+      "notActive": {
+        "label": "Ürün aktif değil",
+        "detail": "Ürün durumu: {{status}}. Pasif/taslak ürünler online mağazada görünmez ve arama motorları tarafından indekslenmez."
+      }
+    },
+    "themeIssues": {
+      "titleTag": {
+        "label": "Sayfa başlığı (title) etiketi eksik",
+        "detail": "Canlı ürün sayfasında <title> etiketi boş veya bulunamadı."
+      },
+      "metaDescriptionTag": {
+        "label": "Meta açıklama etiketi eksik",
+        "detail": "Canlı ürün sayfasında <meta name=\"description\"> etiketi boş veya bulunamadı."
+      },
+      "canonical": {
+        "label": "Canonical bağlantı eksik",
+        "detail": "Canlı ürün sayfasında <link rel=\"canonical\"> etiketi bulunamadı, bu kopya içerik sorunlarına yol açabilir."
+      },
+      "ogTags": {
+        "label": "Open Graph etiketleri eksik",
+        "detail": "Sosyal medyada paylaşımlarda kullanılan og:title, og:description veya og:image etiketlerinden biri veya birden fazlası eksik."
+      },
+      "structuredData": {
+        "label": "Ürün için yapısal veri (Schema.org) eksik",
+        "detail": "Canlı sayfada \"Product\" tipinde JSON-LD yapısal veri bulunamadı. Bu, Google'da zengin sonuçların (fiyat, stok, puan) görünmesini engeller."
+      },
+      "h1Missing": {
+        "label": "H1 başlığı eksik",
+        "detail": "Canlı ürün sayfasında <h1> etiketi bulunamadı."
+      },
+      "h1Multiple": {
+        "label": "Birden fazla H1 başlığı var",
+        "detail": "Canlı ürün sayfasında {{count}} adet <h1> etiketi bulundu. İdeal olan tek bir <h1> kullanmaktır."
       }
     }
   },
