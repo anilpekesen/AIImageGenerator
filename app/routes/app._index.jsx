@@ -33,7 +33,7 @@ import {
 import { Trans, useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getOrCreateSubscription } from "../models/subscription.server";
-import { getRecentGenerations, countDoneGenerations, maintainGenerations } from "../models/generation.server";
+import { countDoneGenerations, maintainGenerations } from "../models/generation.server";
 import { fetchProductsForList, fetchProductsCount } from "../services/product.server";
 import { auditProduct } from "../services/seo-audit.server";
 import { countAnalyses } from "../models/competitor-analysis.server";
@@ -51,13 +51,11 @@ export const loader = async ({ request }) => {
 
   const [
     subscription,
-    recentGenerations,
     competitorAnalysesCount,
     seoAuditsCount,
     doneGenerationsCount,
   ] = await Promise.all([
     getOrCreateSubscription(shop),
-    getRecentGenerations(shop, 3),
     countAnalyses(shop),
     countAudits(shop),
     countDoneGenerations(shop),
@@ -114,7 +112,6 @@ export const loader = async ({ request }) => {
 
   return json({
     subscription,
-    recentGenerations,
     shop,
     productsCount,
     avgSeoScore,
@@ -145,32 +142,6 @@ function StatTile({ icon, tone, label, value }) {
   );
 }
 
-function RecentGenerationImage({ src, alt }) {
-  const [errored, setErrored] = useState(false);
-
-  if (!src || errored) {
-    return <Box minHeight="80px" background="bg-fill-tertiary" borderRadius="150" />;
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      width="120"
-      height="80"
-      loading="lazy"
-      decoding="async"
-      onError={() => setErrored(true)}
-      style={{
-        width: "100%",
-        height: "80px",
-        objectFit: "cover",
-        borderRadius: "8px",
-      }}
-    />
-  );
-}
-
 function ProductHighlightRow({ icon, tone, label, product, actionLabel, onAction, t }) {
   return (
     <InlineStack align="space-between" blockAlign="center" wrap={false} gap="400">
@@ -193,7 +164,7 @@ function ProductHighlightRow({ icon, tone, label, product, actionLabel, onAction
 }
 
 export default function Index() {
-  const { subscription, recentGenerations, productsCount, avgSeoScore, bestProduct, worstProduct, productAccessError, stats } = useLoaderData();
+  const { subscription, productsCount, avgSeoScore, bestProduct, worstProduct, productAccessError, stats } = useLoaderData();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? "tr";
@@ -406,44 +377,6 @@ export default function Index() {
             </BlockStack>
           </Card>
         </Layout.Section>
-
-        {recentGenerations.length > 0 && (
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="400">
-                <InlineStack align="space-between">
-                  <Text as="h2" variant="headingMd">
-                    {t("dashboard.recent.heading")}
-                  </Text>
-                  <Button variant="plain" onClick={() => navigate("/app/history")}>
-                    {t("dashboard.recent.viewAll")}
-                  </Button>
-                </InlineStack>
-
-                <InlineStack gap="300" wrap={false}>
-                  {recentGenerations.map((gen) => {
-                    const outputs = JSON.parse(gen.outputs || "[]");
-                    const firstImage = outputs[0]?.url;
-                    return (
-                      <Box
-                        key={gen.id}
-                        background="bg-fill-secondary"
-                        borderRadius="200"
-                        padding="200"
-                        minWidth="120px"
-                      >
-                        <RecentGenerationImage src={firstImage} alt={gen.productTitle} />
-                        <Text as="p" variant="bodySm" truncate>
-                          {gen.productTitle}
-                        </Text>
-                      </Box>
-                    );
-                  })}
-                </InlineStack>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-        )}
 
         <Layout.Section>
           <Card>
