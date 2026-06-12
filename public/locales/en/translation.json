@@ -298,14 +298,35 @@
   "competition": {
     "pageTitle": "Competitor Price Analysis",
     "pageSubtitle": "Compare real prices charged by competitors selling your product, and find your edge with AI",
+    "exportCsv": "Export CSV",
     "resultBanner": {
       "title": "Result"
     },
-    "step1": {
-      "heading": "1. Select Product",
-      "selected": "Selected",
-      "runAnalysis": "Compare Competitor Prices",
-      "analyzing": "Analyzing..."
+    "table": {
+      "product": "Product",
+      "status": "Status",
+      "lastChecked": "Last Checked",
+      "actions": "Actions",
+      "findPrices": "Find Competitor Prices",
+      "refresh": "Search Again",
+      "neverChecked": "Not checked yet",
+      "resultCount": "{{count}} results",
+      "resultCountHeader": "Result Count",
+      "totalsLabel": "{{count}} products"
+    },
+    "search": {
+      "label": "Search products",
+      "placeholder": "Search by product name..."
+    },
+    "empty": {
+      "heading": "No products yet",
+      "body": "Products will be listed here once you add them to your store."
+    },
+    "emptyFiltered": "No products match your search.",
+    "firstFiftyNotice": "Showing the first 50 products.",
+    "productAccessError": {
+      "title": "Couldn't load products",
+      "body": "Your product list is temporarily unavailable until Shopify product permissions are refreshed."
     },
     "analyzingMessage": "Searching for competitor prices of \"{{title}}\" and analyzing with AI...",
     "summary": {
@@ -323,12 +344,9 @@
     "errors": {
       "titleMissing": "Product title not found.",
       "noResults": "No competitor prices found for this product.",
-      "analysisFailed": "Analysis failed: {{message}}",
-      "historyNotFound": "History record not found."
+      "analysisFailed": "Analysis failed: {{message}}"
     },
     "history": {
-      "heading": "Analysis History",
-      "empty": "No competitor analysis has been run for this product yet.",
       "fromHistoryBadge": "From History"
     }
   },

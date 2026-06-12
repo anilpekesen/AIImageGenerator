@@ -298,14 +298,35 @@
   "competition": {
     "pageTitle": "Rakip Fiyat Analizi",
     "pageSubtitle": "Ürününüzü satan rakiplerin gerçek fiyatlarını karşılaştırın, AI ile farkınızı bulun",
+    "exportCsv": "CSV İndir",
     "resultBanner": {
       "title": "Sonuç"
     },
-    "step1": {
-      "heading": "1. Ürün Seç",
-      "selected": "Seçildi",
-      "runAnalysis": "Rakip Fiyatlarını Karşılaştır",
-      "analyzing": "Analiz Ediliyor..."
+    "table": {
+      "product": "Ürün",
+      "status": "Durum",
+      "lastChecked": "Son Kontrol",
+      "actions": "İşlemler",
+      "findPrices": "Rakip Fiyatlarını Bul",
+      "refresh": "Yeniden Ara",
+      "neverChecked": "Henüz aranmadı",
+      "resultCount": "{{count}} sonuç",
+      "resultCountHeader": "Sonuç Sayısı",
+      "totalsLabel": "{{count}} ürün"
+    },
+    "search": {
+      "label": "Ürün ara",
+      "placeholder": "Ürün adına göre ara..."
+    },
+    "empty": {
+      "heading": "Henüz ürün yok",
+      "body": "Mağazanıza ürün ekleyince burada listelenecek."
+    },
+    "emptyFiltered": "Aramanızla eşleşen ürün bulunamadı.",
+    "firstFiftyNotice": "İlk 50 ürün gösteriliyor.",
+    "productAccessError": {
+      "title": "Ürünler yüklenemedi",
+      "body": "Shopify ürün izinleri yenilenene kadar ürün listeniz geçici olarak gösterilemiyor."
     },
     "analyzingMessage": "\"{{title}}\" için rakip fiyatları aranıyor ve AI analiz ediyor...",
     "summary": {
@@ -323,12 +344,9 @@
     "errors": {
       "titleMissing": "Ürün başlığı bulunamadı.",
       "noResults": "Bu ürün için rakip fiyatı bulunamadı.",
-      "analysisFailed": "Analiz başarısız: {{message}}",
-      "historyNotFound": "Geçmiş kayıt bulunamadı."
+      "analysisFailed": "Analiz başarısız: {{message}}"
     },
     "history": {
-      "heading": "Geçmiş Analizler",
-      "empty": "Bu ürün için henüz bir rakip analizi yapılmadı.",
       "fromHistoryBadge": "Geçmiş Kayıt"
     }
   },

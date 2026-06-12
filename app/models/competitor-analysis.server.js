@@ -28,18 +28,28 @@ export async function getAnalysisHistory(shop, limit = 20) {
   });
 }
 
-export async function getAnalysisHistoryForProduct(shop, productId, limit = 10) {
-  return prisma.competitorAnalysis.findMany({
-    where: { shop, productId },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-  });
-}
-
-export async function getAnalysisById(id, shop) {
-  return prisma.competitorAnalysis.findFirst({ where: { id, shop } });
-}
-
 export async function countAnalyses(shop) {
   return prisma.competitorAnalysis.count({ where: { shop } });
+}
+
+export async function getLatestAnalysesMap(shop) {
+  const analyses = await prisma.competitorAnalysis.findMany({
+    where: { shop },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const map = {};
+  for (const analysis of analyses) {
+    if (!map[analysis.productId]) {
+      const results = JSON.parse(analysis.results || "[]");
+      map[analysis.productId] = {
+        id: analysis.id,
+        createdAt: analysis.createdAt,
+        results,
+        resultCount: results.length,
+        aiSummary: analysis.aiSummary,
+      };
+    }
+  }
+  return map;
 }
