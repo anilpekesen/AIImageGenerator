@@ -25,6 +25,8 @@ import {
   cancelSubscriptionPlan,
 } from "../models/subscription.server";
 
+const isTestBilling = process.env.SHOPIFY_BILLING_TEST_MODE === "true";
+
 export const loader = async ({ request }) => {
   const { session, billing } = await authenticate.admin(request);
   let subscription = await getOrCreateSubscription(session.shop);
@@ -37,7 +39,7 @@ export const loader = async ({ request }) => {
         PLANS.PRO.shopifyPlanName,
         PLANS.PREMIUM.shopifyPlanName,
       ],
-      isTest: true,
+      isTest: isTestBilling,
     });
     if (hasActivePayment && appSubscriptions.length > 0) {
       activeSubscription = appSubscriptions[0];
@@ -72,7 +74,7 @@ export const action = async ({ request }) => {
       try {
         await billing.cancel({
           subscriptionId: subscription.chargeId,
-          isTest: true,
+          isTest: isTestBilling,
           prorate: true,
         });
       } catch {
@@ -100,7 +102,7 @@ export const action = async ({ request }) => {
 
   await billing.request({
     plan: planName,
-    isTest: true,
+    isTest: isTestBilling,
     returnUrl,
   });
 
