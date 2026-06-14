@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "./icons";
+import { BLOG_POSTS } from "../../content/blog-posts";
 
-export default function LegalPage({ docKey }) {
+export default function BlogIndex() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language?.startsWith("en") ? "en" : "tr";
-
-  const sections = t(`legal.${docKey}.sections`, { returnObjects: true });
 
   return (
     <div className="rk">
@@ -27,32 +26,36 @@ export default function LegalPage({ docKey }) {
         </div>
       </header>
 
-      <main className="rk__legal-page">
-        <div className="rk__container rk__legal">
-          <h1>{t(`legal.${docKey}.title`)}</h1>
-          <p className="rk__legal-updated">{t("legal.lastUpdated")}</p>
-          <p className="rk__legal-intro">{t(`legal.${docKey}.intro`)}</p>
+      <main className="rk__blog-page">
+        <div className="rk__container">
+          <div className="rk__blog-head">
+            <p className="rk__section-label">{t("blog.index.eyebrow")}</p>
+            <h1>{t("blog.index.heading")}</h1>
+            <p>{t("blog.index.subheading")}</p>
+          </div>
 
-          {sections.map((section, index) => (
-            <section key={index}>
-              <h2>{section.heading}</h2>
-              {section.paragraphs?.map((paragraph, pIndex) => (
-                <p key={pIndex}>{paragraph}</p>
-              ))}
-              {section.items && (
-                <ul>
-                  {section.items.map((item, iIndex) => (
-                    <li key={iIndex}>{item}</li>
-                  ))}
-                </ul>
-              )}
-              {section.email && (
-                <p>
-                  <a href={`mailto:${section.email}`}>{section.email}</a>
-                </p>
-              )}
-            </section>
-          ))}
+          <div className="rk__blog-list">
+            {BLOG_POSTS.map((post) => {
+              const content = post[lang];
+              return (
+                <article className="rk__blog-card" key={post.slug}>
+                  <a href={`/blog/${post.slug}`}>
+                    <img src={post.coverImage} alt={content.title} loading="lazy" />
+                  </a>
+                  <div className="rk__blog-card-body">
+                    <span className="rk__blog-date">{post.publishedAt}</span>
+                    <h2>
+                      <a href={`/blog/${post.slug}`}>{content.title}</a>
+                    </h2>
+                    <p>{content.excerpt}</p>
+                    <a className="rk__blog-card-link" href={`/blog/${post.slug}`}>
+                      {t("blog.index.readMore")} →
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </main>
 

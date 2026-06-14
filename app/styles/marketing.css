@@ -1125,6 +1125,114 @@
   text-decoration: underline;
 }
 
+.rk__blog-page {
+  padding: clamp(56px, 8vw, 96px) 0 clamp(64px, 9vw, 120px);
+}
+
+.rk__blog-head {
+  max-width: 720px;
+  margin: 0 auto clamp(36px, 5vw, 56px);
+  text-align: center;
+}
+
+.rk__blog-head h1 {
+  margin-top: 8px;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 840;
+  letter-spacing: -0.02em;
+  color: var(--rk-ink);
+}
+
+.rk__blog-head p {
+  margin-top: 12px;
+  color: var(--rk-muted);
+  font-size: 17px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.rk__blog-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 980px;
+  margin-inline: auto;
+}
+
+.rk__blog-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--rk-line);
+  border-radius: 16px;
+  background: var(--rk-paper-2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rk__blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -20px rgba(20, 10, 40, 0.35);
+}
+
+.rk__blog-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.rk__blog-card-body {
+  padding: 20px 22px 24px;
+}
+
+.rk__blog-date {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rk-muted);
+}
+
+.rk__blog-card h2 {
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--rk-ink);
+}
+
+.rk__blog-card p {
+  margin-bottom: 14px;
+  color: var(--rk-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.rk__blog-card-link {
+  font-weight: 700;
+  color: var(--rk-blueprint);
+}
+
+.rk__blog-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 28px;
+}
+
+.rk__blog-back {
+  display: inline-block;
+  margin-bottom: 24px;
+  font-weight: 700;
+  color: var(--rk-blueprint);
+}
+
+@media (max-width: 720px) {
+  .rk__blog-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1050px) {
   .rk__nav-links {
     display: none;

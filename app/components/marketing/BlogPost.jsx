@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { LogoMark } from "./icons";
 
-export default function LegalPage({ docKey }) {
+export default function BlogPost({ post }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language?.startsWith("en") ? "en" : "tr";
-
-  const sections = t(`legal.${docKey}.sections`, { returnObjects: true });
+  const content = post[lang];
 
   return (
     <div className="rk">
@@ -29,11 +28,12 @@ export default function LegalPage({ docKey }) {
 
       <main className="rk__legal-page">
         <div className="rk__container rk__legal">
-          <h1>{t(`legal.${docKey}.title`)}</h1>
-          <p className="rk__legal-updated">{t("legal.lastUpdated")}</p>
-          <p className="rk__legal-intro">{t(`legal.${docKey}.intro`)}</p>
+          <a className="rk__blog-back" href="/blog">{t("blog.post.backToBlog")}</a>
+          <img className="rk__blog-cover" src={post.coverImage} alt={content.title} />
+          <h1>{content.title}</h1>
+          <p className="rk__legal-updated">{post.publishedAt}</p>
 
-          {sections.map((section, index) => (
+          {content.sections.map((section, index) => (
             <section key={index}>
               <h2>{section.heading}</h2>
               {section.paragraphs?.map((paragraph, pIndex) => (
@@ -46,11 +46,9 @@ export default function LegalPage({ docKey }) {
                   ))}
                 </ul>
               )}
-              {section.email && (
-                <p>
-                  <a href={`mailto:${section.email}`}>{section.email}</a>
-                </p>
-              )}
+              {section.closingParagraphs?.map((paragraph, pIndex) => (
+                <p key={`closing-${pIndex}`}>{paragraph}</p>
+              ))}
             </section>
           ))}
         </div>

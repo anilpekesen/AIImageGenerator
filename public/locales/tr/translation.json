@@ -570,6 +570,7 @@
       "howItWorks": "Nasıl Çalışır",
       "pricing": "Fiyatlandırma",
       "faq": "SSS",
+      "blog": "Blog",
       "cta": "Ücretsiz Başla"
     },
     "consent": {
@@ -803,11 +804,23 @@
         "features": "Özellikler",
         "pricing": "Fiyatlandırma",
         "faq": "SSS",
+        "blog": "Blog",
         "app": "Uygulamaya Git",
         "privacy": "Gizlilik Politikası",
         "terms": "Kullanım Koşulları"
       },
       "copyright": "Tüm hakları saklıdır."
+    }
+  },
+  "blog": {
+    "index": {
+      "eyebrow": "Blog",
+      "heading": "Ürün fotoğrafçılığı ve Shopify SEO rehberleri",
+      "subheading": "AI ürün fotoğrafçılığı, kategoriye özel çekim ipuçları ve Shopify mağazanızda görselleri optimize etme konularında rehberler.",
+      "readMore": "Devamını oku"
+    },
+    "post": {
+      "backToBlog": "← Blog'a dön"
     }
   },
   "common": {

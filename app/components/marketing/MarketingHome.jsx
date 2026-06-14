@@ -78,6 +78,7 @@ export default function MarketingHome() {
             <a href="#how-it-works">{t("marketing.nav.howItWorks")}</a>
             <a href="#pricing">{t("marketing.nav.pricing")}</a>
             <a href="#faq">{t("marketing.nav.faq")}</a>
+            <a href="/blog">{t("marketing.nav.blog")}</a>
           </nav>
           <div className="rk__nav-right">
             <div className="rk__lang-toggle" aria-label="Language">
@@ -339,6 +340,7 @@ export default function MarketingHome() {
             <li><a href="#features">{t("marketing.footer.links.features")}</a></li>
             <li><a href="#pricing">{t("marketing.footer.links.pricing")}</a></li>
             <li><a href="#faq">{t("marketing.footer.links.faq")}</a></li>
+            <li><a href="/blog">{t("marketing.footer.links.blog")}</a></li>
             <li><a href={APP_URL}>{t("marketing.footer.links.app")}</a></li>
             <li><a href="/privacy-policy">{t("marketing.footer.links.privacy")}</a></li>
             <li><a href="/terms-of-service">{t("marketing.footer.links.terms")}</a></li>

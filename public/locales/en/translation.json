@@ -570,6 +570,7 @@
       "howItWorks": "How It Works",
       "pricing": "Pricing",
       "faq": "FAQ",
+      "blog": "Blog",
       "cta": "Start Free"
     },
     "consent": {
@@ -803,11 +804,23 @@
         "features": "Features",
         "pricing": "Pricing",
         "faq": "FAQ",
+        "blog": "Blog",
         "app": "Go to App",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service"
       },
       "copyright": "All rights reserved."
+    }
+  },
+  "blog": {
+    "index": {
+      "eyebrow": "Blog",
+      "heading": "Product photography & Shopify SEO guides",
+      "subheading": "Guides on AI product photography, category-specific shooting tips, and optimizing images for your Shopify store.",
+      "readMore": "Read more"
+    },
+    "post": {
+      "backToBlog": "← Back to blog"
     }
   },
   "common": {
